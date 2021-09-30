@@ -1,0 +1,27 @@
+---
+output: github_document
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/README-",
+  out.width = "100%"
+)
+```
+
+# BIGpicture
+
+BIGpicture is a collaborative package to create commonly used plots in 'omics analysis.
+
+## Installation
+
+You can install the released version of BIGpicture from GitHub.
+
+``` r
+devtools::install_github("BIGslu/BIGpicture")
+```
+
+## Examples
+
