@@ -20,5 +20,5 @@ ggplot object
 Model fit comparisons using sigma estimate
 }
 \examples{
-sigma_plot(model_results, x="lme", y="lmekin")
+sigma_plot(model_result, x="lme", y="lmekin")
 }
