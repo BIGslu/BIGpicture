@@ -7,7 +7,7 @@
 plot_pca(dat, meta = NULL, vars, transform_logCPM = FALSE)
 }
 \arguments{
-\item{dat}{Data frame, edgeR DGEList, or limma EList object countaining gene counts in libraries}
+\item{dat}{Data frame, edgeR DGEList, or limma EList object containing gene counts in libraries}
 
 \item{meta}{Data frame containing meta data with vars. Only needed if dat is a counts table and not an edgeR or limma object}
 

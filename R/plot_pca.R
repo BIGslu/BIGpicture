@@ -1,6 +1,6 @@
 #' Plot PCA colored by variables of interest
 #'
-#' @param dat Data frame, edgeR DGEList, or limma EList object countaining gene counts in libraries
+#' @param dat Data frame, edgeR DGEList, or limma EList object containing gene counts in libraries
 #' @param meta Data frame containing meta data with vars. Only needed if dat is a counts table and not an edgeR or limma object
 #' @param vars Character vector of variables to color PCA by
 #' @param transform_logCPM Logical if should convert counts to log counts per million
@@ -63,4 +63,5 @@ plot_pca <- function(dat, meta = NULL, vars, transform_logCPM = FALSE){
     plot.ls[[var]] <- pca.plot
   }
 
+  return(plot.ls)
 }
