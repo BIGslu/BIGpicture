@@ -8,7 +8,7 @@
 #' @return List of ggplot objects
 #' @export
 
-BIGpca <- function(dat, meta = NULL, vars, transform_logCPM = FALSE){
+plot_pca <- function(dat, meta = NULL, vars, transform_logCPM = FALSE){
 
   PC1 <- PC2 <- NULL
 

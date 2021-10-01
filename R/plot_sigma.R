@@ -8,9 +8,9 @@
 #' @export
 #'
 #' @examples
-#' sigma_plot(model_result, x="lme", y="lmekin")
+#' plot_sigma(model_result, x="lme", y="lmekin")
 
-sigma_plot <- function(model_result, x, y){
+plot_sigma <- function(model_result, x, y){
   model <- gene <- sigma <- `Best fit` <- NULL
 
   #Extract results
