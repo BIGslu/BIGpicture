@@ -3,14 +3,22 @@
 #' @param dat Data frame, edgeR DGEList, or limma EList object containing gene counts in libraries
 #' @param meta Data frame containing meta data with vars. Only needed if dat is a counts table and not an edgeR or limma object
 #' @param vars Character vector of variables to color PCA by
+#' @param outlier_sd Numeric. If vars includes "outlier", statistical outliers are determined and colored based on this standard deviation along PC1 and PC2.
+#' @param outlier_group Character string in which to group sd calculations
 #' @param transform_logCPM Logical if should convert counts to log counts per million
 #'
 #' @return List of ggplot objects
 #' @export
 
-plot_pca <- function(dat, meta = NULL, vars, transform_logCPM = FALSE){
+plot_pca <- function(dat, meta = NULL, vars, outlier_sd = 3,
+                     outlier_group = NULL, transform_logCPM = FALSE){
 
-  PC1 <- PC2 <- NULL
+  PC1 <- PC2 <- PC1.max <- PC1.mean <- PC1.min <- PC1.sd <- PC2.max <- PC2.mean <- PC2.min <- PC2.sd <- col.group <- libID <- sd  <- NULL
+
+  #common errors
+  if((is.data.frame(dat) | is.matrix(dat)) & is.null(meta)){
+    stop("meta must be provided when dat is a counts table.")
+  }
 
   #Extract metadata table
   if(any(class(dat) == "DGEList")){
@@ -52,7 +60,7 @@ plot_pca <- function(dat, meta = NULL, vars, transform_logCPM = FALSE){
 
   # plots
   plot.ls <- list()
-  for(var in vars){
+  for(var in vars[vars != "outlier"]){
     pca.plot <- ggplot2::ggplot(pca.dat, ggplot2::aes(PC1, PC2, color=get(var))) +
       ggplot2::geom_point(size=3) +
       #Beautify
@@ -61,6 +69,68 @@ plot_pca <- function(dat, meta = NULL, vars, transform_logCPM = FALSE){
       ggplot2::coord_fixed(ratio=1)
 
     plot.ls[[var]] <- pca.plot
+  }
+
+  #outlier plots
+  if("outlier" %in% vars){
+    #Group calculations if selected
+    if(!is.null(outlier_group)){
+      pca.dat.sd <- pca.dat %>%
+        dplyr::group_by(outlier_group) %>%
+        #Calculate PC mean std deviation
+        dplyr::summarise(.groups="keep",
+                         PC1.mean = mean(PC1),
+                         PC1.sd = sd(PC1),
+                         PC2.mean = mean(PC2),
+                         PC2.sd = sd(PC2)) %>%
+        #Calculate +/- sd limits
+        dplyr::mutate(
+          PC1.min = PC1.mean-(outlier_sd*PC1.sd),
+          PC1.max = PC1.mean+(outlier_sd*PC1.sd),
+          PC2.min = PC2.mean-(outlier_sd*PC2.sd),
+          PC2.max = PC2.mean+(outlier_sd*PC2.sd)) %>%
+        #add to PCA data
+        dplyr::full_join(pca.dat) %>%
+        #ID potential outliers
+        dplyr::mutate(col.group = ifelse(PC1 > PC1.max | PC1 < PC1.min |
+                                           PC2 > PC2.max | PC2 < PC2.min,
+                                         "outlier", "okay"))
+    } else {
+      dat.sd <- pca.dat %>%
+        #Calculate PC mean std deviation
+        dplyr::summarise(.groups="keep",
+                         PC1.mean = mean(PC1),
+                         PC1.sd = sd(PC1),
+                         PC2.mean = mean(PC2),
+                         PC2.sd = sd(PC2)) %>%
+        #Calculate +/- sd limits
+        dplyr::mutate(
+          PC1.min = PC1.mean-(outlier_sd*PC1.sd),
+          PC1.max = PC1.mean+(outlier_sd*PC1.sd),
+          PC2.min = PC2.mean-(outlier_sd*PC2.sd),
+          PC2.max = PC2.mean+(outlier_sd*PC2.sd))
+
+      #Calculate SD
+      pca.dat.sd <- pca.dat %>%
+        #ID potential outliers
+        dplyr::mutate(col.group = ifelse(PC1 > dat.sd$PC1.max | PC1 < dat.sd$PC1.min |
+                                           PC2 > dat.sd$PC2.max | PC2 < dat.sd$PC2.min,
+                                         "outlier", "okay"))
+      }
+
+    plot2 <- ggplot2::ggplot(pca.dat.sd, ggplot2::aes(PC1, PC2, color=col.group)) +
+      ggplot2::geom_point(size=3) +
+      ggrepel::geom_text_repel(data=dplyr::filter(pca.dat.sd,
+                                  col.group == "potential outlier"),
+                               ggplot2::aes(label=libID),
+                               show.legend = FALSE, max.overlaps = Inf) +
+      #Beautify
+      ggplot2::theme_classic() +
+      ggplot2::labs(x=PC1.label, y=PC2.label, color=paste("Std dev >", outlier_sd)) +
+      ggplot2::coord_fixed(ratio=1) +
+      ggplot2::scale_color_manual(values = c("#969696","#b10026"))
+
+    plot.ls[["outlier"]] <- plot2
   }
 
   return(plot.ls)

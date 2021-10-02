@@ -16,6 +16,7 @@ Imports:
     dplyr,
     edgeR,
     ggplot2,
+    ggrepel,
     magrittr,
     tibble,
     tidyr

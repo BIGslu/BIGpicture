@@ -4,7 +4,14 @@
 \alias{plot_pca}
 \title{Plot PCA colored by variables of interest}
 \usage{
-plot_pca(dat, meta = NULL, vars, transform_logCPM = FALSE)
+plot_pca(
+  dat,
+  meta = NULL,
+  vars,
+  outlier_sd = 3,
+  outlier_group = NULL,
+  transform_logCPM = FALSE
+)
 }
 \arguments{
 \item{dat}{Data frame, edgeR DGEList, or limma EList object containing gene counts in libraries}
@@ -12,6 +19,10 @@ plot_pca(dat, meta = NULL, vars, transform_logCPM = FALSE)
 \item{meta}{Data frame containing meta data with vars. Only needed if dat is a counts table and not an edgeR or limma object}
 
 \item{vars}{Character vector of variables to color PCA by}
+
+\item{outlier_sd}{Numeric. If vars includes "outlier", statistical outliers are determined and colored based on this standard deviation along PC1 and PC2.}
+
+\item{outlier_group}{Character string in which to group sd calculations}
 
 \item{transform_logCPM}{Logical if should convert counts to log counts per million}
 }
