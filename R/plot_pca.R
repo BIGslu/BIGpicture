@@ -61,7 +61,7 @@ plot_pca <- function(dat, meta = NULL, vars, outlier_sd = 3,
   # plots
   plot.ls <- list()
   for(var in vars[vars != "outlier"]){
-    pca.plot <- ggplot2::ggplot(pca.dat, ggplot2::aes(PC1, PC2, color=get(var))) +
+    pca.plot <- ggplot2::ggplot(pca.dat, ggplot2::aes_string("PC1", "PC2", color=var)) +
       ggplot2::geom_point(size=3) +
       #Beautify
       ggplot2::theme_classic() +
