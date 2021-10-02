@@ -122,12 +122,13 @@ plot_pca <- function(dat, meta = NULL, vars, outlier_sd = 3,
     plot2 <- ggplot2::ggplot(pca.dat.sd, ggplot2::aes(PC1, PC2, color=col.group)) +
       ggplot2::geom_point(size=3) +
       ggrepel::geom_text_repel(data=dplyr::filter(pca.dat.sd,
-                                  col.group == "potential outlier"),
+                                  col.group == "outlier"),
                                ggplot2::aes(label=libID),
                                show.legend = FALSE, max.overlaps = Inf) +
       #Beautify
       ggplot2::theme_classic() +
-      ggplot2::labs(x=PC1.label, y=PC2.label, color=paste("Std dev >", outlier_sd)) +
+      ggplot2::labs(x=PC1.label, y=PC2.label,
+                    color=paste0("Std dev > ", outlier_sd, "X")) +
       ggplot2::coord_fixed(ratio=1) +
       ggplot2::scale_color_manual(values = c("#969696","#b10026"))
 
