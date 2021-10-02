@@ -71,6 +71,8 @@ plot_pca <- function(dat, meta = NULL, vars, outlier_sd = 3,
     plot.ls[[var]] <- pca.plot
   }
 
+  plot.ls[["dat"]] <- pca.dat
+
   #outlier plots
   if("outlier" %in% vars){
     #Group calculations if selected
@@ -133,7 +135,7 @@ plot_pca <- function(dat, meta = NULL, vars, outlier_sd = 3,
       ggplot2::scale_color_manual(values = c("#969696","#b10026"))
 
     plot.ls[["outlier"]] <- plot2
+    plot.ls[["dat_outlier"]] <- pca.dat.sd
   }
-
   return(plot.ls)
 }
