@@ -17,6 +17,7 @@ Imports:
     edgeR,
     ggplot2,
     ggrepel,
+    limma,
     magrittr,
     tibble,
     tidyr
