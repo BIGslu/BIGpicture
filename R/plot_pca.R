@@ -76,7 +76,7 @@ plot_pca <- function(dat, meta = NULL, vars, outlier_sd = 3,
     #Group calculations if selected
     if(!is.null(outlier_group)){
       pca.dat.sd <- pca.dat %>%
-        dplyr::group_by(get(outlier_group)) %>%
+        dplyr::group_by(dplyr::across(outlier_group)) %>%
         #Calculate PC mean std deviation
         dplyr::summarise(.groups="keep",
                          PC1.mean = mean(PC1),
@@ -90,7 +90,6 @@ plot_pca <- function(dat, meta = NULL, vars, outlier_sd = 3,
           PC2.min = PC2.mean-(outlier_sd*PC2.sd),
           PC2.max = PC2.mean+(outlier_sd*PC2.sd)) %>%
         #add to PCA data
-        dplyr::rename(!!outlier_group := `get(outlier_group)`) %>%
         dplyr::full_join(pca.dat) %>%
         #ID potential outliers
         dplyr::mutate(col.group = ifelse(PC1 > PC1.max | PC1 < PC1.min |
