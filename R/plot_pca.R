@@ -68,6 +68,10 @@ plot_pca <- function(dat, meta = NULL, vars, outlier_sd = 3,
       ggplot2::labs(x=PC1.label, y=PC2.label, color=var) +
       ggplot2::coord_fixed(ratio=1)
 
+    #Add connecting lines if duplicate
+    if(var %in% c("duplicate","dupID")){
+      pca.plot <- pca.plot + ggplot2::geom_line(data=dplyr::filter(pca.dat, !is.na(get(var))))
+    }
     plot.ls[[var]] <- pca.plot
   }
 
