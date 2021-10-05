@@ -38,7 +38,7 @@ plot_mv <- function(dat, design = NULL){
     liney = dat.voom$voom.line$y) %>%
 
     ggplot2::ggplot() +
-    ggplot2::geom_point(ggplot2::aes(x=x, y=y), size=0.5) +
+    ggplot2::geom_point(ggplot2::aes(x=x, y=y), size=0.5, alpha=0.2) +
     ggplot2::geom_path(ggplot2::aes(x=linex, y=liney), color="red") +
     ggplot2::theme_classic() +
     ggplot2::labs(x="log2( count size + 0.5 )", y="Sqrt (stdev)",
