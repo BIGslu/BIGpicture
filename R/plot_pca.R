@@ -94,11 +94,11 @@ plot_pca <- function(dat, meta = NULL, vars, outlier_sd = 3,
           PC2.min = PC2.mean-(outlier_sd*PC2.sd),
           PC2.max = PC2.mean+(outlier_sd*PC2.sd)) %>%
         #add to PCA data
-        dplyr::full_join(pca.dat) %>%
+        dplyr::full_join(pca.dat, by=outlier_group) %>%
         #ID potential outliers
         dplyr::mutate(col.group = ifelse(PC1 > PC1.max | PC1 < PC1.min |
                                            PC2 > PC2.max | PC2 < PC2.min,
-                                         "outlier", "okay"))
+                                         "yes", "no"))
     } else {
       dat.sd <- pca.dat %>%
         #Calculate PC mean std deviation
@@ -119,13 +119,13 @@ plot_pca <- function(dat, meta = NULL, vars, outlier_sd = 3,
         #ID potential outliers
         dplyr::mutate(col.group = ifelse(PC1 > dat.sd$PC1.max | PC1 < dat.sd$PC1.min |
                                            PC2 > dat.sd$PC2.max | PC2 < dat.sd$PC2.min,
-                                         "outlier", "okay"))
+                                         "yes", "no"))
       }
 
     plot2 <- ggplot2::ggplot(pca.dat.sd, ggplot2::aes(PC1, PC2, color=col.group)) +
       ggplot2::geom_point(size=3) +
       ggrepel::geom_text_repel(data=dplyr::filter(pca.dat.sd,
-                                  col.group == "outlier"),
+                                  col.group == "yes"),
                                ggplot2::aes(label=libID),
                                show.legend = FALSE, max.overlaps = Inf) +
       #Beautify
