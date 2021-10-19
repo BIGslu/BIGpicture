@@ -19,7 +19,9 @@ Imports:
     ggrepel,
     limma,
     magrittr,
+    patchwork,
     tibble,
-    tidyr
+    tidyr,
+    venn
 Depends: 
     R (>= 2.10)

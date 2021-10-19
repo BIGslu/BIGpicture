@@ -1,0 +1,61 @@
+#' Venn diagrams of significant genes
+#'
+#' @param model_result List of data frames output by kimma::kmFit()
+#' @param model Character string of model to plot. Must match object names in model_result. For example, "lm", "lme", "lmekin"
+#' @param variables Character vector of variables in model_result to include in plots
+#' @param intercept Logical if should include the intercept variable
+#' @param fdr.cutoff Numeric vector of FDR cutoffs to assess. One venn per FDR value
+#'
+#' @return List of ggplot objects
+#' @export
+#'
+#' @examples
+#' plot_venn_genes(model_result, model = "lme", fdr.cutoff = c(0.05,0.5))
+
+plot_venn_genes <- function(model_result, model, variables=NULL, intercept=FALSE,
+                            fdr.cutoff = c(0.05,0.1,0.2,0.3,0.4,0.5)){
+
+  FDR <- variable <- gene <- NULL
+
+  #Extract results
+  dat <- model_result[[model]]
+
+  #List variables of interest
+  var_all <- unique(dat$variable)
+
+  if(is.null(variables) & intercept){
+    var_filter <- var_all
+  } else if (is.null(variables)){
+    var_filter <- var_all[var_all != "(Intercept)"]
+  } else if (!is.null(variables) & intercept) {
+    var_filter <- unique(c("(Intercept)", variables))
+  } else{
+    var_filter <- variables
+  }
+
+  #List to hold plots
+  venn.ls <- list()
+
+  for (fdr in fdr.cutoff){
+    #list to hold gene vectors
+    venn_dat <- list()
+    #Significant at chosen FDR
+    dat_filter <- dat %>% dplyr::filter(FDR < fdr)
+
+    for (var in var_filter){
+      #Each variable of interest
+      venn_dat[[var]] <- dat_filter %>%
+        dplyr::filter(variable == var) %>%
+        dplyr::distinct(gene) %>% unlist(use.names = FALSE)
+    }
+
+    #Plot all venns
+    venn.ls[[as.character(fdr)]] <- venn::venn(ilab=FALSE, zcolor = "style",
+               x=venn_dat, box=FALSE, ggplot = TRUE) +
+      ggplot2::theme(axis.title.x = ggplot2::element_text()) +
+      ggplot2::labs(x=paste("FDR <", fdr))
+  }
+
+  plot_all <- patchwork::wrap_plots(venn.ls)
+  return(plot_all)
+}
