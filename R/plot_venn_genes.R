@@ -49,13 +49,25 @@ plot_venn_genes <- function(model_result, model, variables=NULL, intercept=FALSE
         dplyr::distinct(gene) %>% unlist(use.names = FALSE)
     }
 
+    #total genes in venn
+    gene_tot <- 0
+    for(i in 1:length(venn_dat)){
+      gene_tot <- gene_tot + length(venn_dat[[i]])
+    }
+
     #Plot all venns
+    if(gene_tot > 0){
     venn.ls[[as.character(fdr)]] <- venn::venn(ilab=FALSE, zcolor = "style",
                x=venn_dat, box=FALSE, ggplot = TRUE) +
       ggplot2::theme(axis.title.x = ggplot2::element_text()) +
       ggplot2::labs(x=paste("FDR <", fdr))
+    } else {
+      print(paste("Zero genes significant at FDR <", fdr))
+    }
   }
 
+  if(length(venn.ls) > 0){
   plot_all <- patchwork::wrap_plots(venn.ls)
   return(plot_all)
+  }
 }
