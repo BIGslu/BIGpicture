@@ -4,10 +4,12 @@
 \alias{plot_sigma}
 \title{Model fit comparisons using sigma estimate}
 \usage{
-plot_sigma(model_result, x, y)
+plot_sigma(model_result, model_result_y = NULL, x, y)
 }
 \arguments{
-\item{model_result}{List of data frames output kimma::kmFit()}
+\item{model_result}{List of data frames output by kimma::kmFit(). Must contain both x and y models if model_result_y not provided.}
+
+\item{model_result_y}{List of data frame output by kimma::kmFit()}
 
 \item{x}{Character string of model to plot on x-axis. Must match object names in model_result. For example, "lm", "lme", "lmekin"}
 
