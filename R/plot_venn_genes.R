@@ -13,6 +13,7 @@
 #' plot_venn_genes(model_result, model = "lme", fdr.cutoff = c(0.05,0.5))
 
 plot_venn_genes <- function(model_result, model, variables=NULL, intercept=FALSE,
+                            contrasts=NULL,
                             fdr.cutoff = c(0.05,0.1,0.2,0.3,0.4,0.5)){
 
   FDR <- variable <- gene <- NULL
@@ -33,6 +34,15 @@ plot_venn_genes <- function(model_result, model, variables=NULL, intercept=FALSE
     var_filter <- variables
   }
 
+  #List contrasts of interest
+  if(grepl("contrast", model)){
+    if(is.null(contrasts)){
+      con_filter <- unique(dat$contrast)
+      } else {
+      con_filter <- contrasts
+      }
+  }
+
   #List to hold plots
   venn.ls <- list()
 
@@ -42,11 +52,17 @@ plot_venn_genes <- function(model_result, model, variables=NULL, intercept=FALSE
     #Significant at chosen FDR
     dat_filter <- dat %>% dplyr::filter(FDR < fdr)
 
-    for (var in var_filter){
-      #Each variable of interest
-      venn_dat[[var]] <- dat_filter %>%
-        dplyr::filter(variable == var) %>%
-        dplyr::distinct(gene) %>% unlist(use.names = FALSE)
+    #Each variable of interest
+    if(!grepl("contrast", model)){
+      for (var in var_filter){
+        venn_dat[[var]] <- dat_filter %>%
+          dplyr::filter(variable == var) %>%
+          dplyr::distinct(gene) %>% unlist(use.names = FALSE) }
+    } else{
+      for (con in con_filter){
+        venn_dat[[con]] <- dat_filter %>%
+          dplyr::filter(contrast == con) %>%
+          dplyr::distinct(gene) %>% unlist(use.names = FALSE) }
     }
 
     #total genes in venn
