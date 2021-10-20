@@ -3,6 +3,7 @@
 #' @param model_result List of data frames output by kimma::kmFit()
 #' @param model Character string of model to plot. Must match object names in model_result. For example, "lm", "lme", "lmekin"
 #' @param variables Character vector of variables in model_result to include in plots
+#' @param contrasts Character vector of contrasts in model_result to include in plots. Only applicable if model name includes 'contrast'
 #' @param intercept Logical if should include the intercept variable
 #' @param fdr.cutoff Numeric vector of FDR cutoffs to assess. One venn per FDR value
 #'
@@ -16,7 +17,7 @@ plot_venn_genes <- function(model_result, model, variables=NULL, intercept=FALSE
                             contrasts=NULL,
                             fdr.cutoff = c(0.05,0.1,0.2,0.3,0.4,0.5)){
 
-  FDR <- variable <- gene <- NULL
+  FDR <- variable <- gene <- contrast <- NULL
 
   #Extract results
   dat <- model_result[[model]]
