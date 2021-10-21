@@ -61,7 +61,7 @@ plot_venn_genes <- function(model_result, model, variables=NULL, intercept=FALSE
           dplyr::distinct(gene) %>% unlist(use.names = FALSE) }
     } else{
       for (con in con_filter){
-        venn_dat[[con]] <- dat_filter %>%
+        venn_dat[[gsub(" ","\n",con)]] <- dat_filter %>%
           dplyr::filter(contrast == con) %>%
           dplyr::distinct(gene) %>% unlist(use.names = FALSE) }
     }
