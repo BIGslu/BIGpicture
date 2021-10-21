@@ -75,7 +75,7 @@ plot_venn_genes <- function(model_result, model, variables=NULL, intercept=FALSE
     #Plot all venns
     if(gene_tot > 0){
     venn.ls[[as.character(fdr)]] <- venn::venn(ilab=FALSE, zcolor = "style",
-               x=venn_dat, box=FALSE, ggplot = TRUE, ilcs = 0.5, sncs = 0.5) +
+               x=venn_dat, box=FALSE, ggplot = TRUE) +
       ggplot2::theme(axis.title.x = ggplot2::element_text()) +
       ggplot2::labs(x=paste("FDR <", fdr))
     } else {
