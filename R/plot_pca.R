@@ -6,12 +6,14 @@
 #' @param outlier_sd Numeric. If vars includes "outlier", statistical outliers are determined and colored based on this standard deviation along PC1 and PC2.
 #' @param outlier_group Character string in which to group sd calculations
 #' @param transform_logCPM Logical if should convert counts to log counts per million
+#' @param libraryID Character of variable name to match dat meta data frames
 #'
 #' @return List of ggplot objects
 #' @export
 
 plot_pca <- function(dat, meta = NULL, vars, outlier_sd = 3,
-                     outlier_group = NULL, transform_logCPM = FALSE){
+                     outlier_group = NULL, transform_logCPM = FALSE,
+                     libraryID = "libID"){
 
   PC1 <- PC2 <- PC1.max <- PC1.mean <- PC1.min <- PC1.sd <- PC2.max <- PC2.mean <- PC2.min <- PC2.sd <- col.group <- libID <- sd  <- NULL
 
@@ -54,9 +56,9 @@ plot_pca <- function(dat, meta = NULL, vars, outlier_sd = 3,
 
   # Extract PC values
   pca.dat <- as.data.frame(PCA$x) %>%
-    tibble::rownames_to_column("libID") %>%
+    tibble::rownames_to_column(libraryID) %>%
     # Merge with metadata
-    dplyr::left_join(meta.df, by="libID")
+    dplyr::left_join(meta.df)
 
   # plots
   plot.ls <- list()
@@ -126,7 +128,7 @@ plot_pca <- function(dat, meta = NULL, vars, outlier_sd = 3,
       ggplot2::geom_point(size=3) +
       ggrepel::geom_text_repel(data=dplyr::filter(pca.dat.sd,
                                   col.group == "yes"),
-                               ggplot2::aes(label=libID),
+                               ggplot2::aes(label=get(libraryID)),
                                show.legend = FALSE, max.overlaps = Inf) +
       #Beautify
       ggplot2::theme_classic() +

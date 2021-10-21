@@ -10,7 +10,8 @@ plot_pca(
   vars,
   outlier_sd = 3,
   outlier_group = NULL,
-  transform_logCPM = FALSE
+  transform_logCPM = FALSE,
+  libraryID = "libID"
 )
 }
 \arguments{
@@ -25,6 +26,8 @@ plot_pca(
 \item{outlier_group}{Character string in which to group sd calculations}
 
 \item{transform_logCPM}{Logical if should convert counts to log counts per million}
+
+\item{libraryID}{Character of variable name to match dat meta data frames}
 }
 \value{
 List of ggplot objects
