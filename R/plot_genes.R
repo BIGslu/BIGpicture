@@ -159,7 +159,9 @@ plot_genes <- function(dat=NULL, counts=NULL, meta=NULL, genes=NULL,
           ggplot2::ggplot(ggplot2::aes_string(x=variables.noI[j], y="E")) +
           ggplot2::geom_boxplot(outlier.shape = NA) +
           ggplot2::geom_jitter(ggplot2::aes_string(color=colorID), height=0, width=0.2) +
-          ggplot2::theme_classic()
+          ggplot2::theme_classic() +
+          ggplot2::stat_summary(fun.y=mean, geom="point",
+                                shape="square", color="black", size=3)
 
         #Color legend if not x variable
         if(!is.null(colorID)){
@@ -201,7 +203,9 @@ plot_genes <- function(dat=NULL, counts=NULL, meta=NULL, genes=NULL,
         ggplot2::geom_jitter(ggplot2::aes_string(color=colorID), height=0, width=0.2) +
         ggplot2::theme_classic() +
         ggplot2::labs(x="", color=colorID) +
-        ggplot2::theme(legend.position = "right")
+        ggplot2::theme(legend.position = "right") +
+        ggplot2::stat_summary(fun.y=mean, geom="point",
+                              shape="square", color="black", size=3)
 
     } else{
       plot3 <- NULL
