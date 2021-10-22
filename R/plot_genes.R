@@ -1,4 +1,4 @@
-#' Title
+#' Plot boxplots and dotplots for genes and variables of interest
 #'
 #' @param dat DGEList or EList object with expression data (counts, E), sample metadata (samples, targets), and gene annotation (genes)
 #' @param counts If dat not provided. Data frame of gene expression. Genes are rows, samples are columns. geneID must be rownames or first column
@@ -28,11 +28,11 @@
 #'       subset.genes = subset.genes,
 #'       model = "~ virus + (1|donorID)")
 #'
-#' plot_boxplot_genes(dat = example.voom, fdr = model_result$lmekin,
+#' plot_genes(dat = example.voom, fdr = model_result$lmekin,
 #'      subset.genes = subset.genes,
 #'      variables = c("virus*asthma", "lib.size"), colorID = "virus")
 
-plot_boxplot_genes <- function(dat=NULL, counts=NULL, meta=NULL, genes=NULL,
+plot_genes <- function(dat=NULL, counts=NULL, meta=NULL, genes=NULL,
                                fdr=NULL,
                                libraryID="libID", geneID="geneName",
                                subset.genes=NULL,
