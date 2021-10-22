@@ -11,7 +11,7 @@ plot_genes(
   genes = NULL,
   fdr = NULL,
   libraryID = "libID",
-  geneID = "geneName",
+  geneID = "ensembl_gene_id",
   subset.genes = NULL,
   variables,
   colorID = NULL,
@@ -60,6 +60,6 @@ model_result <- kimma::kmFit(dat = example.voom,
       model = "~ virus + (1|donorID)")
 
 plot_genes(dat = example.voom, fdr = model_result$lmekin,
-     subset.genes = subset.genes,
+     subset.genes = subset.genes, geneID="geneName",
      variables = c("virus*asthma", "lib.size"), colorID = "virus")
 }

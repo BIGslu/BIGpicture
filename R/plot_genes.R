@@ -29,12 +29,12 @@
 #'       model = "~ virus + (1|donorID)")
 #'
 #' plot_genes(dat = example.voom, fdr = model_result$lmekin,
-#'      subset.genes = subset.genes,
+#'      subset.genes = subset.genes, geneID="geneName",
 #'      variables = c("virus*asthma", "lib.size"), colorID = "virus")
 
 plot_genes <- function(dat=NULL, counts=NULL, meta=NULL, genes=NULL,
                                fdr=NULL,
-                               libraryID="libID", geneID="geneName",
+                               libraryID="libID", geneID="ensembl_gene_id",
                                subset.genes=NULL,
                                variables, colorID=NULL,
                                processors=NULL) {
