@@ -13,15 +13,8 @@ LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.2
 Imports: 
-    dplyr,
-    edgeR,
-    ggplot2,
-    ggrepel,
-    limma,
-    magrittr,
-    patchwork,
-    tibble,
-    tidyr,
-    venn
+    doParallel, dplyr, edgeR, forcats, foreach, ggplot2, ggpubr, ggrepel, magrittr, patchwork, tibble, tidyr, venn
 Depends: 
     R (>= 2.10)
+Remotes: BIGslu/kimma
+Suggests: kimma, limma
