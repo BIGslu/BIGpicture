@@ -155,14 +155,7 @@ plot_genes <- function(dat=NULL, counts=NULL, meta=NULL, genes=NULL,
       if(is.factor(plot.dat.sub[[variables.noI[j]]]) |
          is.character(plot.dat.sub[[variables.noI[j]]])) {
 
-        #Force first level if exist
-        plot.dat.sub.fct <- plot.dat.sub %>%
-          dplyr::mutate_at(dplyr::vars(variables.noI[j]),
-                           ~forcats::fct_relevel(as.factor(.),
-                                                 "none", "media","control",
-                                                 after = 0))
-
-        plot1 <- plot.dat.sub.fct %>%
+        plot1 <- plot.dat.sub %>%
           ggplot2::ggplot(ggplot2::aes_string(x=variables.noI[j], y="E")) +
           ggplot2::geom_boxplot(outlier.shape = NA) +
           ggplot2::geom_jitter(ggplot2::aes_string(color=colorID), height=0, width=0.2) +
