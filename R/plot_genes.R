@@ -169,9 +169,10 @@ plot_genes <- function(dat=NULL, counts=NULL, meta=NULL, genes=NULL,
           ggplot2::theme_classic()
 
         #Color legend if not x variable
+        if(!is.null(colorID)){
         if(variables.noI[j] != colorID){
           gene.plot.ls[[variables.noI[j]]] <- plot1
-        } else {
+        }} else {
           gene.plot.ls[[variables.noI[j]]] <- plot1 +
             ggplot2::theme(legend.position = "none")
         }
@@ -186,9 +187,10 @@ plot_genes <- function(dat=NULL, counts=NULL, meta=NULL, genes=NULL,
                                  se=FALSE)
 
           #Color legend if not x variable
-          if(variables.noI[j] != colorID){
+          if(!is.null(colorID)){
+            if(variables.noI[j] != colorID){
             gene.plot.ls[[variables.noI[j]]] <- plot1
-          } else {
+          } } else {
             gene.plot.ls[[variables.noI[j]]] <- plot1 +
               ggplot2::theme(legend.position = "none")
           }
