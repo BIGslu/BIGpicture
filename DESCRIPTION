@@ -16,5 +16,6 @@ Imports:
     doParallel, dplyr, edgeR, forcats, foreach, ggplot2, ggpubr, ggrepel, magrittr, patchwork, tibble, tidyr, venn
 Depends: 
     R (>= 2.10)
+biocViews: 
 Remotes: BIGslu/kimma
 Suggests: kimma, limma
