@@ -49,7 +49,7 @@ plot_pca <- function(dat, meta = NULL, vars, outlier_sd = 3,
 
   #Calculate
   set.seed(8456)
-  PCA <- stats::prcomp(t(count.mat.format))
+  PCA <- stats::prcomp(t(count.mat.format), scale.=TRUE, center=TRUE)
 
   PC1.label <- paste("PC1 (", summary(PCA)$importance[2,1]*100, "%)", sep="")
   PC2.label <- paste("PC2 (", summary(PCA)$importance[2,2]*100, "%)", sep="")
