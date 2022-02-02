@@ -3,6 +3,7 @@
 #' @param dat Data frame, edgeR DGEList, or limma EList object containing gene counts in libraries
 #' @param meta Data frame containing meta data with vars. Only needed if dat is a counts table and not an edgeR or limma object
 #' @param vars Character vector of variables to color PCA by
+#' @param scale Logical if should scale variance in PCA calculation see stats::prcomp for details. Default is FALSE
 #' @param outlier_sd Numeric. If vars includes "outlier", statistical outliers are determined and colored based on this standard deviation along PC1 and PC2.
 #' @param outlier_group Character string in which to group sd calculations
 #' @param transform_logCPM Logical if should convert counts to log counts per million
@@ -11,7 +12,7 @@
 #' @return List of ggplot objects
 #' @export
 
-plot_pca <- function(dat, meta = NULL, vars, outlier_sd = 3,
+plot_pca <- function(dat, meta = NULL, vars, scale = FALSE, outlier_sd = 3,
                      outlier_group = NULL, transform_logCPM = FALSE,
                      libraryID = "libID"){
 
@@ -49,7 +50,7 @@ plot_pca <- function(dat, meta = NULL, vars, outlier_sd = 3,
 
   #Calculate
   set.seed(8456)
-  PCA <- stats::prcomp(t(count.mat.format), scale.=TRUE, center=TRUE)
+  PCA <- stats::prcomp(t(count.mat.format), scale.=scale, center=TRUE)
 
   PC1.label <- paste("PC1 (", summary(PCA)$importance[2,1]*100, "%)", sep="")
   PC2.label <- paste("PC2 (", summary(PCA)$importance[2,2]*100, "%)", sep="")
