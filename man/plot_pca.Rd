@@ -8,6 +8,7 @@ plot_pca(
   dat,
   meta = NULL,
   vars,
+  scale = FALSE,
   outlier_sd = 3,
   outlier_group = NULL,
   transform_logCPM = FALSE,
@@ -20,6 +21,8 @@ plot_pca(
 \item{meta}{Data frame containing meta data with vars. Only needed if dat is a counts table and not an edgeR or limma object}
 
 \item{vars}{Character vector of variables to color PCA by}
+
+\item{scale}{Logical if should scale variance in PCA calculation see stats::prcomp for details. Default is FALSE}
 
 \item{outlier_sd}{Numeric. If vars includes "outlier", statistical outliers are determined and colored based on this standard deviation along PC1 and PC2.}
 
