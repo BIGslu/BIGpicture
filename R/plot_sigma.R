@@ -61,14 +61,13 @@ plot_sigma <- function(model_result, model_result_y=NULL, x, y){
     ggplot2::theme_classic()
 
   #Summary messages
-  message("Total genes best fit by")
-  print(table(dat$`Best fit`))
-  message("Difference in sigma")
+  message("Summary")
   summ <- dat %>%
     dplyr::mutate(diff=abs(get(x_name)-get(y_name))) %>%
     dplyr::group_by(`Best fit`) %>%
-    dplyr::summarise(mean=mean(diff, na.rm=TRUE),
-                     sd=stats::sd(diff, na.rm=TRUE))
-  print(summ)
+    dplyr::summarise(`Total genes`=dplyr::n(),
+                     `Mean difference in sigma`=mean(diff, na.rm=TRUE),
+                     `Stdev difference in sigma`=stats::sd(diff, na.rm=TRUE))
+  print(as.data.frame(summ))
   return(plot)
 }
