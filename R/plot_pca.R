@@ -11,6 +11,9 @@
 #'
 #' @return List of ggplot objects
 #' @export
+#'
+#' @examples
+#' plot_pca(kimma::example.voom, var=c("virus","outlier"))
 
 plot_pca <- function(dat, meta = NULL, vars, scale = FALSE, outlier_sd = 3,
                      outlier_group = NULL, transform_logCPM = FALSE,
