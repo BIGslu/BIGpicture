@@ -10,7 +10,7 @@
 #' @export
 #'
 #' @examples
-#' plot_fit(model_result, x="lme", y="lmekin", metrics=c("sigma","AIC"))
+#' plot_fit(model_result, x="lme", y="lmekin", metrics=c("sigma","AIC","Rsq"))
 
 plot_fit <- function(model_result, model_result_y=NULL, x, y, metrics=NULL){
   model <- gene <- sigma <- `Best fit` <- variable <- value <- name <- metric <- NULL
