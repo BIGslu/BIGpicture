@@ -38,3 +38,6 @@ List of ggplot objects
 \description{
 Plot PCA colored by variables of interest
 }
+\examples{
+plot_pca(kimma::example.voom, var=c("virus","outlier"))
+}
