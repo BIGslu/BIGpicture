@@ -17,6 +17,8 @@ plot_fit <- function(model_result, model_result_y=NULL, x, y, metrics=NULL){
 
   x_name <- paste(x, "fit", sep=".")
   y_name <- paste(y, "fit", sep=".")
+  x_name2 <- paste(x_name, "x", sep=".")
+  y_name2 <- paste(y_name, "y", sep=".")
 
     #Extract results
   if(is.null(model_result_y)){
@@ -24,9 +26,11 @@ plot_fit <- function(model_result, model_result_y=NULL, x, y, metrics=NULL){
     y_lab <- y
 
     dat_x <- model_result[[x_name]] %>%
-      dplyr::select(model, gene, dplyr::all_of(metrics))
+      dplyr::select(model, gene, dplyr::all_of(metrics)) %>%
+      dplyr::mutate(model = x_name2)
     dat_y <- model_result[[y_name]] %>%
-      dplyr::select(model, gene, dplyr::all_of(metrics))
+      dplyr::select(model, gene, dplyr::all_of(metrics)) %>%
+      dplyr::mutate(model = y_name2)
   } else {
     #Make unique model name from variables
     x_lab <- model_result[[x]] %>%
@@ -44,10 +48,10 @@ plot_fit <- function(model_result, model_result_y=NULL, x, y, metrics=NULL){
     #Extract results
     dat_x <- model_result[[x_name]] %>%
       dplyr::select(model, gene, dplyr::all_of(metrics)) %>%
-      dplyr::mutate(model = x_name)
+      dplyr::mutate(model = x_name2)
     dat_y <- model_result_y[[y_name]] %>%
       dplyr::select(model, gene, dplyr::all_of(metrics))%>%
-      dplyr::mutate(model = y_name)
+      dplyr::mutate(model = y_name2)
   }
 
   #Merge and format
@@ -57,17 +61,17 @@ plot_fit <- function(model_result, model_result_y=NULL, x, y, metrics=NULL){
     #add best fit variable
     dplyr::mutate(`Best fit` =
                     ifelse(name %in% c("sigma","AIC","BIC") &
-                             get(x_name)<get(y_name), x_lab,
+                             get(x_name2)<get(y_name2), x_lab,
                            ifelse(name %in% c("sigma","AIC","BIC") &
-                                    get(y_name)<get(x_name), y_lab,
+                                    get(y_name2)<get(x_name2), y_lab,
                                   ifelse(name %in% c("Rsq","adj_Rsq") &
-                                           get(x_name)>get(y_name), x_lab,
+                                           get(x_name2)>get(y_name2), x_lab,
                                          ifelse(name %in% c("Rsq","adj_Rsq") &
-                                                  get(y_name)>get(x_name),
+                                                  get(y_name2)>get(x_name2),
                                                 y_lab, "none")))))
 
   #plot
-  plot <- ggplot2::ggplot(dat, ggplot2::aes(x=get(x_name), y=get(y_name),
+  plot <- ggplot2::ggplot(dat, ggplot2::aes(x=get(x_name2), y=get(y_name2),
                                             color=`Best fit`)) +
     ggplot2::geom_point(alpha=0.3) +
     ggplot2::labs(x=x_lab, y=y_lab) +
@@ -79,7 +83,7 @@ plot_fit <- function(model_result, model_result_y=NULL, x, y, metrics=NULL){
   #Summary messages
   message("Summary")
   summ <- dat %>%
-    dplyr::mutate(diff=abs(get(x_name)-get(y_name))) %>%
+    dplyr::mutate(diff=abs(get(x_name2)-get(y_name2))) %>%
     dplyr::group_by(`Best fit`, name) %>%
     dplyr::summarise(`Total genes`=dplyr::n(),
                      `Mean difference `=mean(diff, na.rm=TRUE),
