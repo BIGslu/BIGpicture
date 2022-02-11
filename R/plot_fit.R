@@ -13,7 +13,7 @@
 #' plot_fit(model_result, x="lme", y="lmekin", metrics=c("sigma","AIC","Rsq"))
 
 plot_fit <- function(model_result, model_result_y=NULL, x, y, metrics=NULL){
-  model <- gene <- sigma <- `Best fit` <- variable <- value <- name <- metric <- NULL
+  model <- gene <- sigma <- `Best fit` <- variable <- value <- name <- Metric <- NULL
 
   x_name <- paste(x, "fit", sep=".")
   y_name <- paste(y, "fit", sep=".")
@@ -86,11 +86,11 @@ plot_fit <- function(model_result, model_result_y=NULL, x, y, metrics=NULL){
     dplyr::mutate(diff=abs(get(x_name2)-get(y_name2))) %>%
     dplyr::group_by(`Best fit`, name) %>%
     dplyr::summarise(`Total genes`=dplyr::n(),
-                     `Mean difference `=mean(diff, na.rm=TRUE),
-                     `Stdev difference`=stats::sd(diff, na.rm=TRUE),
+                     `Mean delta`=mean(diff, na.rm=TRUE),
+                     `Stdev delta`=stats::sd(diff, na.rm=TRUE),
                      .groups="drop") %>%
-    dplyr::rename(metric=name) %>%
-    dplyr::arrange(metric, `Best fit`)
+    dplyr::rename(Metric=name) %>%
+    dplyr::arrange(Metric, `Best fit`)
   print(as.data.frame(summ))
   return(plot)
 }
