@@ -3,6 +3,8 @@
 #' @param dat Data frame, edgeR DGEList, or limma EList object containing gene counts in libraries
 #' @param meta Data frame containing meta data with vars. Only needed if dat is a counts table and not an edgeR or limma object
 #' @param vars Character vector of variables to color PCA by
+#' @param PCx Numeric value for PC to plot on x-axis. Default it 1
+#' @param PCy Numeric value for PC to plot on y-axis. Default it 2
 #' @param scale Logical if should scale variance in PCA calculation see stats::prcomp for details. Default is FALSE
 #' @param outlier_sd Numeric. If vars includes "outlier", statistical outliers are determined and colored based on this standard deviation along PC1 and PC2.
 #' @param outlier_group Character string in which to group sd calculations
@@ -14,8 +16,10 @@
 #'
 #' @examples
 #' plot_pca(kimma::example.voom, var=c("virus","outlier"))
+#' plot_pca(kimma::example.voom, var=c("virus","outlier"), PCx=1, PCy=3)
 
-plot_pca <- function(dat, meta = NULL, vars, scale = FALSE, outlier_sd = 3,
+plot_pca <- function(dat, meta = NULL, vars, PCx=1, PCy=2,
+                     scale = FALSE, outlier_sd = 3,
                      outlier_group = NULL, transform_logCPM = FALSE,
                      libraryID = "libID"){
 
@@ -55,8 +59,8 @@ plot_pca <- function(dat, meta = NULL, vars, scale = FALSE, outlier_sd = 3,
   set.seed(8456)
   PCA <- stats::prcomp(t(count.mat.format), scale.=scale, center=TRUE)
 
-  PC1.label <- paste("PC1 (", summary(PCA)$importance[2,1]*100, "%)", sep="")
-  PC2.label <- paste("PC2 (", summary(PCA)$importance[2,2]*100, "%)", sep="")
+  PC1.label <- paste("PC",PCx, " (", summary(PCA)$importance[2,PCx]*100, "%)", sep="")
+  PC2.label <- paste("PC", PCy, " (", summary(PCA)$importance[2,PCy]*100, "%)", sep="")
 
   # Extract PC values
   pca.dat <- as.data.frame(PCA$x) %>%
@@ -67,7 +71,9 @@ plot_pca <- function(dat, meta = NULL, vars, scale = FALSE, outlier_sd = 3,
   # plots
   plot.ls <- list()
   for(var in vars[vars != "outlier"]){
-    pca.plot <- ggplot2::ggplot(pca.dat, ggplot2::aes_string("PC1", "PC2", color=var)) +
+    pca.plot <- ggplot2::ggplot(pca.dat, ggplot2::aes_string(paste0("PC", PCx),
+                                                             paste0("PC", PCy),
+                                                             color=var)) +
       ggplot2::geom_point(size=3) +
       #Beautify
       ggplot2::theme_classic() +

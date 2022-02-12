@@ -8,6 +8,8 @@ plot_pca(
   dat,
   meta = NULL,
   vars,
+  PCx = 1,
+  PCy = 2,
   scale = FALSE,
   outlier_sd = 3,
   outlier_group = NULL,
@@ -21,6 +23,10 @@ plot_pca(
 \item{meta}{Data frame containing meta data with vars. Only needed if dat is a counts table and not an edgeR or limma object}
 
 \item{vars}{Character vector of variables to color PCA by}
+
+\item{PCx}{Numeric value for PC to plot on x-axis. Default it 1}
+
+\item{PCy}{Numeric value for PC to plot on y-axis. Default it 2}
 
 \item{scale}{Logical if should scale variance in PCA calculation see stats::prcomp for details. Default is FALSE}
 
@@ -40,4 +46,5 @@ Plot PCA colored by variables of interest
 }
 \examples{
 plot_pca(kimma::example.voom, var=c("virus","outlier"))
+plot_pca(kimma::example.voom, var=c("virus","outlier"), PCx=1, PCy=3)
 }
