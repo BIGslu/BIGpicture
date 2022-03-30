@@ -11,9 +11,9 @@ plot_fit(model_result, model_result_y = NULL, x, y, metrics = NULL)
 
 \item{model_result_y}{List of data frame output by kimma::kmFit()}
 
-\item{x}{Character string of model to plot on x-axis. Must match object names in model_result. For example, "lm", "lme", "lmekin"}
+\item{x}{Character string of model to plot on x-axis. Must match object names in model_result. For example, "lm", "lme", "lmerel"}
 
-\item{y}{Character string of model to plot on y-axis. Must match object names in model_result. For example, "lm", "lme", "lmekin"}
+\item{y}{Character string of model to plot on y-axis. Must match object names in model_result. For example, "lm", "lme", "lmerel"}
 
 \item{metrics}{Character vector of metric to plot. For example, "sigma", "AIC", "BIC", "Rsq", "adj_Rsq"}
 }
@@ -24,5 +24,5 @@ ggplot object
 Model fit comparisons
 }
 \examples{
-plot_fit(model_result, x="lme", y="lmekin", metrics=c("sigma","AIC","Rsq"))
+plot_fit(model_result, x="lme", y="lmerel", metrics=c("sigma","AIC","Rsq"))
 }
