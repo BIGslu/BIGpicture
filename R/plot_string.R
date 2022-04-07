@@ -33,7 +33,7 @@ plot_string <- function(map, discard="none", layout='fr',
     #Get significant enrichments
     col.mat <- enrichment %>%
       dplyr::ungroup() %>%
-      dplyr::filter(size.overlap.term >= overlap & p.adjust <= FDR) %>%
+      dplyr::filter(size.overlap.term >= overlap & p.adjust < FDR) %>%
       dplyr::select(Description, dplyr::all_of(ID))
     names(col.mat)[names(col.mat) == ID] <- 'gene'
 
@@ -132,7 +132,7 @@ plot_string <- function(map, discard="none", layout='fr',
       all.term <- sort(colnames(map.arrange)[-c(1:3)])
       none.index <- match("none", all.term)
       color.vec <- c(color[1:none.index-1], "grey70",
-                     color[none.index:length(color)+1])
+                     color[none.index:length(color)])
       color.vec <- color.vec[!is.na(color.vec)]
     } else {
       color.vec <- scales::hue_pal()(ncol(col.mat.format)-2)
@@ -187,11 +187,11 @@ plot_string <- function(map, discard="none", layout='fr',
   } else{
     plot.col <- plot +
       ggnetwork::geom_nodes(ggplot2::aes(x = igraph::V(subgraph.filter)$x,
-                                y = igraph::V(subgraph.filter)$y,
-                                fill=NULL), size = node_size*10, color=color.vec) +
+                                         y = igraph::V(subgraph.filter)$y,
+                                         fill=NULL), size = node_size*10, color=color.vec) +
       ggnetwork::geom_nodetext(ggplot2::aes(x = igraph::V(subgraph.filter)$x,
-                                   y = igraph::V(subgraph.filter)$y,
-                                   label = igraph::V(subgraph.filter)$symbol),
+                                            y = igraph::V(subgraph.filter)$y,
+                                            label = igraph::V(subgraph.filter)$symbol),
                                size=text_size) +
       ggnetwork::theme_blank() + ggplot2::coord_fixed()
   }
