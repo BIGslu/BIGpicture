@@ -73,6 +73,11 @@ plot_string <- function(map, discard="none", layout='fr',
       dplyr::ungroup() %>%
       #fill in 0
       dplyr::mutate_if(is.numeric, ~tidyr::replace_na(., 0))
+    #Remove none is not used, remove it
+    if(sum(map.unique$none)==0){
+      map.unique <- map.unique %>%
+        dplyr::select(-none)
+    }
   } else{
     map.unique <- map[["map"]] %>%
       #collapse gene names
