@@ -178,6 +178,7 @@ plot_string <- function(map, discard="none", layout='fr',
 
   #Add nodes
   if(!is.null(enrichment)){
+    if(length(colnames(map.arrange)[-c(1:3)])>1){
     plot.col <- plot +
       scatterpie::geom_scatterpie(data=igraph::as_data_frame(subgraph.filter,
                                                              "vertices"),
@@ -189,11 +190,26 @@ plot_string <- function(map, discard="none", layout='fr',
                                             label=igraph::V(subgraph.filter)$symbol),
                                size=text_size) +
       ggnetwork::theme_blank() + ggplot2::coord_fixed()
+    } else{
+      plot.col <- plot +
+        ggnetwork::geom_nodes(ggplot2::aes(x = igraph::V(subgraph.filter)$x,
+                                           y = igraph::V(subgraph.filter)$y,
+                                           fill=NULL,
+                                           color=colnames(map.arrange)[-c(1:3)]),
+                              size = node_size*10) +
+        ggnetwork::geom_nodetext(ggplot2::aes(x = igraph::V(subgraph.filter)$x,
+                                              y = igraph::V(subgraph.filter)$y,
+                                              label = igraph::V(subgraph.filter)$symbol),
+                                 size=text_size) +
+        ggnetwork::theme_blank() + ggplot2::coord_fixed() +
+        ggplot2::scale_color_manual(values = color.vec, name = "")
+    }
   } else{
     plot.col <- plot +
       ggnetwork::geom_nodes(ggplot2::aes(x = igraph::V(subgraph.filter)$x,
                                          y = igraph::V(subgraph.filter)$y,
-                                         fill=NULL), size = node_size*10, color=color.vec) +
+                                         fill=NULL), size = node_size*10,
+                            color=color.vec) +
       ggnetwork::geom_nodetext(ggplot2::aes(x = igraph::V(subgraph.filter)$x,
                                             y = igraph::V(subgraph.filter)$y,
                                             label = igraph::V(subgraph.filter)$symbol),
