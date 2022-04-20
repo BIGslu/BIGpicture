@@ -82,6 +82,11 @@ plot_string <- function(map, discard="none", layout='fr',
       dplyr::ungroup() %>%
       #fill in 0
       dplyr::mutate_if(is.numeric, ~tidyr::replace_na(., 0))
+    #Remove none is not used, remove it
+    if(sum(map.unique$none)==0){
+      map.unique <- map.unique %>%
+        dplyr::select(-none)
+    }
   } else{
     map.unique <- map[["map"]] %>%
       #collapse gene names
@@ -141,7 +146,7 @@ plot_string <- function(map, discard="none", layout='fr',
       all.term <- sort(colnames(map.arrange)[-c(1:3)])
       none.index <- match("none", all.term)
       color.vec <- c(color[1:none.index-1], "grey70",
-                     color[none.index:length(color)+1])
+                     color[none.index:length(color)])
       color.vec <- color.vec[!is.na(color.vec)]
     } else {
       color.vec <- scales::hue_pal()(ncol(col.mat.format)-2)
@@ -182,6 +187,7 @@ plot_string <- function(map, discard="none", layout='fr',
 
   #Add nodes
   if(!is.null(enrichment)){
+    if(length(colnames(map.arrange)[-c(1:3)])>1){
     plot.col <- plot +
       scatterpie::geom_scatterpie(data=igraph::as_data_frame(subgraph.filter,
                                                              "vertices"),
@@ -193,14 +199,29 @@ plot_string <- function(map, discard="none", layout='fr',
                                             label=igraph::V(subgraph.filter)$symbol),
                                size=text_size) +
       ggnetwork::theme_blank() + ggplot2::coord_fixed()
+    } else{
+      plot.col <- plot +
+        ggnetwork::geom_nodes(ggplot2::aes(x = igraph::V(subgraph.filter)$x,
+                                           y = igraph::V(subgraph.filter)$y,
+                                           fill=NULL,
+                                           color=colnames(map.arrange)[-c(1:3)]),
+                              size = node_size*10) +
+        ggnetwork::geom_nodetext(ggplot2::aes(x = igraph::V(subgraph.filter)$x,
+                                              y = igraph::V(subgraph.filter)$y,
+                                              label = igraph::V(subgraph.filter)$symbol),
+                                 size=text_size) +
+        ggnetwork::theme_blank() + ggplot2::coord_fixed() +
+        ggplot2::scale_color_manual(values = color.vec, name = "")
+    }
   } else{
     plot.col <- plot +
       ggnetwork::geom_nodes(ggplot2::aes(x = igraph::V(subgraph.filter)$x,
-                                y = igraph::V(subgraph.filter)$y,
-                                fill=NULL), size = node_size*10, color=color.vec) +
+                                         y = igraph::V(subgraph.filter)$y,
+                                         fill=NULL), size = node_size*10,
+                            color=color.vec) +
       ggnetwork::geom_nodetext(ggplot2::aes(x = igraph::V(subgraph.filter)$x,
-                                   y = igraph::V(subgraph.filter)$y,
-                                   label = igraph::V(subgraph.filter)$symbol),
+                                            y = igraph::V(subgraph.filter)$y,
+                                            label = igraph::V(subgraph.filter)$symbol),
                                size=text_size) +
       ggnetwork::theme_blank() + ggplot2::coord_fixed()
   }
