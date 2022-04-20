@@ -19,14 +19,10 @@
 #' @examples
 #' #Data from kimma
 #' example.voom <- kimma::example.voom
-#' example.kin <- kimma::example.kin
 #'
 #' subset.genes <- c("ENSG00000250479","ENSG00000250510","ENSG00000255823")
-#' model_result <- kimma::kmFit(dat = example.voom,
-#'       run.lme=TRUE, subset.genes = subset.genes,
-#'       model = "~ virus + (1|ptID)")
 #'
-#' plot_genes(dat = example.voom, fdr = model_result$lme,
+#' plot_genes(dat = example.voom, fdr = example_model$lmerel,
 #'      subset.genes = subset.genes, geneID="geneName",
 #'      variables = c("virus*asthma", "lib.size"), colorID = "virus")
 
