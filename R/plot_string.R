@@ -7,8 +7,7 @@
 #' @param layout Character string for network layout algorithm. See options in igraph::layout_with_
 #' @param enrichment Data frame output by hypergeometric enrichment
 #' @param overlap Numeric minimum of significant genes in terms to be used as colors
-#' @param FDR Numeric maximum FDR of terms to be used as colors
-#' @param ID Character string defining gene ID column in enrichment that matches genes used in map_string. Can be "SYMBOLs" (Default), "ENTREZIDs", "ENSEMBLIDs"
+#' @param fdr.cutoff Numeric maximum FDR of terms to be used as colors
 #' @param colors Character vector of custom colors to use. Must be at least a long as total significant terms plus 1 for the "none" group
 #' @param text_size Numeric size of gene labels on network nodes. Default of 2
 #' @param node_size Numeric size of network nodes. Default of 1
@@ -17,35 +16,45 @@
 #' @export
 #'
 #' @examples
-#' map <- map_string(genes = c("WNT5B","CCND2","FZD1","CTNNB1","DKK1","TCF7"),
-#'                        version = 11.5, score_threshold = 400)
+#' map <- map_string(genes = c("MTHFD2","ISOC1","IL2RB","SAMHD1","NAMPT","NOD1",
+#'                             "NFKB1","IFIT3","ZBP1","IL15RA","SP110","ITGB7",
+#'                             "SERPING1","B2M","CXCL11","USP18","MAPKAPK2","DKK1"),
+#'                  version = 11.5, score_threshold = 400)
 #' plot_string(map)
-#' plot_string(map, enrichment = BIGpicture::enrichment, ID ="SYMBOLs")
+#'
+#' # Add enrichment colors
+#' library(dplyr)
+#' library(SEARchways)
+#' genes.OI <- example_model$lmerel %>%
+#'             filter(variable == "virus" & FDR < 0.2) %>%
+#'             distinct(variable, hgnc_symbol)
+#' example_enrich <- BIGprofiler(gene_df = genes.OI, category = "H")
+#'
+#' plot_string(map, enrichment = example_enrich, fdr.cutoff=0.2)
 
 plot_string <- function(map, discard="none", layout='fr',
-                        enrichment=NULL, overlap=2, FDR=0.2,
-                        ID=c("SYMBOLs","ENTREZIDs","ENSEMBLIDs"),
+                        enrichment=NULL, overlap=2, fdr.cutoff=0.2,
                         colors=NULL, text_size=2, node_size=1){
-  Description <- STRING_id <- combined_score <- gene <- none <- total <- value <- size.overlap.term <- p.adjust <- NULL
+  pathway <- STRING_id <- combined_score <- gene <- none <- total <- value <- group_in_pathway <- FDR <- genes <- NULL
 
   #### Format enrichment colors ####
   if(!is.null(enrichment)){
     #Get significant enrichments
     col.mat <- enrichment %>%
       dplyr::ungroup() %>%
-      dplyr::filter(size.overlap.term >= overlap & p.adjust <= FDR) %>%
-      dplyr::select(Description, dplyr::all_of(ID))
-    names(col.mat)[names(col.mat) == ID] <- 'gene'
+      dplyr::filter(group_in_pathway >= overlap & FDR <= fdr.cutoff) %>%
+      dplyr::select(pathway, genes) %>%
+      dplyr::rename(gene=genes)
 
     #Error if no terms to plot
     if(nrow(col.mat) == 0) {stop("No significant enrichment terms.
-                               Try increasing FDR.")}
+                               Try increasing fdr.cutoff.")}
 
     #Format enrichment results for scatterpie plotting
     col.mat.format <- col.mat %>%
       #Split gene lists within terms
       tidyr::unnest(gene) %>%
-      dplyr::distinct(gene, Description) %>%
+      dplyr::distinct(gene, pathway) %>%
       dplyr::mutate(value=1) %>%
       #Add string ID
       dplyr::inner_join(map[["map"]], by = "gene") %>%
@@ -56,8 +65,8 @@ plot_string <- function(map, discard="none", layout='fr',
       dplyr::mutate(total = sum(value)) %>%
       dplyr::ungroup() %>%
       #Calculate proportions within terms
-      dplyr::arrange(match(Description, unique(enrichment$Description))) %>%
-      tidyr::pivot_wider(names_from = Description, values_fill = 0) %>%
+      dplyr::arrange(match(pathway, unique(enrichment$pathway))) %>%
+      tidyr::pivot_wider(names_from = pathway, values_fill = 0) %>%
       dplyr::mutate(dplyr::across(-c(STRING_id,total), ~./total))
 
     #Add to STRING data and create dummy group for genes without enrichment

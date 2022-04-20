@@ -33,5 +33,5 @@ List of ggplot objects
 Venn diagrams of significant genes
 }
 \examples{
-plot_venn_genes(model_result, model = "lme", fdr.cutoff = c(0.05,0.5))
+plot_venn_genes(example_model, model = "lme", fdr.cutoff = c(0.05,0.5))
 }

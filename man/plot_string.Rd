@@ -10,8 +10,7 @@ plot_string(
   layout = "fr",
   enrichment = NULL,
   overlap = 2,
-  FDR = 0.2,
-  ID = c("SYMBOLs", "ENTREZIDs", "ENSEMBLIDs"),
+  fdr.cutoff = 0.2,
   colors = NULL,
   text_size = 2,
   node_size = 1
@@ -28,9 +27,7 @@ plot_string(
 
 \item{overlap}{Numeric minimum of significant genes in terms to be used as colors}
 
-\item{FDR}{Numeric maximum FDR of terms to be used as colors}
-
-\item{ID}{Character string defining gene ID column in enrichment that matches genes used in map_string. Can be "SYMBOLs" (Default), "ENTREZIDs", "ENSEMBLIDs"}
+\item{fdr.cutoff}{Numeric maximum FDR of terms to be used as colors}
 
 \item{colors}{Character vector of custom colors to use. Must be at least a long as total significant terms plus 1 for the "none" group}
 
@@ -45,8 +42,19 @@ ggplot STRING network object
 To be used in conjunction with map_string
 }
 \examples{
-map <- map_string(genes = c("WNT5B","CCND2","FZD1","CTNNB1","DKK1","TCF7"),
-                       version = 11.5, score_threshold = 400)
+map <- map_string(genes = c("MTHFD2","ISOC1","IL2RB","SAMHD1","NAMPT","NOD1",
+                            "NFKB1","IFIT3","ZBP1","IL15RA","SP110","ITGB7",
+                            "SERPING1","B2M","CXCL11","USP18","MAPKAPK2","DKK1"),
+                 version = 11.5, score_threshold = 400)
 plot_string(map)
-plot_string(map, enrichment = BIGpicture::enrichment, ID ="SYMBOLs")
+
+# Add enrichment colors
+library(dplyr)
+library(SEARchways)
+genes.OI <- example_model$lmerel \%>\%
+            filter(variable == "virus" & FDR < 0.2) \%>\%
+            distinct(variable, hgnc_symbol)
+example_enrich <- BIGprofiler(gene_df = genes.OI, category = "H")
+
+plot_string(map, enrichment = example_enrich, fdr.cutoff=0.2)
 }

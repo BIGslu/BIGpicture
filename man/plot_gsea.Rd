@@ -28,6 +28,14 @@ Plot GSEA normalized enrichment
 }
 \examples{
 library(SEARchways)
-example.gsea <- BIGsea(example_gene_list, category="H", ID="ENSEMBL")
-plot_gsea(example.gsea, fdr.cutoff=0.8, fdr.colors = c(0.7))
+library(dplyr)
+#Get fold change information from example model
+genes.FC <- example_model$lmerel \%>\%
+            filter(variable == "virus") \%>\%
+            select(variable, hgnc_symbol, estimate)
+#Run GSEA
+example_gsea <- BIGsea(gene_df = genes.FC, category = "H")
+
+#Plot
+plot_gsea(example_gsea)
 }

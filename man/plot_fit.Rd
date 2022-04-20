@@ -24,5 +24,5 @@ ggplot object
 Model fit comparisons
 }
 \examples{
-plot_fit(model_result, x="lme", y="lmerel", metrics=c("sigma","AIC","Rsq"))
+plot_fit(example_model, x="lme", y="lmerel", metrics=c("sigma","AIC","Rsq"))
 }
