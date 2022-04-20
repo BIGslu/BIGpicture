@@ -5,7 +5,7 @@
 \title{Plot GSEA normalized enrichment}
 \usage{
 plot_gsea(
-  gsea = example.gsea,
+  gsea,
   fdr.cutoff = 0.2,
   fdr.colors = c(0.01, 0.05, 0.1, 0.2),
   show.overlap = TRUE
