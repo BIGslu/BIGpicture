@@ -139,10 +139,16 @@ plot_genes <- function(dat=NULL, counts=NULL, meta=NULL, genes=NULL,
     gene.plot.ls = list()
 
     #fdr table
-    if(!is.null(fdr)){
-      dat.fdr.sub <- dplyr::filter(fdr, gene==to_plot[i])
+    if(!is.null(fdr) & "contrast_ref" %in% colnames(fdr)){
+      dat.fdr.sub <- dplyr::filter(fdr, gene==to_plot[i]) %>%
+        dplyr::select(model, gene, variable, contrast_ref,
+                      contrast_lvl, estimate, pval, FDR)
       fdr.plot <- ggpubr::ggtexttable(dat.fdr.sub, rows = NULL)
-    } else { fdr.plot = NULL}
+    } else if(!is.null(fdr)){
+      dat.fdr.sub <- dplyr::filter(fdr, gene==to_plot[i]) %>%
+        dplyr::select(model, gene, variable, estimate, pval, FDR)
+      fdr.plot <- ggpubr::ggtexttable(dat.fdr.sub, rows = NULL)
+    } else{ fdr.plot = NULL }
 
     for(j in 1:length(variables.noI)){
       #Type = factor or character variables
