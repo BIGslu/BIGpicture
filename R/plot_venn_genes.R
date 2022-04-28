@@ -3,7 +3,7 @@
 #' @param model_result List of data frames output by kimma::kmFit()
 #' @param model Character string of model to plot. Must match object names in model_result. For example, "lm", "lme", "lmekin"
 #' @param variables Character vector of variables in model_result to include in plots
-#' @param contrasts Character vector of contrasts in model_result to include in plots. Only applicable if model name includes 'contrast'
+#' @param contrasts Data frame with contrast_ref and contrast_lvl paired rows to include in plot. Only applicable if model name includes 'contrast'. Please use kimma::summarise_kmFit to confirm ref and lvl values
 #' @param intercept Logical if should include the intercept variable
 #' @param fdr.cutoff Numeric vector of FDR cutoffs to assess. One venn per FDR value
 #'
@@ -38,7 +38,7 @@ plot_venn_genes <- function(model_result, model, variables=NULL, intercept=FALSE
   #List contrasts of interest
   if(grepl("contrast", model)){
     if(is.null(contrasts)){
-      con_filter <- unique(dat$contrast)
+      con_filter <- dplyr::distinct(dat, contrast_ref, contrast_lvl)
       } else {
       con_filter <- contrasts
       }
@@ -58,12 +58,13 @@ plot_venn_genes <- function(model_result, model, variables=NULL, intercept=FALSE
       for (var in var_filter){
         venn_dat[[var]] <- dat_filter %>%
           dplyr::filter(variable == var) %>%
-          dplyr::distinct(gene) %>% unlist(use.names = FALSE) }
+          dplyr::pull(gene) %>% unique() }
     } else{
-      for (con in con_filter){
-        venn_dat[[gsub(" ","\n",con)]] <- dat_filter %>%
-          dplyr::filter(contrast == con) %>%
-          dplyr::distinct(gene) %>% unlist(use.names = FALSE) }
+      for (i in 1:nrow(con_filter)){
+        con.OI <- con_filter[i,]
+        venn_dat[[paste(con.OI$contrast_lvl[1], con.OI$contrast_ref[1], sep="\nvs\n")]] <- dat_filter %>%
+          dplyr::inner_join(con.OI, by = c("contrast_ref", "contrast_lvl")) %>%
+          dplyr::pull(gene) %>% unique() }
     }
 
     #total genes in venn
