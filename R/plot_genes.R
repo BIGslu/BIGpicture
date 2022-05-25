@@ -214,12 +214,12 @@ plot_genes <- function(dat=NULL, counts=NULL, meta=NULL, genes=NULL,
     #### Combine plots ####
     #Main plot title
     if (!is.null(dat.genes)){
-      hgnc <- dat.genes %>%
+      symbol <- dat.genes %>%
         dplyr::filter(get(geneID) == to_plot[i]) %>%
-        dplyr::select(dplyr::contains("hgnc"), dplyr::contains("HGNC")) %>%
+        dplyr::select(dplyr::contains("symbol"), dplyr::contains("symbol")) %>%
         unlist()
 
-      title <- paste(to_plot[i], unique(hgnc), sep=" ", collapse=" ")
+      title <- paste(to_plot[i], unique(symbol), sep=" ", collapse=" ")
     } else{
       title <- to_plot[i]
     }
