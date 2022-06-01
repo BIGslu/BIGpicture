@@ -22,7 +22,7 @@ plot_venn_genes(
 
 \item{intercept}{Logical if should include the intercept variable}
 
-\item{contrasts}{Character vector of contrasts in model_result to include in plots. Only applicable if model name includes 'contrast'}
+\item{contrasts}{Data frame with contrast_ref and contrast_lvl paired rows to include in plot. Only applicable if model name includes 'contrast'. Please use kimma::summarise_kmFit to confirm ref and lvl values}
 
 \item{fdr.cutoff}{Numeric vector of FDR cutoffs to assess. One venn per FDR value}
 }

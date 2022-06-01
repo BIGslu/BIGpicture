@@ -17,7 +17,7 @@ plot_venn_genes <- function(model_result, model, variables=NULL, intercept=FALSE
                             contrasts=NULL,
                             fdr.cutoff = c(0.05,0.1,0.2,0.3,0.4,0.5)){
 
-  FDR <- variable <- gene <- contrast <- NULL
+  FDR <- variable <- gene <- contrast <- constrast_ref <- contrast_lvl <- NULL
 
   #Extract results
   dat <- model_result[[model]]

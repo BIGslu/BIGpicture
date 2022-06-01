@@ -32,7 +32,7 @@ plot_genes <- function(dat=NULL, counts=NULL, meta=NULL, genes=NULL,
                                subset.genes=NULL,
                                variables, colorID=NULL,
                                processors=NULL) {
-  i <- gene <- E <- NULL
+  i <- gene <- E <- model <- variable <- constrast_ref <- contrast_lvl <- estimate <- pval <- FDR <- NULL
   ###### Parallel ######
   #setup parallel processors
   chk <- Sys.getenv("_R_CHECK_LIMIT_CORES_", "")

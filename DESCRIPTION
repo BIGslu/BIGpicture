@@ -20,6 +20,7 @@ Imports:
     foreach,
     ggnetwork,
     ggplot2,
+    ggpolypath,
     ggpubr,
     ggraph,
     ggrepel,
@@ -28,6 +29,7 @@ Imports:
     patchwork,
     scales,
     scatterpie,
+    STRINGdb,
     tibble,
     tidyr,
     venn
