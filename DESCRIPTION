@@ -37,4 +37,4 @@ Depends:
     R (>= 2.10)
 biocViews: 
 Remotes: BIGslu/kimma, BIGslu/SEARchways
-Suggests: kimma, limma, STRINGdb, SEARchways
+Suggests: kimma, limma, SEARchways
