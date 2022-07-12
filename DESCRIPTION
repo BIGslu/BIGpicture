@@ -34,5 +34,5 @@ Imports:
 Depends: 
     R (>= 2.10)
 biocViews: 
-Remotes: BIGslu/kimma, BIGslu/SEARchways, yanlinlin82/ggvenn
+Remotes: BIGslu/kimma, BIGslu/SEARchways
 Suggests: kimma, limma, STRINGdb, SEARchways
