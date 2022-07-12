@@ -11,6 +11,7 @@ plot_venn_genes(
   contrasts = NULL,
   intercept = FALSE,
   random = FALSE,
+  return.genes = FALSE,
   fdr.cutoff = c(0.05, 0.1, 0.2, 0.3, 0.4, 0.5)
 )
 }
@@ -27,14 +28,24 @@ plot_venn_genes(
 
 \item{random}{Logical if should include random effect variable(s). Default is FALSE}
 
+\item{return.genes}{Logical if should return data frame of genes in venns. Default is FALSE}
+
 \item{fdr.cutoff}{Numeric vector of FDR cutoffs to assess. One venn per FDR value}
 }
 \value{
-List of ggplot objects
+List with 1 each for each FDR cutoff of (1) venn diagram ggplot object and (2) data frame of genes in venn
 }
 \description{
 Venn diagrams of significant genes
 }
 \examples{
-plot_venn_genes(example_model, model = "lme", fdr.cutoff = c(0.05,0.5))
+venn.result <- plot_venn_genes(example_model, model = "lme", return.genes = TRUE,
+    fdr.cutoff = c(0.05,0.5))
+
+#plot all venn
+patchwork::wrap_plots(venn.result[["venn"]])
+#Plot 1 venn
+venn.result[["venn"]][["0.05"]]
+#see genes in intersections
+venn.result[["gene"]]
 }

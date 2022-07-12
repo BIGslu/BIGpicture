@@ -6,17 +6,27 @@
 #' @param contrasts Character vector of contrasts in model_result to include in plots. Format is c("contrast_lvl - contrast_ref", "..."). Only applicable if model name includes 'contrast'
 #' @param intercept Logical if should include the intercept variable. Default is FALSE
 #' @param random Logical if should include random effect variable(s). Default is FALSE
+#' @param return.genes Logical if should return data frame of genes in venns. Default is FALSE
 #' @param fdr.cutoff Numeric vector of FDR cutoffs to assess. One venn per FDR value
 #'
-#' @return List of ggplot objects
+#' @return List with 1 each for each FDR cutoff of (1) venn diagram ggplot object and (2) data frame of genes in venn
 #' @export
 #'
 #' @examples
-#' plot_venn_genes(example_model, model = "lme", fdr.cutoff = c(0.05,0.5))
+#' venn.result <- plot_venn_genes(example_model, model = "lme", return.genes = TRUE,
+#'     fdr.cutoff = c(0.05,0.5))
+#'
+#' #plot all venn
+#' patchwork::wrap_plots(venn.result[["venn"]])
+#' #Plot 1 venn
+#' venn.result[["venn"]][["0.05"]]
+#' #see genes in intersections
+#' venn.result[["gene"]]
 
 plot_venn_genes <- function(model_result, model,
                             variables=NULL, contrasts=NULL,
                             intercept=FALSE, random=FALSE,
+                            return.genes=FALSE,
                             fdr.cutoff = c(0.05,0.1,0.2,0.3,0.4,0.5)){
 
   FDR <- variable <- gene <- contrast_ref <- contrast_lvl <- NULL
@@ -51,12 +61,12 @@ plot_venn_genes <- function(model_result, model,
   if(grepl("contrast", model)){
     if(is.null(contrasts)){
       con_filter <- dplyr::distinct(dat, contrast_ref, contrast_lvl)
-      } else {
+    } else {
       con_filter <- strsplit(contrasts, split=" - ") %>%
         as.data.frame() %>% t() %>%  as.data.frame()
       colnames(con_filter) <- c("contrast_lvl", "contrast_ref")
       rownames(con_filter) <- NULL
-      }
+    }
   }
 
   #filter data to variables/contrasts of interest
@@ -69,6 +79,7 @@ plot_venn_genes <- function(model_result, model,
   }
   #List to hold plots
   venn.ls <- list()
+  venn.dat.ls <- list()
 
   for (fdr in fdr.cutoff){
     #list to hold gene vectors
@@ -90,7 +101,6 @@ plot_venn_genes <- function(model_result, model,
         venn_dat[[con.name]] <- dat_filter_signif %>%
           dplyr::inner_join(con.OI, by = c("contrast_ref", "contrast_lvl")) %>%
           dplyr::distinct(gene) %>% unlist(use.names = FALSE) }
-
     }
 
     #total genes in venn
@@ -108,10 +118,30 @@ plot_venn_genes <- function(model_result, model,
     } else {
       print(paste("Zero genes significant at FDR <", fdr))
     }
+
+    #Save gene lists
+    if(gene_tot > 0 & return.genes){
+      temp <- data.frame(gene = unique(unlist(venn_dat)))
+
+      for(v in names(venn_dat)){
+        suppressMessages(
+          temp <- temp %>%
+            dplyr::mutate(!!v := ifelse(gene %in% venn_dat[[v]], "Y", NA)) %>%
+            dplyr::full_join(temp)
+        )
+      }
+
+      venn.dat.ls[[as.character(fdr)]] <- temp
+    } else{
+      venn.dat.ls[[as.character(fdr)]] <- NULL
+    }
   }
 
   if(length(venn.ls) > 0){
-  plot_all <- patchwork::wrap_plots(venn.ls)
-  return(plot_all)
+    venn.result <- list()
+    venn.result[["venn"]] <- venn.ls
+    if(return.genes){ venn.result[["gene"]] <- venn.dat.ls }
+
+    return(venn.result)
   }
 }
