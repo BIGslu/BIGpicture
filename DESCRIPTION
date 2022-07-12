@@ -11,7 +11,7 @@ License: GPL (>= 3)
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.1.2
+RoxygenNote: 7.2.0
 Imports: 
     doParallel,
     dplyr,
@@ -23,16 +23,16 @@ Imports:
     ggpubr,
     ggraph,
     ggrepel,
+    ggvenn,
     igraph,
     magrittr,
     patchwork,
     scales,
     scatterpie,
     tibble,
-    tidyr,
-    venn
+    tidyr
 Depends: 
     R (>= 2.10)
 biocViews: 
-Remotes: BIGslu/kimma, BIGslu/SEARchways
+Remotes: BIGslu/kimma, BIGslu/SEARchways, yanlinlin82/ggvenn
 Suggests: kimma, limma, STRINGdb, SEARchways

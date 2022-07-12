@@ -9,6 +9,7 @@ plot_venn_genes(
   model,
   variables = NULL,
   intercept = FALSE,
+  random = FALSE,
   contrasts = NULL,
   fdr.cutoff = c(0.05, 0.1, 0.2, 0.3, 0.4, 0.5)
 )
@@ -20,9 +21,11 @@ plot_venn_genes(
 
 \item{variables}{Character vector of variables in model_result to include in plots}
 
-\item{intercept}{Logical if should include the intercept variable}
+\item{intercept}{Logical if should include the intercept variable. Default is FALSE}
 
-\item{contrasts}{Character vector of contrasts in model_result to include in plots. Only applicable if model name includes 'contrast'}
+\item{random}{Logical if should include random effect variable(s). Default is FALSE}
+
+\item{contrasts}{Character vector of contrasts in model_result to include in plots. Format is c("contrast_lvl - contrast_ref", "..."). Only applicable if model name includes 'contrast'}
 
 \item{fdr.cutoff}{Numeric vector of FDR cutoffs to assess. One venn per FDR value}
 }
