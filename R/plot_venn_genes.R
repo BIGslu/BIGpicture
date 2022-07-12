@@ -111,10 +111,13 @@ plot_venn_genes <- function(model_result, model,
 
     #Plot all venns
     if(gene_tot > 0){
-    venn.ls[[as.character(fdr)]] <- ggvenn::ggvenn(venn_dat, show_percentage = FALSE,
-           text_size = 4, set_name_size = 4, stroke_size = 0.5) +
-      ggplot2::labs(x = paste("FDR <", fdr)) +
-      ggplot2::theme(axis.title.x = ggplot2::element_text())
+      venn.ls[[as.character(fdr)]] <-
+        suppressWarnings(
+          ggvenn::ggvenn(venn_dat, show_percentage = FALSE,
+                         text_size = 4, set_name_size = 4, stroke_size = 0.5) +
+            ggplot2::labs(x = paste("FDR <", fdr)) +
+            ggplot2::theme(axis.title.x = ggplot2::element_text())
+        )
     } else {
       print(paste("Zero genes significant at FDR <", fdr))
     }
