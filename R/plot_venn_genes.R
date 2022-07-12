@@ -29,7 +29,7 @@ plot_venn_genes <- function(model_result, model,
                             return.genes=FALSE,
                             fdr.cutoff = c(0.05,0.1,0.2,0.3,0.4,0.5)){
 
-  FDR <- variable <- gene <- contrast_ref <- contrast_lvl <- NULL
+  FDR <- variable <- gene <- contrast_ref <- contrast_lvl <- temp <- NULL
 
   #common errors
   if(!is.null(contrasts) & grepl("contrast", model)){
@@ -79,7 +79,7 @@ plot_venn_genes <- function(model_result, model,
   }
   #List to hold plots
   venn.ls <- list()
-  venn.dat.ls <- list()
+  venn.df.ls <- list()
 
   for (fdr in fdr.cutoff){
     #list to hold gene vectors
@@ -124,26 +124,30 @@ plot_venn_genes <- function(model_result, model,
 
     #Save gene lists
     if(gene_tot > 0 & return.genes){
-      temp <- data.frame(gene = unique(unlist(venn_dat)))
+      all.genes <- data.frame(gene = unique(unlist(venn_dat)))
+      venn.df <- data.frame(gene = all.genes)
 
       for(v in names(venn_dat)){
+        venn.df.temp <- data.frame(gene = all.genes) %>%
+          dplyr::mutate(temp = ifelse(gene %in% venn_dat[[v]], "Y", NA))
+        colnames(venn.df.temp) <- c("gene", v)
+
         suppressMessages(
-          temp <- temp %>%
-            dplyr::mutate(!!v := ifelse(gene %in% venn_dat[[v]], "Y", NA)) %>%
-            dplyr::full_join(temp)
+          venn.df <- venn.df.temp %>%
+            dplyr::full_join(venn.df)
         )
       }
 
-      venn.dat.ls[[as.character(fdr)]] <- temp
+      venn.df.ls[[as.character(fdr)]] <- venn.df
     } else{
-      venn.dat.ls[[as.character(fdr)]] <- NULL
+      venn.df.ls[[as.character(fdr)]] <- NULL
     }
   }
 
   if(length(venn.ls) > 0){
     venn.result <- list()
     venn.result[["venn"]] <- venn.ls
-    if(return.genes){ venn.result[["gene"]] <- venn.dat.ls }
+    if(return.genes){ venn.result[["gene"]] <- venn.df.ls }
 
     return(venn.result)
   }
