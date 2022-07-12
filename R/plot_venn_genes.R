@@ -84,9 +84,9 @@ plot_venn_genes <- function(model_result, model,
     } else{
       for (i in 1:nrow(con_filter)){
         con.OI <- con_filter[i,]
+        con.name <- paste(con.OI$contrast_lvl, "-", con.OI$contrast_ref, sep="\n")
 
-        venn_dat[[paste(con.OI$contrast_lvl, "-", con.OI$contrast_ref,
-                        sep="\n")]] <- dat_filter_signif %>%
+        venn_dat[[con.name]] <- dat_filter_signif %>%
           dplyr::inner_join(con.OI, by = c("contrast_ref", "contrast_lvl")) %>%
           dplyr::distinct(gene) %>% unlist(use.names = FALSE) }
     }
