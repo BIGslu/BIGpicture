@@ -14,9 +14,9 @@
 #' @examples
 #' plot_venn_genes(example_model, model = "lme", fdr.cutoff = c(0.05,0.5))
 
-plot_venn_genes <- function(model_result, model, variables=NULL,
+plot_venn_genes <- function(model_result, model,
+                            variables=NULL, contrasts=NULL,
                             intercept=FALSE, random=FALSE,
-                            contrasts=NULL,
                             fdr.cutoff = c(0.05,0.1,0.2,0.3,0.4,0.5)){
 
   FDR <- variable <- gene <- contrast_ref <- contrast_lvl <- NULL
