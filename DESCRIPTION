@@ -19,7 +19,6 @@ Imports:
     foreach,
     ggnetwork,
     ggplot2,
-    ggpolypath,
     ggpubr,
     ggraph,
     ggrepel,
@@ -32,8 +31,8 @@ Imports:
     STRINGdb,
     tibble,
     tidyr
+Suggests: kimma, limma, SEARchways
 Depends: 
     R (>= 2.10)
 biocViews: 
 Remotes: BIGslu/kimma, BIGslu/SEARchways
-Suggests: kimma, limma, SEARchways
