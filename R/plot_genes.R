@@ -64,12 +64,12 @@ plot_genes <- function(dat=NULL, counts=NULL, meta=NULL, genes=NULL,
   if(!is.null(counts) & is.null(meta)){ stop("When using counts, meta must also be provided.")}
 
   if(!is.null(dat)){
-    if(class(dat) == "DGEList"){
+    if(inherits(dat, "DGEList")){
       dat.counts <- as.data.frame(dat$counts) %>%
         tibble::rownames_to_column(geneID)
       dat.meta <- as.data.frame(dat$samples)
       dat.genes <- as.data.frame(dat$genes)
-    } else if(class(dat) == "EList"){
+    } else if(inherits(dat, "EList")){
       dat.counts <- as.data.frame(dat$E) %>%
         tibble::rownames_to_column(geneID)
       dat.meta <- as.data.frame(dat$targets)

@@ -5,7 +5,9 @@ library(SEARchways)
 
 #Linear models
 example_model <- kmFit(dat = example.voom, kin = example.kin,
-                      run.lmerel = TRUE, run.lme = TRUE, metrics=TRUE,
+                      run.lmerel = TRUE, run.lme = TRUE,
+                      run.contrast = TRUE,
+                      metrics=TRUE,
                       model = "~ virus*asthma + (1|ptID)", processors = 6)
 
 usethis::use_data(example_model, overwrite = TRUE)

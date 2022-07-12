@@ -11,12 +11,11 @@ License: GPL (>= 3)
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.1.2
+RoxygenNote: 7.2.0
 Imports: 
     doParallel,
     dplyr,
     edgeR,
-    forcats,
     foreach,
     ggnetwork,
     ggplot2,
@@ -24,6 +23,7 @@ Imports:
     ggpubr,
     ggraph,
     ggrepel,
+    ggvenn,
     igraph,
     magrittr,
     patchwork,
@@ -31,8 +31,7 @@ Imports:
     scatterpie,
     STRINGdb,
     tibble,
-    tidyr,
-    venn
+    tidyr
 Depends: 
     R (>= 2.10)
 biocViews: 

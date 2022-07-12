@@ -8,8 +8,9 @@ plot_venn_genes(
   model_result,
   model,
   variables = NULL,
-  intercept = FALSE,
   contrasts = NULL,
+  intercept = FALSE,
+  random = FALSE,
   fdr.cutoff = c(0.05, 0.1, 0.2, 0.3, 0.4, 0.5)
 )
 }
@@ -20,9 +21,11 @@ plot_venn_genes(
 
 \item{variables}{Character vector of variables in model_result to include in plots}
 
-\item{intercept}{Logical if should include the intercept variable}
+\item{contrasts}{Character vector of contrasts in model_result to include in plots. Format is c("contrast_lvl - contrast_ref", "..."). Only applicable if model name includes 'contrast'}
 
-\item{contrasts}{Data frame with contrast_ref and contrast_lvl paired rows to include in plot. Only applicable if model name includes 'contrast'. Please use kimma::summarise_kmFit to confirm ref and lvl values}
+\item{intercept}{Logical if should include the intercept variable. Default is FALSE}
+
+\item{random}{Logical if should include random effect variable(s). Default is FALSE}
 
 \item{fdr.cutoff}{Numeric vector of FDR cutoffs to assess. One venn per FDR value}
 }
