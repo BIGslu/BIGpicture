@@ -36,11 +36,10 @@ plot_venn_genes <- function(model_result, model,
     stop("Must provide contrasts model when specifying contrasts.")
   }
 
-
-  #Extract results
+  #### Extract results ####
   dat <- model_result[[model]]
 
-  #List variables of interest
+  #### List variables of interest ####
   if(!is.null(variables)){
     var_all <- variables
   } else {
@@ -57,7 +56,7 @@ plot_venn_genes <- function(model_result, model,
     var_all <- var_all[!grepl("\\|", var_all)]
   }
 
-  #List contrasts of interest
+  ##### List contrasts of interest ####
   if(grepl("contrast", model)){
     if(is.null(contrasts)){
       con_filter <- dplyr::distinct(dat, contrast_ref, contrast_lvl)
@@ -69,7 +68,7 @@ plot_venn_genes <- function(model_result, model,
     }
   }
 
-  #filter data to variables/contrasts of interest
+  #### filter data to variables/contrasts of interest ####
   dat_filter <- dat %>%
     dplyr::filter(variable %in% var_all)
 
@@ -77,7 +76,8 @@ plot_venn_genes <- function(model_result, model,
     dat_filter <- dat_filter %>%
       dplyr::inner_join(con_filter, by = c("contrast_ref", "contrast_lvl"))
   }
-  #List to hold plots
+
+  #### List to hold plots ####
   venn.ls <- list()
   venn.df.ls <- list()
 
