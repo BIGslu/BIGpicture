@@ -10,7 +10,7 @@ plot_mv <- function(dat, design = NULL){
   x <- y <- linex <- liney <- NULL
 
   #non-voom input
-  if(class(dat) == "DGEList"){
+  if(inherits(dat, "DGEList")){
     #check design
     if(is.null(design)){"Please provide a design for voom normalization."}
     #Extract metadata
@@ -19,7 +19,7 @@ plot_mv <- function(dat, design = NULL){
     mm <- stats::model.matrix(stats::as.formula(design), dat$samples)
     #voom normalize
     dat.voom <- limma::voom(dat, mm, plot = FALSE, save.plot = TRUE)
-  } else if(class(dat) == "EList"){
+  } else if(inherits(dat, "EList")){
     #voom object
     dat.voom <- dat
     #Check if plot data exist
