@@ -32,7 +32,7 @@ plot_genes <- function(dat=NULL, counts=NULL, meta=NULL, genes=NULL,
                                subset.genes=NULL,
                                variables, colorID=NULL,
                                processors=NULL) {
-  i <- gene <- E <- NULL
+  i <- gene <- E <- model <- variable <- contrast_ref <- contrast_lvl <- estimate <- pval <- FDR <- NULL
   ###### Parallel ######
   #setup parallel processors
   chk <- Sys.getenv("_R_CHECK_LIMIT_CORES_", "")
@@ -139,10 +139,16 @@ plot_genes <- function(dat=NULL, counts=NULL, meta=NULL, genes=NULL,
     gene.plot.ls = list()
 
     #fdr table
-    if(!is.null(fdr)){
-      dat.fdr.sub <- dplyr::filter(fdr, gene==to_plot[i])
+    if(!is.null(fdr) & "contrast_ref" %in% colnames(fdr)){
+      dat.fdr.sub <- dplyr::filter(fdr, gene==to_plot[i]) %>%
+        dplyr::select(model, gene, variable, contrast_ref,
+                      contrast_lvl, estimate, pval, FDR)
       fdr.plot <- ggpubr::ggtexttable(dat.fdr.sub, rows = NULL)
-    } else { fdr.plot = NULL}
+    } else if(!is.null(fdr)){
+      dat.fdr.sub <- dplyr::filter(fdr, gene==to_plot[i]) %>%
+        dplyr::select(model, gene, variable, estimate, pval, FDR)
+      fdr.plot <- ggpubr::ggtexttable(dat.fdr.sub, rows = NULL)
+    } else{ fdr.plot = NULL }
 
     for(j in 1:length(variables.noI)){
       #Type = factor or character variables
@@ -208,12 +214,12 @@ plot_genes <- function(dat=NULL, counts=NULL, meta=NULL, genes=NULL,
     #### Combine plots ####
     #Main plot title
     if (!is.null(dat.genes)){
-      hgnc <- dat.genes %>%
+      symbol <- dat.genes %>%
         dplyr::filter(get(geneID) == to_plot[i]) %>%
-        dplyr::select(dplyr::contains("hgnc"), dplyr::contains("HGNC")) %>%
+        dplyr::select(dplyr::contains("symbol"), dplyr::contains("symbol")) %>%
         unlist()
 
-      title <- paste(to_plot[i], unique(hgnc), sep=" ", collapse=" ")
+      title <- paste(to_plot[i], unique(symbol), sep=" ", collapse=" ")
     } else{
       title <- to_plot[i]
     }

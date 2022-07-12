@@ -26,6 +26,7 @@ plot_venn_genes <- function(model_result, model,
     stop("Must provide contrasts model when specifying contrasts.")
   }
 
+
   #Extract results
   dat <- model_result[[model]]
 
@@ -80,7 +81,7 @@ plot_venn_genes <- function(model_result, model,
       for (var in var_all){
         venn_dat[[var]] <- dat_filter_signif %>%
           dplyr::filter(variable == var) %>%
-          dplyr::distinct(gene) %>% unlist(use.names = FALSE) }
+          dplyr::pull(gene) %>% unique() }
     } else{
       for (i in 1:nrow(con_filter)){
         con.OI <- con_filter[i,]
@@ -89,6 +90,7 @@ plot_venn_genes <- function(model_result, model,
         venn_dat[[con.name]] <- dat_filter_signif %>%
           dplyr::inner_join(con.OI, by = c("contrast_ref", "contrast_lvl")) %>%
           dplyr::distinct(gene) %>% unlist(use.names = FALSE) }
+
     }
 
     #total genes in venn
