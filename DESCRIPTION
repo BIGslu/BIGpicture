@@ -16,7 +16,6 @@ Imports:
     doParallel,
     dplyr,
     edgeR,
-    forcats,
     foreach,
     ggnetwork,
     ggplot2,
