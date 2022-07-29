@@ -4,7 +4,7 @@
 #' @param model_result_y List of data frame output by kimma::kmFit()
 #' @param x Character string of model to plot on x-axis. Must match object names in model_result. For example, "lm", "lme", "lmerel"
 #' @param y Character string of model to plot on y-axis. Must match object names in model_result. For example, "lm", "lme", "lmerel"
-#' @param metrics Character vector of metric to plot. For example, "sigma", "AIC", "BIC", "Rsq", "adj_Rsq"
+#' @param metrics Character vector of metric to plot. For example, "sigma", "AIC", "BIC", "Rsq", "adj_Rsq". Default is "AIC"
 #'
 #' @return ggplot object
 #' @export
@@ -12,7 +12,7 @@
 #' @examples
 #' plot_fit(example_model, x="lme", y="lmerel", metrics=c("sigma","AIC","Rsq"))
 
-plot_fit <- function(model_result, model_result_y=NULL, x, y, metrics=NULL){
+plot_fit <- function(model_result, model_result_y=NULL, x, y, metrics="AIC"){
   model <- gene <- sigma <- `Best fit` <- variable <- value <- name <- Metric <- NULL
 
   x_name <- paste(x, "fit", sep=".")
@@ -20,7 +20,7 @@ plot_fit <- function(model_result, model_result_y=NULL, x, y, metrics=NULL){
   x_name2 <- paste(x_name, "x", sep=".")
   y_name2 <- paste(y_name, "y", sep=".")
 
-    #Extract results
+  #Extract results
   if(is.null(model_result_y)){
     x_lab <- x
     y_lab <- y
@@ -53,6 +53,9 @@ plot_fit <- function(model_result, model_result_y=NULL, x, y, metrics=NULL){
       dplyr::select(model, gene, dplyr::all_of(metrics))%>%
       dplyr::mutate(model = y_name2)
   }
+
+  #Stop if only 1 unique model found
+  if(x_lab == y_lab){ stop(paste("Only one unique model found.", x_lab, sep="\n")) }
 
   #Merge and format
   dat <- dplyr::bind_rows(dat_x,dat_y) %>%
