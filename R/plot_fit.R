@@ -20,7 +20,7 @@ plot_fit <- function(model_result, model_result_y=NULL, x, y, metrics="AIC"){
   x_name2 <- paste(x_name, "x", sep=".")
   y_name2 <- paste(y_name, "y", sep=".")
 
-    #Extract results
+  #Extract results
   if(is.null(model_result_y)){
     x_lab <- x
     y_lab <- y
@@ -53,6 +53,9 @@ plot_fit <- function(model_result, model_result_y=NULL, x, y, metrics="AIC"){
       dplyr::select(model, gene, dplyr::all_of(metrics))%>%
       dplyr::mutate(model = y_name2)
   }
+
+  #Stop if only 1 unique model found
+  if(x_lab == y_lab){ stop(paste("Only one unique model found.", x_lab, sep="\n")) }
 
   #Merge and format
   dat <- dplyr::bind_rows(dat_x,dat_y) %>%
