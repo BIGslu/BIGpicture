@@ -1,7 +1,7 @@
 #' Venn diagrams of significant genes
 #'
-#' @param model_result List of data frames output by kimma::kmFit()
-#' @param model Character string of model to plot. Must match object names in model_result. For example, "lm", "lme", "lmekin"
+#' @param model_result NAMED list of lists output by kimma::kmFit() such as list("model1"=model_result1, "model2"=model_result2)
+#' @param models Character vector of model(s) to plot. Must match object names in model_result. For example, "lm", "lme", "lmerel", "limma"
 #' @param variables Character vector of variables in model_result to include in plots
 #' @param contrasts Character vector of contrasts in model_result to include in plots. Format is c("contrast_lvl - contrast_ref", "..."). Only applicable if model name includes 'contrast'
 #' @param intercept Logical if should include the intercept variable. Default is FALSE
@@ -13,37 +13,73 @@
 #' @export
 #'
 #' @examples
-#' venn.result <- plot_venn_genes(example_model, model = "lme", return.genes = TRUE,
+#' # A single model, multiple variables
+#' venn.result <- plot_venn_genes(model_result = list("example_model" = example_model),
+#'     models = "lme", return.genes = TRUE,
 #'     fdr.cutoff = c(0.05,0.5))
-#'
 #' #plot all venn
 #' patchwork::wrap_plots(venn.result[["venn"]])
 #' #Plot 1 venn
 #' venn.result[["venn"]][["0.05"]]
 #' #see genes in intersections
 #' venn.result[["gene"]]
+#'
+#' # Multiple models, subset of variables
+#' model1 <- list("lme" = example_model$lme)
+#' model2 <- list("lmerel" = example_model$lmerel)
+#' plot_venn_genes(list("lme"=model1, "lmerel"=model2),
+#'     variables = c("virus","virus:asthma"),
+#'     fdr.cutoff = c(0.05))
+#'
+#' # Contrasts
+#' model1 <- list("lme" = example_model$lme.contrast)
+#' model2 <- list("lmerel" = example_model$lmerel.contrast)
+#' plot_venn_genes(model_result = list("lme"=model1, "lmerel"=model2),
+#'     contrasts = c("HRV asthma - none asthma"),
+#'     fdr.cutoff = c(0.4))
 
-plot_venn_genes <- function(model_result, model,
+plot_venn_genes <- function(model_result, models=NULL,
                             variables=NULL, contrasts=NULL,
                             intercept=FALSE, random=FALSE,
                             return.genes=FALSE,
                             fdr.cutoff = c(0.05,0.1,0.2,0.3,0.4,0.5)){
 
-  FDR <- variable <- gene <- contrast_ref <- contrast_lvl <- temp <- NULL
+  FDR <- variable <- gene <- contrast_ref <- contrast_lvl <- temp <- model <- dataset <- label <- NULL
 
   #common errors
-  if(!is.null(contrasts) & grepl("contrast", model)){
+  if(!is.null(contrasts) & any(grepl("contrast", models))){
     stop("Must provide contrasts model when specifying contrasts.")
   }
 
   #### Extract results ####
-  dat <- model_result[[model]]
+  dat_all <- data.frame()
+  for(i in 1:length(model_result)){
+    dat_temp <- model_result[[i]]
+
+
+    dat <- data.frame()
+    for(j in 1:length(unique(names(dat_temp)))){
+      dat <- dat_temp[[j]] %>%
+        dplyr::mutate(dataset= names(model_result)[i]) %>%
+        dplyr::bind_rows(dat)
+    }
+
+    dat_all <- dplyr::bind_rows(dat, dat_all)
+  }
+
+  #Subset to models of interest if provided
+  if(!is.null(models)){
+    dat_subset <- dat_all %>%
+      dplyr::filter(model %in% models)
+  } else {
+    dat_subset <- dat_all
+  }
 
   #### List variables of interest ####
   if(!is.null(variables)){
     var_all <- variables
   } else {
-    var_all <- unique(dat$variable)
+    var_all <- unique(dat_subset$variable)
   }
 
   #remove intercept if specified
@@ -57,9 +93,13 @@ plot_venn_genes <- function(model_result, model,
   }
 
   ##### List contrasts of interest ####
-  if(grepl("contrast", model)){
+  if(any(grepl("contrast", unique(dat_subset$model)))){
     if(is.null(contrasts)){
-      con_filter <- dplyr::distinct(dat, contrast_ref, contrast_lvl)
+      con_filter <- dplyr::distinct(dat_subset, variable, contrast_ref, contrast_lvl)
+      if(!is.null(variables)){
+        con_filter <- dplyr::filter(con_filter, variable %in% variables) %>%
+          dplyr::select(-variable)
+      }
     } else {
       con_filter <- strsplit(contrasts, split=" - ") %>%
         as.data.frame() %>% t() %>%  as.data.frame()
@@ -69,17 +109,32 @@ plot_venn_genes <- function(model_result, model,
   }
 
   #### filter data to variables/contrasts of interest ####
-  dat_filter <- dat %>%
-    dplyr::filter(variable %in% var_all)
-
-  if(grepl("contrast", model)){
-    dat_filter <- dat_filter %>%
-      dplyr::inner_join(con_filter, by = c("contrast_ref", "contrast_lvl"))
+  if(any(grepl("contrast", unique(dat_subset$model)))){
+    dat_filter <- dat_subset %>%
+      dplyr::filter(variable %in% var_all) %>%
+      #add dataset name to labels
+      dplyr::inner_join(con_filter, by = c("contrast_ref", "contrast_lvl")) %>%
+      dplyr::mutate(label = paste(dataset,
+                                  paste(contrast_lvl, contrast_ref, sep="\n-\n"),
+                                  sep="\n"))
+  } else if(length(model_result) > 1) {
+    dat_filter <- dat_subset %>%
+      dplyr::filter(variable %in% var_all) %>%
+      #add dataset name to labels
+      dplyr::mutate(label = paste(dataset, variable, sep="\n"))
+  } else {
+    dat_filter <- dat_subset %>%
+      dplyr::filter(variable %in% var_all) %>%
+      #add dataset name to labels
+      dplyr::mutate(label = variable)
   }
 
   #### List to hold plots ####
   venn.ls <- list()
   venn.df.ls <- list()
+
+  # Vector of all models and variables to plot
+  label_all <- unique(dat_filter$label)
 
   for (fdr in fdr.cutoff){
     #list to hold gene vectors
@@ -88,29 +143,36 @@ plot_venn_genes <- function(model_result, model,
     dat_filter_signif <- dat_filter %>% dplyr::filter(FDR < fdr)
 
     #Each variable of interest
-    if(!grepl("contrast", model)){
-      for (var in var_all){
-        venn_dat[[var]] <- dat_filter_signif %>%
-          dplyr::filter(variable == var) %>%
-          dplyr::pull(gene) %>% unique() }
-    } else{
+    if(any(grepl("contrast", unique(dat_filter_signif$model)))){
       for (i in 1:nrow(con_filter)){
         con.OI <- con_filter[i,]
         con.name <- paste(con.OI$contrast_lvl, "-", con.OI$contrast_ref, sep="\n")
 
-        venn_dat[[con.name]] <- dat_filter_signif %>%
-          dplyr::inner_join(con.OI, by = c("contrast_ref", "contrast_lvl")) %>%
-          dplyr::distinct(gene) %>% unlist(use.names = FALSE) }
+        for(d in unique(dat_filter_signif$dataset)){
+          con.name2 <- paste(d, con.name, sep="\n")
+          venn_dat[[con.name2]] <- dat_filter_signif %>%
+            dplyr::inner_join(con.OI, by = c("contrast_ref", "contrast_lvl")) %>%
+            dplyr::filter(dataset == d) %>%
+            dplyr::distinct(gene) %>% unlist(use.names = FALSE)
+        }}
+    } else{
+      for (l in label_all){
+        venn_dat[[l]] <- dat_filter_signif %>%
+          dplyr::filter(label == l) %>%
+          dplyr::pull(gene) %>% unique() }
     }
 
     #total genes in venn
     gene_tot <- 0
-    for(i in 1:length(venn_dat)){
-      gene_tot <- gene_tot + length(venn_dat[[i]])
-    }
+    if(length(venn_dat) > 0 ){
+      for(i in 1:length(venn_dat)){
+        gene_tot <- gene_tot + length(venn_dat[[i]])
+      } }
 
     #Plot all venns
-    if(gene_tot > 0){
+    if(length(venn_dat)>4){
+      print(paste0("More than 4 variables/contrasts with genes at FDR < ", fdr, ". Venns are unreadable. Consider plot_upset_genes( ) instead"))
+    } else if(gene_tot > 0){
       venn.ls[[as.character(fdr)]] <-
         suppressWarnings(
           ggvenn::ggvenn(venn_dat, show_percentage = FALSE,
@@ -118,7 +180,8 @@ plot_venn_genes <- function(model_result, model,
             ggplot2::labs(x = paste("FDR <", fdr)) +
             ggplot2::theme(axis.title.x = ggplot2::element_text())
         )
-    } else {
+    }
+    else {
       print(paste("Zero genes significant at FDR <", fdr))
     }
 

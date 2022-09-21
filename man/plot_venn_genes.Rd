@@ -6,7 +6,7 @@
 \usage{
 plot_venn_genes(
   model_result,
-  model,
+  models = NULL,
   variables = NULL,
   contrasts = NULL,
   intercept = FALSE,
@@ -16,9 +16,9 @@ plot_venn_genes(
 )
 }
 \arguments{
-\item{model_result}{List of data frames output by kimma::kmFit()}
+\item{model_result}{NAMED list of lists output by kimma::kmFit() such as list("model1"=model_result1, "model2"=model_result2)}
 
-\item{model}{Character string of model to plot. Must match object names in model_result. For example, "lm", "lme", "lmekin"}
+\item{models}{Character vector of model(s) to plot. Must match object names in model_result. For example, "lm", "lme", "lmerel", "limma"}
 
 \item{variables}{Character vector of variables in model_result to include in plots}
 
@@ -39,13 +39,28 @@ List with 1 each for each FDR cutoff of (1) venn diagram ggplot object and (2) d
 Venn diagrams of significant genes
 }
 \examples{
-venn.result <- plot_venn_genes(example_model, model = "lme", return.genes = TRUE,
+# A single model, multiple variables
+venn.result <- plot_venn_genes(model_result = list("example_model" = example_model),
+    models = "lme", return.genes = TRUE,
     fdr.cutoff = c(0.05,0.5))
-
 #plot all venn
 patchwork::wrap_plots(venn.result[["venn"]])
 #Plot 1 venn
 venn.result[["venn"]][["0.05"]]
 #see genes in intersections
 venn.result[["gene"]]
+
+# Multiple models, subset of variables
+model1 <- list("lme" = example_model$lme)
+model2 <- list("lmerel" = example_model$lmerel)
+plot_venn_genes(list("lme"=model1, "lmerel"=model2),
+    variables = c("virus","virus:asthma"),
+    fdr.cutoff = c(0.05))
+
+# Contrasts
+model1 <- list("lme" = example_model$lme.contrast)
+model2 <- list("lmerel" = example_model$lmerel.contrast)
+plot_venn_genes(model_result = list("lme"=model1, "lmerel"=model2),
+    contrasts = c("HRV asthma - none asthma"),
+    fdr.cutoff = c(0.4))
 }
