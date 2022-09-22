@@ -56,9 +56,12 @@ plot_venn_genes <- function(model_result, models=NULL,
   for(i in 1:length(model_result)){
     dat_temp <- model_result[[i]]
 
+    #list all model df
+    m <- names(dat_temp)[!grepl(".fit", names(dat_temp))]
+    m <- m[!grepl(".error", m)]
 
     dat <- data.frame()
-    for(j in 1:length(unique(names(dat_temp)))){
+    for(j in m){
       dat <- dat_temp[[j]] %>%
         dplyr::mutate(dataset= names(model_result)[i]) %>%
         dplyr::bind_rows(dat)
