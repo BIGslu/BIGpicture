@@ -117,19 +117,29 @@ plot_venn_genes <- function(model_result, models=NULL,
       dplyr::filter(variable %in% var_all) %>%
       #add dataset name to labels
       dplyr::inner_join(con_filter, by = c("contrast_ref", "contrast_lvl")) %>%
-      dplyr::mutate(label = paste(dataset,
-                                  paste(contrast_lvl, contrast_ref, sep="\n-\n"),
-                                  sep="\n"))
+      dplyr::mutate(label = paste(contrast_lvl, contrast_ref, sep="\n-\n"))
   } else if(length(model_result) > 1) {
     dat_filter <- dat_subset %>%
       dplyr::filter(variable %in% var_all) %>%
       #add dataset name to labels
-      dplyr::mutate(label = paste(dataset, variable, sep="\n"))
+      dplyr::mutate(label = variable)
   } else {
     dat_filter <- dat_subset %>%
       dplyr::filter(variable %in% var_all) %>%
-      #add dataset name to labels
       dplyr::mutate(label = variable)
+  }
+
+  #Add data set and/or model name to label
+  if(length(unique(dat_filter$model)) > 1){
+    dat_filter <- dat_filter %>%
+      dplyr::mutate(label = paste(model, label, sep="\n"))
+  }
+
+  if(length(unique(dat_filter$dataset)) > 1 &
+     !identical(sort(unique(dat_filter$dataset)),
+                sort(unique(dat_filter$model)))){
+    dat_filter <- dat_filter %>%
+      dplyr::mutate(label = paste(dataset, label, sep="\n"))
   }
 
   #### List to hold plots ####
