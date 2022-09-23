@@ -139,7 +139,7 @@ plot_venn_genes <- function(model_result, models=NULL,
      !identical(sort(unique(dat_filter$dataset)),
                 sort(unique(dat_filter$model)))){
     dat_filter <- dat_filter %>%
-      dplyr::mutate(label = paste(model, label, sep="\n"))
+      dplyr::mutate(label = paste(dataset, label, sep="\n"))
   }
 
   #### List to hold plots ####
