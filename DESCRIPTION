@@ -22,6 +22,7 @@ Imports:
     ggpubr,
     ggraph,
     ggrepel,
+    ggupset,
     ggvenn,
     igraph,
     magrittr,
