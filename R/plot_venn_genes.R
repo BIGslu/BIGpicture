@@ -43,122 +43,34 @@ plot_venn_genes <- function(model_result, models=NULL,
                             intercept=FALSE, random=FALSE,
                             return.genes=FALSE,
                             fdr.cutoff = c(0.05,0.1,0.2,0.3,0.4,0.5)){
-
-  FDR <- variable <- gene <- contrast_ref <- contrast_lvl <- temp <- model <- dataset <- label <- NULL
+  FDR <- dataset <- gene <- label<- NULL
 
   #common errors
   if(!is.null(contrasts) & any(grepl("contrast", models))){
     stop("Must provide contrasts model when specifying contrasts.")
   }
 
-  #### Extract results ####
-  dat_all <- data.frame()
-  for(i in 1:length(model_result)){
-    dat_temp <- model_result[[i]]
-
-    #list all model df
-    m <- names(dat_temp)[!grepl(".fit", names(dat_temp))]
-    m <- m[!grepl(".error", m)]
-
-    dat <- data.frame()
-    for(j in m){
-      dat <- dat_temp[[j]] %>%
-        dplyr::mutate(dataset= names(model_result)[i]) %>%
-        dplyr::bind_rows(dat)
-    }
-
-    dat_all <- dplyr::bind_rows(dat, dat_all)
-  }
-
-  #Subset to models of interest if provided
-  if(!is.null(models)){
-    dat_subset <- dat_all %>%
-      dplyr::filter(model %in% models)
-  } else {
-    dat_subset <- dat_all
-  }
-
-  #### List variables of interest ####
-  if(!is.null(variables)){
-    var_all <- variables
-  } else {
-    var_all <- unique(dat_subset$variable)
-  }
-
-  #remove intercept if specified
-  if(!intercept){
-    var_all <- var_all[var_all != "(Intercept)"]
-  }
-
-  #remove random effects if specified
-  if(!random){
-    var_all <- var_all[!grepl("\\|", var_all)]
-  }
-
-  ##### List contrasts of interest ####
-  if(any(grepl("contrast", unique(dat_subset$model)))){
-    if(is.null(contrasts)){
-      con_filter <- dplyr::distinct(dat_subset, variable, contrast_ref, contrast_lvl)
-      if(!is.null(variables)){
-        con_filter <- dplyr::filter(con_filter, variable %in% variables) %>%
-          dplyr::select(-variable)
-      }
-    } else {
-      con_filter <- strsplit(contrasts, split=" - ") %>%
-        as.data.frame() %>% t() %>%  as.data.frame()
-      colnames(con_filter) <- c("contrast_lvl", "contrast_ref")
-      rownames(con_filter) <- NULL
-    }
-  }
-
-  #### filter data to variables/contrasts of interest ####
-  if(any(grepl("contrast", unique(dat_subset$model)))){
-    dat_filter <- dat_subset %>%
-      dplyr::filter(variable %in% var_all) %>%
-      #add dataset name to labels
-      dplyr::inner_join(con_filter, by = c("contrast_ref", "contrast_lvl")) %>%
-      dplyr::mutate(label = paste(contrast_lvl, contrast_ref, sep="\n-\n"))
-  } else if(length(model_result) > 1) {
-    dat_filter <- dat_subset %>%
-      dplyr::filter(variable %in% var_all) %>%
-      #add dataset name to labels
-      dplyr::mutate(label = variable)
-  } else {
-    dat_filter <- dat_subset %>%
-      dplyr::filter(variable %in% var_all) %>%
-      dplyr::mutate(label = variable)
-  }
-
-  #Add data set and/or model name to label
-  if(length(unique(dat_filter$model)) > 1){
-    dat_filter <- dat_filter %>%
-      dplyr::mutate(label = paste(model, label, sep="\n"))
-  }
-
-  if(length(unique(dat_filter$dataset)) > 1 &
-     !identical(sort(unique(dat_filter$dataset)),
-                sort(unique(dat_filter$model)))){
-    dat_filter <- dat_filter %>%
-      dplyr::mutate(label = paste(dataset, label, sep="\n"))
-  }
+  dat_filter_all <- clean_venn_upset(model_result=model_result, models=models,
+                                  variables=variables, contrasts=contrasts,
+                                  intercept=intercept, random=random)
 
   #### List to hold plots ####
   venn.ls <- list()
   venn.df.ls <- list()
 
   # Vector of all models and variables to plot
-  label_all <- unique(dat_filter$label)
+  label_all <- unique(dat_filter_all$dat$label)
 
   for (fdr in fdr.cutoff){
     #list to hold gene vectors
     venn_dat <- list()
     #Significant at chosen FDR
-    dat_filter_signif <- dat_filter %>% dplyr::filter(FDR < fdr)
+    dat_filter_signif <- dat_filter_all$dat %>% dplyr::filter(FDR < fdr)
 
     #Each variable of interest
     if(any(grepl("contrast", unique(dat_filter_signif$model)))){
-      for (i in 1:nrow(con_filter)){
-        con.OI <- con_filter[i,]
+      for (i in 1:nrow(dat_filter_all$con)){
+        con.OI <- dat_filter_all$con[i,]
         con.name <- paste(con.OI$contrast_lvl, "-", con.OI$contrast_ref, sep="\n")
 
         for(d in unique(dat_filter_signif$dataset)){
