@@ -2,6 +2,7 @@
 
 export("%>%")
 export(map_string)
+export(plot_enrich)
 export(plot_fit)
 export(plot_genes)
 export(plot_gsea)
