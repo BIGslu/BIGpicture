@@ -57,4 +57,12 @@ genes.OI <- example_model$lmerel \%>\%
 example_enrich <- BIGprofiler(gene_df = genes.OI, category = "H")
 
 plot_string(map, enrichment = example_enrich, fdr.cutoff=0.2)
+
+# Add GSEA colors
+genes.FC <- example_model$lmerel \%>\%
+            filter(variable == "virus") \%>\%
+            select(variable, hgnc_symbol, estimate)
+example_gsea <- BIGsea(gene_df = genes.FC, category = "H")
+
+plot_string(map, enrichment = example_gsea, fdr.cutoff=0.2)
 }

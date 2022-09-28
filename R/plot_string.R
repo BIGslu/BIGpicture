@@ -31,20 +31,38 @@
 #' example_enrich <- BIGprofiler(gene_df = genes.OI, category = "H")
 #'
 #' plot_string(map, enrichment = example_enrich, fdr.cutoff=0.2)
+#'
+#' # Add GSEA colors
+#' genes.FC <- example_model$lmerel %>%
+#'             filter(variable == "virus") %>%
+#'             select(variable, hgnc_symbol, estimate)
+#' example_gsea <- BIGsea(gene_df = genes.FC, category = "H")
+#'
+#' plot_string(map, enrichment = example_gsea, fdr.cutoff=0.2)
 
 plot_string <- function(map, discard="none", layout='fr',
                         enrichment=NULL, overlap=2, fdr.cutoff=0.2,
                         colors=NULL, text_size=2, node_size=1){
-  pathway <- STRING_id <- combined_score <- gene <- none <- total <- value <- group_in_pathway <- FDR <- genes <- NULL
+  pathway <- STRING_id <- combined_score <- gene <- none <- total <- value <- group_in_pathway <- FDR <- genes <- leadingEdge <- NULL
 
   #### Format enrichment colors ####
   if(!is.null(enrichment)){
+    if("k/K" %in% colnames(enrichment)){
     #Get significant enrichments
     col.mat <- enrichment %>%
       dplyr::ungroup() %>%
       dplyr::filter(group_in_pathway >= overlap & FDR <= fdr.cutoff) %>%
       dplyr::select(pathway, genes) %>%
       dplyr::rename(gene=genes)
+    }
+    if("NES" %in% colnames(enrichment)){
+      #Get significant GSEA
+      col.mat <- enrichment %>%
+        dplyr::ungroup() %>%
+        dplyr::filter(FDR <= fdr.cutoff) %>%
+        dplyr::select(pathway, leadingEdge) %>%
+        dplyr::rename(gene=leadingEdge)
+    }
 
     #Error if no terms to plot
     if(nrow(col.mat) == 0) {stop("No significant enrichment terms.
