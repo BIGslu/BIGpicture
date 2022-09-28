@@ -22,7 +22,7 @@
 plot_enrich <- function(enrich, fdr.cutoff = 0.2,
                       fdr.colors = c(0.01, 0.05, 0.1, 0.2),
                       show.overlap = TRUE){
-  FDR <-`k/K`<-Significance<-pathway<- NULL
+  FDR <-`k/K`<-Significance<-pathway<-group<- NULL
 
   #### Format data ####
   dat.signif <- enrich %>%

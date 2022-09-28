@@ -25,7 +25,7 @@ plot_gsea <- function(gsea, fdr.cutoff = 0.2,
                       fdr.colors = c(0.01, 0.05, 0.1, 0.2),
                       show.overlap = TRUE
                       ){
-  FDR <-NES<-Significance<-pathway<- NULL
+  FDR <-NES<-Significance<-pathway<-group<- NULL
   #### Format data ####
   dat.signif <- gsea %>%
     dplyr::filter(FDR < fdr.cutoff)
