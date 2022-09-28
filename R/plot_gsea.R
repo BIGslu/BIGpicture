@@ -27,6 +27,22 @@ plot_gsea <- function(gsea, fdr.cutoff = 0.2,
                       ){
   FDR <-NES<-Significance<-pathway<- NULL
   #### Format data ####
+  dat.signif <- gsea %>%
+    dplyr::filter(FDR < fdr.cutoff)
+  #keep nonsignif overlap if requested
+  if(show.overlap){
+    dat.format <- gsea %>%
+      dplyr::filter(pathway %in% dat.signif$pathway) %>%
+      dplyr::mutate(pathway = gsub("_", " ", pathway)) %>%
+      #Add 0 enrichment values
+      tidyr::complete(group, pathway) %>%
+      dplyr::mutate(NES = ifelse(is.na(NES), 0, NES),
+                    FDR = ifelse(is.na(FDR), 1, FDR))
+  } else{
+    dat.format <- dat.signif %>%
+      dplyr::mutate(pathway = gsub("_", " ", pathway))
+  }
+
   dat.format <- gsea %>%
     dplyr::mutate(pathway = gsub("_", " ", pathway)) %>%
     dplyr::filter(FDR < fdr.cutoff)
@@ -34,6 +50,7 @@ plot_gsea <- function(gsea, fdr.cutoff = 0.2,
   if(nrow(dat.format) == 0){stop("No gene sets are significant. Please increase fdr.cutoff.")}
 
   fdr.colors.sort <- sort(fdr.colors)
+  dat.format$Significance <- NA
   for(i in 1:length(fdr.colors.sort)){
     if(i==1){
       dat.format$Significance[dat.format$FDR < fdr.colors.sort[i]] <- paste("FDR <", fdr.colors.sort[i])
