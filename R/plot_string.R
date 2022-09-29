@@ -3,11 +3,12 @@
 #' To be used in conjunction with map_string
 #'
 #' @param map List output by map_string
-#' @param discard Character string identifying genes to remove from the network. Can be "none" (Default), "orphan" (genes with 0 connections in the network), or "orphan.unenrich" (genes with 0 connections and no significant enrichment colors)
 #' @param layout Character string for network layout algorithm. See options in igraph::layout_with_
-#' @param enrichment Data frame output by hypergeometric enrichment
-#' @param overlap Numeric minimum of significant genes in terms to be used as colors
-#' @param fdr.cutoff Numeric maximum FDR of terms to be used as colors
+#' @param discard Character string identifying genes to remove from the network. Can be "none" (Default), "orphan" (genes with 0 connections in the network), or "cluster" (genes with any connections, leaving only orphans)
+#' @param enriched.only Logical if should include only genes in significantly enriched terms. Default FALSE
+#' @param enrichment Data frame output by `BIGprofiler`, `BIGenrichr`, or `BIGsea`. For use in coloring nodes
+#' @param overlap Numeric minimum of total significant genes in a enrichment term to be used as colors (`BIGprofiler`, `BIGenrichr`)
+#' @param fdr.cutoff Numeric maximum FDR of enrichment terms to be used as colors (`BIGprofiler`, `BIGenrichr`, `BIGsea`)
 #' @param colors Character vector of custom colors to use. Must be at least a long as total significant terms plus 1 for the "none" group
 #' @param text_size Numeric size of gene labels on network nodes. Default of 2
 #' @param node_size Numeric size of network nodes. Default of 1
@@ -31,20 +32,40 @@
 #' example_enrich <- BIGprofiler(gene_df = genes.OI, category = "H")
 #'
 #' plot_string(map, enrichment = example_enrich, fdr.cutoff=0.2)
+#' plot_string(map, enrichment = example_enrich, fdr.cutoff=0.2, enriched.only=TRUE)
+#'
+#' # Add GSEA colors
+#' genes.FC <- example_model$lmerel %>%
+#'             filter(variable == "virus") %>%
+#'             select(variable, hgnc_symbol, estimate)
+#' example_gsea <- BIGsea(gene_df = genes.FC, category = "H")
+#'
+#' plot_string(map, enrichment = example_gsea, fdr.cutoff=0.2, discard = "cluster")
 
-plot_string <- function(map, discard="none", layout='fr',
+plot_string <- function(map, layout='fr',
+                        discard="none", enriched.only = FALSE,
                         enrichment=NULL, overlap=2, fdr.cutoff=0.2,
                         colors=NULL, text_size=2, node_size=1){
-  pathway <- STRING_id <- combined_score <- gene <- none <- total <- value <- group_in_pathway <- FDR <- genes <- NULL
+  pathway <- STRING_id <- combined_score <- gene <- none <- total <- value <- group_in_pathway <- FDR <- genes <- leadingEdge <- NULL
 
   #### Format enrichment colors ####
   if(!is.null(enrichment)){
+    if("k/K" %in% colnames(enrichment)){
     #Get significant enrichments
     col.mat <- enrichment %>%
       dplyr::ungroup() %>%
       dplyr::filter(group_in_pathway >= overlap & FDR <= fdr.cutoff) %>%
       dplyr::select(pathway, genes) %>%
       dplyr::rename(gene=genes)
+    }
+    if("NES" %in% colnames(enrichment)){
+      #Get significant GSEA
+      col.mat <- enrichment %>%
+        dplyr::ungroup() %>%
+        dplyr::filter(FDR <= fdr.cutoff) %>%
+        dplyr::select(pathway, leadingEdge) %>%
+        dplyr::rename(gene=leadingEdge)
+    }
 
     #Error if no terms to plot
     if(nrow(col.mat) == 0) {stop("No significant enrichment terms.
@@ -95,26 +116,35 @@ plot_string <- function(map, discard="none", layout='fr',
       dplyr::ungroup()
   }
 
-  #### Discard unconnected if specified ####
+  #### Discard nodes if specified ####
   ##All nodes
-  nodes <- which(igraph::degree(map[["subgraph"]])>=0)
+  # nodes <- which(igraph::degree(map[["subgraph"]])>=0)
   ##Nodes without edge connections
-  isolated <- which(igraph::degree(map[["subgraph"]])==0)
+  orphans <- which(igraph::degree(map[["subgraph"]])==0)
+  ##Nodes with 1+ edge connections
+  clusters <- which(igraph::degree(map[["subgraph"]])>0)
 
   ##Remove unconnected regardless of enrichment
   if(discard == "orphan"){
-    subgraph.filter <- igraph::delete.vertices(map[["subgraph"]], isolated)
-  } else if(discard == "orphan.unenrich"){
+    subgraph.filter <- igraph::delete.vertices(map[["subgraph"]], orphans)
+  } else if (discard == "cluster"){
+    subgraph.filter <- igraph::delete.vertices(map[["subgraph"]], clusters)
+  }else if(discard == "none") {
+    subgraph.filter <- map[["subgraph"]]
+  }
+
+  ##Remove nodes not in an enriched pathway (leave only colored nodes)
+  ## all nodes currently
+  curr.nodes <- which(igraph::degree(subgraph.filter)>=0)
+  if(enriched.only){
     ##Nodes without enrichment
     unenrich <- map.unique %>%
       dplyr::filter(none==1) %>%
       dplyr::distinct(STRING_id) %>%
       dplyr::pull(STRING_id)
     ##Remove unconnected that are also unenriched
-    isolated.unenrich <- isolated[names(isolated) %in% unenrich]
-    subgraph.filter <-  igraph::delete.vertices(map[["subgraph"]], isolated.unenrich)
-  } else if(discard == "none") {
-    subgraph.filter <- map[["subgraph"]]
+    unenrich.nodes <- curr.nodes[names(curr.nodes) %in% unenrich]
+    subgraph.filter <-  igraph::delete.vertices(subgraph.filter, unenrich.nodes)
   }
 
   #### Arrange metadata as in network ####
@@ -186,45 +216,47 @@ plot_string <- function(map, discard="none", layout='fr',
     ggraph::scale_edge_width(range = c(0.2,2), name="STRING score")
 
   #Add nodes
-  if(!is.null(enrichment)){
-    if(length(colnames(map.arrange)[-c(1:3)])>1){
-    plot.col <- plot +
-      scatterpie::geom_scatterpie(data=igraph::as_data_frame(subgraph.filter,
-                                                             "vertices"),
-                                  cols=colnames(map.arrange)[-c(1:3)], color=NA,
-                                  pie_scale = node_size) +
-      ggplot2::scale_fill_manual(values = color.vec, name = "") +
-      ggnetwork::geom_nodetext(ggplot2::aes(x = igraph::V(subgraph.filter)$x,
-                                            y = igraph::V(subgraph.filter)$y,
-                                            label=igraph::V(subgraph.filter)$symbol),
-                               size=text_size) +
-      ggnetwork::theme_blank() + ggplot2::coord_fixed()
+  suppressWarnings(
+    if(!is.null(enrichment)){
+      if(length(colnames(map.arrange)[-c(1:3)])>1){
+        plot.col <- plot +
+          scatterpie::geom_scatterpie(data=igraph::as_data_frame(subgraph.filter,
+                                                                 "vertices"),
+                                      cols=colnames(map.arrange)[-c(1:3)], color=NA,
+                                      pie_scale = node_size) +
+          ggplot2::scale_fill_manual(values = color.vec, name = "") +
+          ggnetwork::geom_nodetext(ggplot2::aes(x = igraph::V(subgraph.filter)$x,
+                                                y = igraph::V(subgraph.filter)$y,
+                                                label=igraph::V(subgraph.filter)$symbol),
+                                   size=text_size) +
+          ggnetwork::theme_blank() + ggplot2::coord_fixed()
+      } else{
+        plot.col <- plot +
+          ggnetwork::geom_nodes(ggplot2::aes(x = igraph::V(subgraph.filter)$x,
+                                             y = igraph::V(subgraph.filter)$y,
+                                             fill=NULL,
+                                             color=colnames(map.arrange)[-c(1:3)]),
+                                size = node_size*10) +
+          ggnetwork::geom_nodetext(ggplot2::aes(x = igraph::V(subgraph.filter)$x,
+                                                y = igraph::V(subgraph.filter)$y,
+                                                label = igraph::V(subgraph.filter)$symbol),
+                                   size=text_size) +
+          ggnetwork::theme_blank() + ggplot2::coord_fixed() +
+          ggplot2::scale_color_manual(values = color.vec, name = "")
+      }
     } else{
       plot.col <- plot +
         ggnetwork::geom_nodes(ggplot2::aes(x = igraph::V(subgraph.filter)$x,
                                            y = igraph::V(subgraph.filter)$y,
-                                           fill=NULL,
-                                           color=colnames(map.arrange)[-c(1:3)]),
-                              size = node_size*10) +
+                                           fill=NULL), size = node_size*10,
+                              color=color.vec) +
         ggnetwork::geom_nodetext(ggplot2::aes(x = igraph::V(subgraph.filter)$x,
                                               y = igraph::V(subgraph.filter)$y,
                                               label = igraph::V(subgraph.filter)$symbol),
                                  size=text_size) +
-        ggnetwork::theme_blank() + ggplot2::coord_fixed() +
-        ggplot2::scale_color_manual(values = color.vec, name = "")
+        ggnetwork::theme_blank() + ggplot2::coord_fixed()
     }
-  } else{
-    plot.col <- plot +
-      ggnetwork::geom_nodes(ggplot2::aes(x = igraph::V(subgraph.filter)$x,
-                                         y = igraph::V(subgraph.filter)$y,
-                                         fill=NULL), size = node_size*10,
-                            color=color.vec) +
-      ggnetwork::geom_nodetext(ggplot2::aes(x = igraph::V(subgraph.filter)$x,
-                                            y = igraph::V(subgraph.filter)$y,
-                                            label = igraph::V(subgraph.filter)$symbol),
-                               size=text_size) +
-      ggnetwork::theme_blank() + ggplot2::coord_fixed()
-  }
+  )
   return(plot.col)
 }
 

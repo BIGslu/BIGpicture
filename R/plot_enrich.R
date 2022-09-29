@@ -1,6 +1,6 @@
-#' Plot GSEA normalized enrichment
+#' Plot k/K for hypergeo enrichment
 #'
-#' @param gsea Data frame output by SEARchways::BIGsea including pathway, FDR, and NES
+#' @param enrich Data frame output by SEARchways::BIGprofiler or SEARchways::BIGenrichr
 #' @param fdr.cutoff Numeric. Maximum FDR to plot. Default is 0.2
 #' @param fdr.colors Numeric vector. Cutoffs for color groups. Default is c(0.01, 0.05, 0.1, 0.2)
 #' @param show.overlap Logical if should show overlap across all facets even if some missing (TRUE) or give each facet it's own axis labels (FALSE). Default is TRUE
@@ -11,41 +11,36 @@
 #' @examples
 #' library(SEARchways)
 #' library(dplyr)
-#' #Get fold change information from example model
-#' genes.FC <- example_model$lmerel %>%
-#'             filter(variable == "virus") %>%
-#'             select(variable, hgnc_symbol, estimate)
-#' #Run GSEA
-#' example_gsea <- BIGsea(gene_df = genes.FC, category = "H")
+#' #Run enrichment
+#' gene_list <- list(HRV1 = names(example_gene_list[[1]]),
+#'                   HRV2 = names(example_gene_list[[2]]))
+#' enrich <- BIGprofiler(gene_list, ID="ENSEMBL", category="H")
 #'
 #' #Plot
-#' plot_gsea(example_gsea)
+#' plot_enrich(enrich, fdr.cutoff = 0.5, fdr.colors = c(0.05, 0.5))
 
-plot_gsea <- function(gsea, fdr.cutoff = 0.2,
-                      fdr.colors = c(0.01, 0.05, 0.1, 0.2),
-                      show.overlap = TRUE
-                      ){
-  FDR <-NES<-Significance<-pathway<-group<- NULL
+plot_enrich <- function(enrich,
+                        fdr.cutoff = 0.2,
+                        fdr.colors = c(0.01, 0.05, 0.1, 0.2),
+                        show.overlap = TRUE){
+  FDR <-`k/K`<-Significance<-pathway<-group<- NULL
+
   #### Format data ####
-  dat.signif <- gsea %>%
+  dat.signif <- enrich %>%
     dplyr::filter(FDR < fdr.cutoff)
   #keep nonsignif overlap if requested
   if(show.overlap){
-    dat.format <- gsea %>%
+    dat.format <- enrich %>%
       dplyr::filter(pathway %in% dat.signif$pathway) %>%
       dplyr::mutate(pathway = gsub("_", " ", pathway)) %>%
       #Add 0 enrichment values
       tidyr::complete(group, pathway) %>%
-      dplyr::mutate(NES = ifelse(is.na(NES), 0, NES),
+      dplyr::mutate(`k/K` = ifelse(is.na(`k/K`), 0, `k/K`),
                     FDR = ifelse(is.na(FDR), 1, FDR))
   } else{
     dat.format <- dat.signif %>%
       dplyr::mutate(pathway = gsub("_", " ", pathway))
   }
-
-  dat.format <- gsea %>%
-    dplyr::mutate(pathway = gsub("_", " ", pathway)) %>%
-    dplyr::filter(FDR < fdr.cutoff)
 
   if(nrow(dat.format) == 0){stop("No gene sets are significant. Please increase fdr.cutoff.")}
 
@@ -59,22 +54,18 @@ plot_gsea <- function(gsea, fdr.cutoff = 0.2,
     }
   }
 
-  #Enrichment score limits
-  plot.lim <- max(abs(dat.format$NES))+0.1
-
   #### Plot ####
   p1 <- dat.format %>%
-    ggplot2::ggplot(ggplot2::aes(stats::reorder(pathway, NES), NES)) +
-    ggplot2::geom_segment(ggplot2::aes(stats::reorder(pathway, NES),
-                     xend=pathway, y=0, yend=NES)) +
+    ggplot2::ggplot(ggplot2::aes(stats::reorder(pathway, `k/K`), `k/K`)) +
+    ggplot2::geom_segment(ggplot2::aes(stats::reorder(pathway, `k/K`),
+                                       xend=pathway, y=0, yend=`k/K`)) +
     ggplot2::geom_point(size=3, ggplot2::aes(fill = Significance),
-               shape=21, stroke=1) +
+                        shape=21, stroke=1) +
     ggplot2::geom_hline(yintercept = 0) +
 
     ggplot2::scale_fill_brewer(palette = "RdYlBu", na.value="grey70") +
-    ggplot2::lims(y=c(-plot.lim,plot.lim)) +
     ggplot2::coord_flip() +
-    ggplot2::labs(x="", y="Normalized Enrichment Score") +
+    ggplot2::labs(x="", y="Proportion enriched (k / K)") +
     ggplot2::theme_bw()
 
   if(show.overlap){

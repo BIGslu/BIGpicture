@@ -6,8 +6,9 @@
 \usage{
 plot_string(
   map,
-  discard = "none",
   layout = "fr",
+  discard = "none",
+  enriched.only = FALSE,
   enrichment = NULL,
   overlap = 2,
   fdr.cutoff = 0.2,
@@ -19,15 +20,17 @@ plot_string(
 \arguments{
 \item{map}{List output by map_string}
 
-\item{discard}{Character string identifying genes to remove from the network. Can be "none" (Default), "orphan" (genes with 0 connections in the network), or "orphan.unenrich" (genes with 0 connections and no significant enrichment colors)}
-
 \item{layout}{Character string for network layout algorithm. See options in igraph::layout_with_}
 
-\item{enrichment}{Data frame output by hypergeometric enrichment}
+\item{discard}{Character string identifying genes to remove from the network. Can be "none" (Default), "orphan" (genes with 0 connections in the network), or "cluster" (genes with any connections, leaving only orphans)}
 
-\item{overlap}{Numeric minimum of significant genes in terms to be used as colors}
+\item{enriched.only}{Logical if should include only genes in significantly enriched terms. Default FALSE}
 
-\item{fdr.cutoff}{Numeric maximum FDR of terms to be used as colors}
+\item{enrichment}{Data frame output by \code{BIGprofiler}, \code{BIGenrichr}, or \code{BIGsea}. For use in coloring nodes}
+
+\item{overlap}{Numeric minimum of total significant genes in a enrichment term to be used as colors (\code{BIGprofiler}, \code{BIGenrichr})}
+
+\item{fdr.cutoff}{Numeric maximum FDR of enrichment terms to be used as colors (\code{BIGprofiler}, \code{BIGenrichr}, \code{BIGsea})}
 
 \item{colors}{Character vector of custom colors to use. Must be at least a long as total significant terms plus 1 for the "none" group}
 
@@ -57,4 +60,13 @@ genes.OI <- example_model$lmerel \%>\%
 example_enrich <- BIGprofiler(gene_df = genes.OI, category = "H")
 
 plot_string(map, enrichment = example_enrich, fdr.cutoff=0.2)
+plot_string(map, enrichment = example_enrich, fdr.cutoff=0.2, enriched.only=TRUE)
+
+# Add GSEA colors
+genes.FC <- example_model$lmerel \%>\%
+            filter(variable == "virus") \%>\%
+            select(variable, hgnc_symbol, estimate)
+example_gsea <- BIGsea(gene_df = genes.FC, category = "H")
+
+plot_string(map, enrichment = example_gsea, fdr.cutoff=0.2, discard = "cluster")
 }
