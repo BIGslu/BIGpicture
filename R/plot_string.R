@@ -216,6 +216,7 @@ plot_string <- function(map, layout='fr',
     ggraph::scale_edge_width(range = c(0.2,2), name="STRING score")
 
   #Add nodes
+  suppressWarnings(
     if(!is.null(enrichment)){
       if(length(colnames(map.arrange)[-c(1:3)])>1){
         plot.col <- plot +
@@ -255,6 +256,7 @@ plot_string <- function(map, layout='fr',
                                  size=text_size) +
         ggnetwork::theme_blank() + ggplot2::coord_fixed()
     }
+  )
   return(plot.col)
 }
 
