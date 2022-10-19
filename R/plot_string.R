@@ -46,7 +46,7 @@ plot_string <- function(map, layout='fr',
                         discard="none", enriched.only = FALSE,
                         enrichment=NULL, overlap=2, fdr.cutoff=0.2,
                         colors=NULL, text_size=2, node_size=1){
-  pathway <- STRING_id <- combined_score <- gene <- none <- total <- value <- group_in_pathway <- FDR <- genes <- leadingEdge <- NULL
+  pathway <- STRING_id <- combined_score <- gene <- none <- total <- value <- group_in_pathway <- FDR <- genes <- leadingEdge <- legend.title <- NULL
 
   #### Format enrichment colors ####
   if(!is.null(enrichment)){
@@ -57,6 +57,7 @@ plot_string <- function(map, layout='fr',
       dplyr::filter(group_in_pathway >= overlap & FDR <= fdr.cutoff) %>%
       dplyr::select(pathway, genes) %>%
       dplyr::rename(gene=genes)
+    legend.title <- "Enriched pathways"
     }
     if("NES" %in% colnames(enrichment)){
       #Get significant GSEA
@@ -65,10 +66,11 @@ plot_string <- function(map, layout='fr',
         dplyr::filter(FDR <= fdr.cutoff) %>%
         dplyr::select(pathway, leadingEdge) %>%
         dplyr::rename(gene=leadingEdge)
+      legend.title <- "GSEA leading edge"
     }
 
     #Error if no terms to plot
-    if(nrow(col.mat) == 0) {stop("No significant enrichment terms.
+    if(nrow(col.mat) == 0) {stop("No significant enrichment/GSEA terms.
                                Try increasing fdr.cutoff.")}
 
     #Format enrichment results for scatterpie plotting
@@ -224,7 +226,7 @@ plot_string <- function(map, layout='fr',
                                                                  "vertices"),
                                       cols=colnames(map.arrange)[-c(1:3)], color=NA,
                                       pie_scale = node_size) +
-          ggplot2::scale_fill_manual(values = color.vec, name = "") +
+          ggplot2::scale_fill_manual(values = color.vec, name = legend.title) +
           ggnetwork::geom_nodetext(ggplot2::aes(x = igraph::V(subgraph.filter)$x,
                                                 y = igraph::V(subgraph.filter)$y,
                                                 label=igraph::V(subgraph.filter)$symbol),
@@ -242,7 +244,7 @@ plot_string <- function(map, layout='fr',
                                                 label = igraph::V(subgraph.filter)$symbol),
                                    size=text_size) +
           ggnetwork::theme_blank() + ggplot2::coord_fixed() +
-          ggplot2::scale_color_manual(values = color.vec, name = "")
+          ggplot2::scale_color_manual(values = color.vec, name = legend.title)
       }
     } else{
       plot.col <- plot +
