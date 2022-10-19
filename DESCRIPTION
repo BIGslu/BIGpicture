@@ -1,6 +1,6 @@
 Package: BIGpicture
 Title: Standard Plots for BIGslu
-Version: 1.0.0
+Version: 1.0.1
 Authors@R: 
     person(given = "Kim",
            family = "Dill-McFarland",
