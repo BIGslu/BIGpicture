@@ -12,7 +12,9 @@ plot_volcano(
   y = "FDR",
   x.cutoff = NULL,
   y.cutoff = NULL,
-  label = NULL
+  label = NULL,
+  genes = NULL,
+  genes_label = NULL
 )
 }
 \arguments{
@@ -31,6 +33,10 @@ plot_volcano(
 \item{y.cutoff}{Numeric. Optional y cutoff for color and/or labeling}
 
 \item{label}{Character or numeric. If "all", all significant genes as defined by x.cutoff and y.cutoff are labels with their HGNC symbol. If numeric, that number of most significant genes are labeled.}
+
+\item{genes}{Data frame with gene metadata for labeling points (optional). If not provided, the gene column in the model_result is used}
+
+\item{genes_label}{Character string of variable in genes to label with. Required if provide genes parameter}
 }
 \value{
 ggplot object
@@ -50,4 +56,7 @@ plot_volcano(example_model, model = "lme", variables = "virus",
 
 plot_volcano(example_model, model = "lme", variables = "virus",
              y.cutoff = 1E-20, label = "all")
+plot_volcano(example_model, model = "lme", variables = "virus",
+             y.cutoff = 1E-20, label = "all",
+             genes = kimma::example.voom$genes, genes_label = "hgnc_symbol")
 }

@@ -32,10 +32,10 @@ library(dplyr)
 #Get fold change information from example model
 genes.FC <- example_model$lmerel \%>\%
             filter(variable == "virus") \%>\%
-            select(variable, hgnc_symbol, estimate)
+            select(variable, gene, estimate)
 #Run GSEA
-example_gsea <- BIGsea(gene_df = genes.FC, category = "H")
+example_gsea <- SEARchways::BIGsea(gene_df = genes.FC, category = "H", ID = "ENSEMBL")
 
 #Plot
-plot_gsea(example_gsea)
+plot_gsea(example_gsea, fdr.cutoff = 0.5)
 }

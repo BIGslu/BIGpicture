@@ -56,17 +56,20 @@ library(dplyr)
 library(SEARchways)
 genes.OI <- example_model$lmerel \%>\%
             filter(variable == "virus" & FDR < 0.2) \%>\%
-            distinct(variable, hgnc_symbol)
-example_enrich <- BIGprofiler(gene_df = genes.OI, category = "H")
+            select(variable, gene)
+example_enrich <- SEARchways::BIGprofiler(gene_df = genes.OI,
+                                          category = "H", ID = "ENSEMBL")
 
-plot_string(map, enrichment = example_enrich, fdr.cutoff=0.2)
-plot_string(map, enrichment = example_enrich, fdr.cutoff=0.2, enriched.only=TRUE)
+map2 <- map_string(genes = genes.OI$gene,
+                 version = 11.5, score_threshold = 400)
+plot_string(map2, enrichment = example_enrich, fdr.cutoff=0.2)
+plot_string(map2, enrichment = example_enrich, fdr.cutoff=0.2, enriched.only=TRUE)
 
 # Add GSEA colors
 genes.FC <- example_model$lmerel \%>\%
             filter(variable == "virus") \%>\%
-            select(variable, hgnc_symbol, estimate)
-example_gsea <- BIGsea(gene_df = genes.FC, category = "H")
+            select(variable, gene, estimate)
+example_gsea <- BIGsea(gene_df = genes.FC, category = "H", ID = "ENSEMBL")
 
-plot_string(map, enrichment = example_gsea, fdr.cutoff=0.2, discard = "cluster")
+plot_string(map2, enrichment = example_gsea, fdr.cutoff=0.3, discard = "cluster")
 }
