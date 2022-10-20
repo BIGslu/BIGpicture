@@ -3,11 +3,15 @@
 #' @param model_result List of data frames output by kimma::kmFit()
 #' @param model Character string of model to plot. Must match object names in model_result. For example, "lm", "lme", "lmerel"
 #' @param variables Character vector of variables in model_result to include. Default is all variables in model
+#' @param genes Data frame with gene metadata for labeling points (optional). If not provided, the gene column in the model_result is used
+#' @param genes_label Character string of variable in genes to label with. Required if provide genes parameter
 #' @param x Character string of variable to plot on x-axis. Default is "estimate"
 #' @param y Character string of variable to plot on y-axis. Default is "FDR"
 #' @param x.cutoff Numeric.Optional x cutoff for color and/or labeling
 #' @param y.cutoff Numeric. Optional y cutoff for color and/or labeling
 #' @param label Character or numeric. If "all", all significant genes as defined by x.cutoff and y.cutoff are labels with their HGNC symbol. If numeric, that number of most significant genes are labeled.
+#' @param genes Data frame with gene metadata for labeling points (optional). If not provided, the gene column in the model_result is used
+#' @param genes_label Character string of variable in genes to label with. Required if provide genes parameter
 #'
 #' @return ggplot object
 #' @export
@@ -24,13 +28,20 @@
 #'
 #' plot_volcano(example_model, model = "lme", variables = "virus",
 #'              y.cutoff = 1E-20, label = "all")
+#' plot_volcano(example_model, model = "lme", variables = "virus",
+#'              y.cutoff = 1E-20, label = "all",
+#'              genes = kimma::example.voom$genes, genes_label = "hgnc_symbol")
 
 plot_volcano <- function(model_result, model, variables = NULL,
                          x = "estimate", y = "FDR",
                          x.cutoff = NULL, y.cutoff = NULL,
-                         label = NULL){
+                         label = NULL, genes = NULL, genes_label = NULL){
 
   variable <- col.group <- lab <- NULL
+
+  if(!is.null(genes) & is.null(genes_label)){
+    stop("Please provide column name for labeling in genes_label")
+  }
 
   #### Filter data ####
   # Filter model and variables of interest
@@ -39,6 +50,17 @@ plot_volcano <- function(model_result, model, variables = NULL,
       dplyr::filter(variable %in% variables)
   } else {
     model.filter <- model_result[[model]]
+  }
+
+  #Add gene data if provided
+  if(!is.null(genes)){
+    #find match variable
+    match_var <- which(colSums(genes == model.filter$gene[1], na.rm = TRUE) > 0)
+    match_var <- colnames(genes)[match_var]
+    model.filter <- model.filter %>%
+      dplyr::left_join(genes, by=c("gene"=match_var))
+  } else {
+    genes_label <- "gene"
   }
 
   #### Color and label ####
@@ -63,7 +85,7 @@ plot_volcano <- function(model_result, model, variables = NULL,
         TRUE ~ "NS")) %>%
       # Labels for gene names
       dplyr::mutate(lab = dplyr::case_when(
-        get(y) < y.cutoff & abs(get(x)) > x.cutoff ~ hgnc_symbol)) %>%
+        get(y) < y.cutoff & abs(get(x)) > x.cutoff ~ get(genes_label))) %>%
       #Order by color groups
       dplyr::mutate(col.group = factor(col.group, levels = c("down","up","NS"))) %>%
       dplyr::arrange(dplyr::desc(col.group))
@@ -76,7 +98,7 @@ plot_volcano <- function(model_result, model, variables = NULL,
         TRUE ~ "NS")) %>%
       # Labels for gene names
       dplyr::mutate(lab = dplyr::case_when(
-        abs(get(x)) > x.cutoff ~ hgnc_symbol)) %>%
+        abs(get(x)) > x.cutoff ~ get(genes_label))) %>%
       #Order by color groups
       dplyr::mutate(col.group = factor(col.group, levels = c("down","up","NS"))) %>%
       dplyr::arrange(dplyr::desc(col.group))
