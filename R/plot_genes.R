@@ -244,5 +244,6 @@ plot_genes <- function(dat=NULL, counts=NULL, meta=NULL, genes=NULL,
   }
   parallel::stopCluster(cl)
 
+  names(plot.ls) <- to_plot
   return(plot.ls)
 }
