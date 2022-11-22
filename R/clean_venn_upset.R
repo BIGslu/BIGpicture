@@ -14,14 +14,20 @@ clean_venn_upset <- function(model_result, models,
     dat_temp <- model_result[[i]]
 
     #list all model df
-    m <- names(dat_temp)[!grepl(".fit", names(dat_temp))]
-    m <- m[!grepl(".error", m)]
+    if(is.data.frame(dat_temp)){
+      m <- NULL
+      dat <- dat_temp %>%
+        mutate(dataset=names(model_result)[i])
+    } else{
+      m <- names(dat_temp)[!grepl(".fit", names(dat_temp))]
+      m <- m[!grepl(".error", m)]
 
-    dat <- data.frame()
-    for(j in m){
-      dat <- dat_temp[[j]] %>%
-        dplyr::mutate(dataset= names(model_result)[i]) %>%
-        dplyr::bind_rows(dat)
+      dat <- data.frame()
+      for(j in m){
+        dat <- dat_temp[[j]] %>%
+          dplyr::mutate(dataset= names(model_result)[i]) %>%
+          dplyr::bind_rows(dat)
+      }
     }
 
     dat_all <- dplyr::bind_rows(dat, dat_all)
