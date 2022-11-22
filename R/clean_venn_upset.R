@@ -17,7 +17,7 @@ clean_venn_upset <- function(model_result, models,
     if(is.data.frame(dat_temp)){
       m <- NULL
       dat <- dat_temp %>%
-        mutate(dataset=names(model_result)[i])
+        dplyr::mutate(dataset=names(model_result)[i])
     } else{
       m <- names(dat_temp)[!grepl(".fit", names(dat_temp))]
       m <- m[!grepl(".error", m)]
