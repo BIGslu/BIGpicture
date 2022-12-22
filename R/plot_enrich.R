@@ -68,10 +68,12 @@ plot_enrich <- function(enrich,
     ggplot2::labs(x="", y="Proportion enriched (k / K)") +
     ggplot2::theme_bw()
 
-  if(show.overlap){
+  if(show.overlap & length(unique(dat.format$group)) > 1){
     p1.facet <- p1 + ggplot2::facet_grid( ~ group)
-  } else {
+  } else if(length(unique(dat.format$group)) > 1){
     p1.facet <- p1 + ggplot2::facet_wrap( ~ group, scales="free")
+  } else{
+    p1.facet <- p1
   }
   return(p1.facet)
 }

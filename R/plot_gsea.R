@@ -77,10 +77,12 @@ plot_gsea <- function(gsea, fdr.cutoff = 0.2,
     ggplot2::labs(x="", y="Normalized Enrichment Score") +
     ggplot2::theme_bw()
 
-  if(show.overlap){
+  if(show.overlap & length(unique(dat.format$group)) > 1){
     p1.facet <- p1 + ggplot2::facet_grid( ~ group)
-  } else {
+  } else if(length(unique(dat.format$group)) > 1){
     p1.facet <- p1 + ggplot2::facet_wrap( ~ group, scales="free")
+  } else{
+    p1.facet <- p1
   }
   return(p1.facet)
 }
