@@ -22,8 +22,6 @@ plot_string(
 
 \item{layout}{Character string for network layout algorithm. See options in igraph::layout_with_}
 
-\item{discard}{Character string identifying genes to remove from the network. Can be "none" (Default), "orphan" (genes with 0 connections in the network), or "cluster" (genes with any connections, leaving only orphans)}
-
 \item{enriched_only}{Logical if should include only genes in significantly enriched terms. Default FALSE}
 
 \item{enrichment}{Data frame output by \code{BIGprofiler}, \code{BIGenrichr}, or \code{BIGsea}. For use in coloring nodes}
@@ -37,6 +35,10 @@ plot_string(
 \item{text_size}{Numeric size of gene labels on network nodes. Default of 2}
 
 \item{node_size}{Numeric size of network nodes. Default of 1}
+
+\item{edge_min}{Numeric minimum edges a node must have to be displayed. Default is 0 meaning orphan nodes are included}
+
+\item{edge_max}{Numeric maximum edges a node must have to be displayed. Default in Inf. Set to 0 to see only orphan nodes}
 }
 \value{
 ggplot STRING network object
