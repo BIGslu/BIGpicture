@@ -5,10 +5,10 @@
 #' @param map List output by map_string
 #' @param layout Character string for network layout algorithm. See options in igraph::layout_with_
 #' @param discard Character string identifying genes to remove from the network. Can be "none" (Default), "orphan" (genes with 0 connections in the network), or "cluster" (genes with any connections, leaving only orphans)
-#' @param enriched.only Logical if should include only genes in significantly enriched terms. Default FALSE
+#' @param enriched_only Logical if should include only genes in significantly enriched terms. Default FALSE
 #' @param enrichment Data frame output by `BIGprofiler`, `BIGenrichr`, or `BIGsea`. For use in coloring nodes
 #' @param overlap Numeric minimum of total significant genes in a enrichment term to be used as colors (`BIGprofiler`, `BIGenrichr`)
-#' @param fdr.cutoff Numeric maximum FDR of enrichment terms to be used as colors (`BIGprofiler`, `BIGenrichr`, `BIGsea`)
+#' @param fdr_cutoff Numeric maximum FDR of enrichment terms to be used as colors (`BIGprofiler`, `BIGenrichr`, `BIGsea`)
 #' @param colors Character vector of custom colors to use. Must be at least a long as total significant terms plus 1 for the "none" group
 #' @param text_size Numeric size of gene labels on network nodes. Default of 2
 #' @param node_size Numeric size of network nodes. Default of 1
@@ -34,8 +34,8 @@
 #'
 #' map2 <- map_string(genes = genes.OI$gene,
 #'                  version = 11.5, score_threshold = 400)
-#' plot_string(map2, enrichment = example_enrich, fdr.cutoff=0.2)
-#' plot_string(map2, enrichment = example_enrich, fdr.cutoff=0.2, enriched.only=TRUE)
+#' plot_string(map2, enrichment = example_enrich, fdr_cutoff=0.2)
+#' plot_string(map2, enrichment = example_enrich, fdr_cutoff=0.2, enriched_only=TRUE)
 #'
 #' # Add GSEA colors
 #' genes.FC <- example_model$lmerel %>%
@@ -43,11 +43,12 @@
 #'             select(variable, gene, estimate)
 #' example_gsea <- BIGsea(gene_df = genes.FC, category = "H", ID = "ENSEMBL")
 #'
-#' plot_string(map2, enrichment = example_gsea, fdr.cutoff=0.3, discard = "cluster")
+#' plot_string(map2, enrichment = example_gsea, fdr_cutoff = 0.3,
+#'             enriched_only=TRUE)
 
 plot_string <- function(map, layout='fr',
-                        discard="none", enriched.only = FALSE,
-                        enrichment=NULL, overlap=2, fdr.cutoff=0.2,
+                        discard="none", enriched_only = FALSE,
+                        enrichment=NULL, overlap=2, fdr_cutoff=0.2,
                         colors=NULL, text_size=2, node_size=1){
   pathway <- STRING_id <- combined_score <- gene <- none <- total <- value <- group_in_pathway <- FDR <- genes <- leadingEdge <- legend.title <- NULL
 
@@ -57,7 +58,7 @@ plot_string <- function(map, layout='fr',
     #Get significant enrichments
     col.mat <- enrichment %>%
       dplyr::ungroup() %>%
-      dplyr::filter(group_in_pathway >= overlap & FDR <= fdr.cutoff) %>%
+      dplyr::filter(group_in_pathway >= overlap & FDR <= fdr_cutoff) %>%
       dplyr::select(pathway, genes) %>%
       dplyr::rename(gene=genes)
     legend.title <- "Enriched pathways"
@@ -66,7 +67,7 @@ plot_string <- function(map, layout='fr',
       #Get significant GSEA
       col.mat <- enrichment %>%
         dplyr::ungroup() %>%
-        dplyr::filter(FDR <= fdr.cutoff) %>%
+        dplyr::filter(FDR <= fdr_cutoff) %>%
         dplyr::select(pathway, leadingEdge) %>%
         dplyr::rename(gene=leadingEdge)
       legend.title <- "GSEA leading edge"
@@ -74,7 +75,7 @@ plot_string <- function(map, layout='fr',
 
     #Error if no terms to plot
     if(nrow(col.mat) == 0) {stop("No significant enrichment/GSEA terms.
-                               Try increasing fdr.cutoff.")}
+                               Try increasing fdr_cutoff.")}
 
     #Format enrichment results for scatterpie plotting
     col.mat.format <- col.mat %>%
@@ -141,7 +142,7 @@ plot_string <- function(map, layout='fr',
   ##Remove nodes not in an enriched pathway (leave only colored nodes)
   ## all nodes currently
   curr.nodes <- which(igraph::degree(subgraph.filter)>=0)
-  if(enriched.only){
+  if(enriched_only){
     ##Nodes without enrichment
     unenrich <- map.unique %>%
       dplyr::filter(none==1) %>%
