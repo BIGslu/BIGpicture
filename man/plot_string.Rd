@@ -8,10 +8,10 @@ plot_string(
   map,
   layout = "fr",
   discard = "none",
-  enriched.only = FALSE,
+  enriched_only = FALSE,
   enrichment = NULL,
   overlap = 2,
-  fdr.cutoff = 0.2,
+  fdr_cutoff = 0.2,
   colors = NULL,
   text_size = 2,
   node_size = 1
@@ -22,21 +22,23 @@ plot_string(
 
 \item{layout}{Character string for network layout algorithm. See options in igraph::layout_with_}
 
-\item{discard}{Character string identifying genes to remove from the network. Can be "none" (Default), "orphan" (genes with 0 connections in the network), or "cluster" (genes with any connections, leaving only orphans)}
-
-\item{enriched.only}{Logical if should include only genes in significantly enriched terms. Default FALSE}
+\item{enriched_only}{Logical if should include only genes in significantly enriched terms. Default FALSE}
 
 \item{enrichment}{Data frame output by \code{BIGprofiler}, \code{BIGenrichr}, or \code{BIGsea}. For use in coloring nodes}
 
 \item{overlap}{Numeric minimum of total significant genes in a enrichment term to be used as colors (\code{BIGprofiler}, \code{BIGenrichr})}
 
-\item{fdr.cutoff}{Numeric maximum FDR of enrichment terms to be used as colors (\code{BIGprofiler}, \code{BIGenrichr}, \code{BIGsea})}
+\item{fdr_cutoff}{Numeric maximum FDR of enrichment terms to be used as colors (\code{BIGprofiler}, \code{BIGenrichr}, \code{BIGsea})}
 
 \item{colors}{Character vector of custom colors to use. Must be at least a long as total significant terms plus 1 for the "none" group}
 
 \item{text_size}{Numeric size of gene labels on network nodes. Default of 2}
 
 \item{node_size}{Numeric size of network nodes. Default of 1}
+
+\item{edge_min}{Numeric minimum edges a node must have to be displayed. Default is 0 meaning orphan nodes are included}
+
+\item{edge_max}{Numeric maximum edges a node must have to be displayed. Default in Inf. Set to 0 to see only orphan nodes}
 }
 \value{
 ggplot STRING network object
@@ -62,8 +64,8 @@ example_enrich <- SEARchways::BIGprofiler(gene_df = genes.OI,
 
 map2 <- map_string(genes = genes.OI$gene,
                  version = 11.5, score_threshold = 400)
-plot_string(map2, enrichment = example_enrich, fdr.cutoff=0.2)
-plot_string(map2, enrichment = example_enrich, fdr.cutoff=0.2, enriched.only=TRUE)
+plot_string(map2, enrichment = example_enrich, fdr_cutoff=0.2)
+plot_string(map2, enrichment = example_enrich, fdr_cutoff=0.2, enriched_only=TRUE)
 
 # Add GSEA colors
 genes.FC <- example_model$lmerel \%>\%
@@ -71,5 +73,6 @@ genes.FC <- example_model$lmerel \%>\%
             select(variable, gene, estimate)
 example_gsea <- BIGsea(gene_df = genes.FC, category = "H", ID = "ENSEMBL")
 
-plot_string(map2, enrichment = example_gsea, fdr.cutoff=0.3, discard = "cluster")
+plot_string(map2, enrichment = example_gsea, fdr_cutoff = 0.3,
+            enriched_only=TRUE)
 }

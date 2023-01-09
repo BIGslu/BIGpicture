@@ -4,15 +4,19 @@
 #' @param model_result_y List of data frame output by kimma::kmFit()
 #' @param x Character string of model to plot on x-axis. Must match object names in model_result. For example, "lm", "lme", "lmerel"
 #' @param y Character string of model to plot on y-axis. Must match object names in model_result. For example, "lm", "lme", "lmerel"
+#' @param x_label Character string to use for x-axis label. If NULL, the model type and variables are used
+#' @param y_label Character string to use for y-axis label. If NULL, the model type and variables are used
 #' @param metrics Character vector of metric to plot. For example, "sigma", "AIC", "BIC", "Rsq", "adj_Rsq". Default is "AIC"
 #'
 #' @return ggplot object
 #' @export
 #'
 #' @examples
-#' plot_fit(example_model, x="lme", y="lmerel", metrics=c("sigma","AIC","Rsq"))
+#' plot_fit(example_model, example_model, x="lme", y="lmerel", metrics=c("sigma","AIC","Rsq"))
 
-plot_fit <- function(model_result, model_result_y=NULL, x, y, metrics="AIC"){
+plot_fit <- function(model_result, model_result_y=NULL,
+                     x, y, x_label=NULL, y_label=NULL,
+                     metrics="AIC"){
   model <- gene <- sigma <- `Best fit` <- variable <- value <- name <- Metric <- NULL
 
   x_name <- paste(x, "fit", sep=".")
@@ -22,8 +26,8 @@ plot_fit <- function(model_result, model_result_y=NULL, x, y, metrics="AIC"){
 
   #Extract results
   if(is.null(model_result_y)){
-    x_lab <- x
-    y_lab <- y
+    if(is.null(x_label)){ x_lab <- x } else { x_lab <- x_label }
+    if(is.null(y_label)){ y_lab <- y } else { y_lab <- y_label }
 
     dat_x <- model_result[[x_name]] %>%
       dplyr::select(model, gene, dplyr::all_of(metrics)) %>%
@@ -32,18 +36,22 @@ plot_fit <- function(model_result, model_result_y=NULL, x, y, metrics="AIC"){
       dplyr::select(model, gene, dplyr::all_of(metrics)) %>%
       dplyr::mutate(model = y_name2)
   } else {
-    #Make unique model name from variables
-    x_lab <- model_result[[x]] %>%
-      dplyr::distinct(variable) %>%
-      dplyr::filter(variable != "(Intercept)") %>%
-      unlist(use.names = FALSE)
-    x_lab <- paste(c(x, x_lab), collapse = "_")
+    if(is.null(x_label)){
+      #Make unique model name from variables
+      x_lab <- model_result[[x]] %>%
+        dplyr::distinct(variable) %>%
+        dplyr::filter(variable != "(Intercept)") %>%
+        unlist(use.names = FALSE)
+      x_lab <- paste(c(x, x_lab), collapse = "_")
+    } else { x_lab <- x_label }
 
-    y_lab <- model_result_y[[y]] %>%
-      dplyr::distinct(variable) %>%
-      dplyr::filter(variable != "(Intercept)") %>%
-      unlist(use.names = FALSE)
-    y_lab <- paste(c(y, y_lab), collapse = "_")
+    if(is.null(y_label)){
+      y_lab <- model_result_y[[y]] %>%
+        dplyr::distinct(variable) %>%
+        dplyr::filter(variable != "(Intercept)") %>%
+        unlist(use.names = FALSE)
+      y_lab <- paste(c(y, y_lab), collapse = "_")
+    } else { y_lab <- y_label }
 
     #Extract results
     dat_x <- model_result[[x_name]] %>%
