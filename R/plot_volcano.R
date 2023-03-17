@@ -7,8 +7,10 @@
 #' @param genes_label Character string of variable in genes to label with. Required if provide genes parameter
 #' @param x Character string of variable to plot on x-axis. Default is "estimate"
 #' @param y Character string of variable to plot on y-axis. Default is "FDR"
-#' @param x.cutoff Numeric.Optional x cutoff for color and/or labeling
-#' @param y.cutoff Numeric. Optional y cutoff for color and/or labeling
+#' @param log2fc.cutoff Numeric.Optional Log2 fold change cutoff for color and/or labeling
+#' @param fdr.cutoff Numeric. Optional FDR cutoff for color and/or labeling
+#' @param contrast_ref column name for reference contrast in model results table
+#' @param contrast_lvl column name for comparison contrast in model results table
 #' @param label Character or numeric. If "all", all significant genes as defined by x.cutoff and y.cutoff are labels with their HGNC symbol. If numeric, that number of most significant genes are labeled.
 #' @param genes Data frame with gene metadata for labeling points (optional). If not provided, the gene column in the model_result is used
 #' @param genes_label Character string of variable in genes to label with. Required if provide genes parameter
@@ -34,7 +36,8 @@
 
 plot_volcano <- function(model_result, model, variables = NULL,
                          x = "estimate", y = "FDR",
-                         x.cutoff = NULL, y.cutoff = NULL,
+                         log2fc.cutoff = NULL, fdr.cutoff = NULL,
+                         contrast_ref = NULL, contrast_lvl = NULL,
                          label = NULL, genes = NULL, genes_label = NULL){
 
   variable <- col.group <- lab <- NULL
@@ -66,45 +69,45 @@ plot_volcano <- function(model_result, model, variables = NULL,
   #### Color and label ####
   # Create color groups
   # If significance cutoff given
-  if(!is.null(y.cutoff)){
+  if(!is.null(fdr.cutoff)){
     # Set x cutoff if NOT given
-    if(is.null(x.cutoff)){
-      x.cutoff <- 0
+    if(is.null(log2fc.cutoff)){
+      log2fc.cutoff <- 0
       # Create pretty variable label
-      color.lab <- paste0(y, " < ", y.cutoff)
+      color.lab <- paste0(y, " < ", fdr.cutoff)
     } else{
       # Create pretty variable label
-      color.lab <- paste0(y, " < ", y.cutoff, "\n|", x, "| > ", x.cutoff)
+      color.lab <- paste0(y, " < ", fdr.cutoff, "\n|", x, "| > ", log2fc.cutoff)
     }
 
     model.filter <- model.filter %>%
       # Color groups for up and down
       dplyr::mutate(col.group = dplyr::case_when(
-        get(y) < y.cutoff & get(x) < -x.cutoff ~ "down",
-        get(y) < y.cutoff & get(x) > x.cutoff ~ "up",
+        get(y) < fdr.cutoff & get(x) < -log2fc.cutoff ~ "down",
+        get(y) < fdr.cutoff & get(x) > log2fc.cutoff ~ "up",
         TRUE ~ "NS")) %>%
       # Labels for gene names
       dplyr::mutate(lab = dplyr::case_when(
-        get(y) < y.cutoff & abs(get(x)) > x.cutoff ~ get(genes_label))) %>%
+        get(y) < fdr.cutoff & abs(get(x)) > log2fc.cutoff ~ get(genes_label))) %>%
       #Order by color groups
       dplyr::mutate(col.group = factor(col.group, levels = c("down","up","NS"))) %>%
       dplyr::arrange(dplyr::desc(col.group))
-  } else if(!is.null(x.cutoff)){
+  } else if(!is.null(log2fc.cutoff)){
     # If only x group given
     model.filter <- model.filter %>%
       dplyr::mutate(col.group = dplyr::case_when(
-        get(x) < -x.cutoff ~ "down",
-        get(x) > x.cutoff ~ "up",
+        get(x) < -log2fc.cutoff ~ "down",
+        get(x) > log2fc.cutoff ~ "up",
         TRUE ~ "NS")) %>%
       # Labels for gene names
       dplyr::mutate(lab = dplyr::case_when(
-        abs(get(x)) > x.cutoff ~ get(genes_label))) %>%
+        abs(get(x)) > log2fc.cutoff ~ get(genes_label))) %>%
       #Order by color groups
       dplyr::mutate(col.group = factor(col.group, levels = c("down","up","NS"))) %>%
       dplyr::arrange(dplyr::desc(col.group))
 
     # Create pretty variable label
-    color.lab <- paste0("|", x, "| > ", x.cutoff)
+    color.lab <- paste0("|", x, "| > ", log2fc.cutoff)
   } else{
     model.filter <- model.filter %>%
       dplyr::mutate(col.group = "none")
@@ -119,7 +122,7 @@ plot_volcano <- function(model_result, model, variables = NULL,
     ggplot2::facet_wrap(~variable, scales = "free")
 
   # Add color to plot
-  if(!is.null(y.cutoff) | !is.null(x.cutoff)){
+  if(!is.null(fdr.cutoff) | !is.null(log2fc.cutoff)){
     p <- p + ggplot2::geom_point(ggplot2::aes(color = col.group)) +
       ggplot2::scale_color_manual(values = c("down"="blue", "NS"="grey", "up"="red"),
                                   na.value = "grey") +
@@ -129,15 +132,15 @@ plot_volcano <- function(model_result, model, variables = NULL,
   }
 
   # Add cutoff lines
-  if(!is.null(y.cutoff)){
+  if(!is.null(fdr.cutoff)){
     p <- p +
-      ggplot2::geom_hline(yintercept = -log10(y.cutoff),
+      ggplot2::geom_hline(yintercept = -log10(fdr.cutoff),
                           lty = "dashed")
   }
-  if(!is.null(x.cutoff)){
-    if(x.cutoff != 0){
+  if(!is.null(log2fc.cutoff)){
+    if(log2fc.cutoff != 0){
       p <- p +
-        ggplot2::geom_vline(xintercept = c(-x.cutoff,x.cutoff),
+        ggplot2::geom_vline(xintercept = c(-log2fc.cutoff,log2fc.cutoff),
                             lty = "dashed")
     }}
 
@@ -151,6 +154,20 @@ plot_volcano <- function(model_result, model, variables = NULL,
         dplyr::filter(col.group != "NS") %>%
         dplyr::group_by(variable) %>%
         dplyr::slice_min(get(y), n = label)
+
+      if(grepl("contrast", model)) {
+
+        all(c(contrast_ref, contrast_lvl) %in% names(model.filter)) ||
+          stop("contrast_ref and contrast_lvl parameters should be valid column names from model results")
+
+        model.filter2 <- model.filter %>%
+          dplyr::filter(col.group != "NS") %>%
+          dplyr::group_by_at(c(contrast_ref, contrast_lvl)) %>%
+          dplyr::slice_min(get(y), n = label)
+
+        p <- p + ggplot2::facet_wrap(vars(contrast_ref, contrast_lvl))
+
+      }
     }
 
     if(nrow(model.filter2) > 0 ){

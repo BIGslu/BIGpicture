@@ -10,8 +10,10 @@ plot_volcano(
   variables = NULL,
   x = "estimate",
   y = "FDR",
-  x.cutoff = NULL,
-  y.cutoff = NULL,
+  log2fc.cutoff = NULL,
+  fdr.cutoff = NULL,
+  contrast_ref = NULL,
+  contrast_lvl = NULL,
   label = NULL,
   genes = NULL,
   genes_label = NULL
@@ -28,9 +30,13 @@ plot_volcano(
 
 \item{y}{Character string of variable to plot on y-axis. Default is "FDR"}
 
-\item{x.cutoff}{Numeric.Optional x cutoff for color and/or labeling}
+\item{log2fc.cutoff}{Numeric.Optional Log2 fold change cutoff for color and/or labeling}
 
-\item{y.cutoff}{Numeric. Optional y cutoff for color and/or labeling}
+\item{fdr.cutoff}{Numeric. Optional FDR cutoff for color and/or labeling}
+
+\item{contrast_ref}{column name for reference contrast in model results table}
+
+\item{contrast_lvl}{column name for comparison contrast in model results table}
 
 \item{label}{Character or numeric. If "all", all significant genes as defined by x.cutoff and y.cutoff are labels with their HGNC symbol. If numeric, that number of most significant genes are labeled.}
 
