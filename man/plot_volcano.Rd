@@ -12,8 +12,8 @@ plot_volcano(
   y = "FDR",
   log2fc.cutoff = NULL,
   fdr.cutoff = NULL,
-  contrast_ref = NULL,
-  contrast_lvl = NULL,
+  contrast_ref = "contrast_ref",
+  contrast_lvl = "contrast_lvl",
   label = NULL,
   genes = NULL,
   genes_label = NULL
@@ -34,11 +34,12 @@ plot_volcano(
 
 \item{fdr.cutoff}{Numeric. Optional FDR cutoff for color and/or labeling}
 
-\item{contrast_ref}{column name for reference contrast in model results table}
+\item{contrast_ref}{column name for reference contrast in model results table. Default \code{contrast_ref}}
 
-\item{contrast_lvl}{column name for comparison contrast in model results table}
+\item{contrast_lvl}{column name for comparison contrast level in model results table. Default \code{contrast_lvl}}
 
-\item{label}{Character or numeric. If "all", all significant genes as defined by x.cutoff and y.cutoff are labels with their HGNC symbol. If numeric, that number of most significant genes are labeled.}
+\item{label}{Character or numeric. If "all", all significant genes as defined
+by x.cutoff and y.cutoff are labels with their HGNC symbol. If numeric, that number of most significant genes are labeled.}
 
 \item{genes}{Data frame with gene metadata for labeling points (optional). If not provided, the gene column in the model_result is used}
 

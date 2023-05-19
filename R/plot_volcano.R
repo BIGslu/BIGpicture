@@ -9,9 +9,10 @@
 #' @param y Character string of variable to plot on y-axis. Default is "FDR"
 #' @param log2fc.cutoff Numeric.Optional Log2 fold change cutoff for color and/or labeling
 #' @param fdr.cutoff Numeric. Optional FDR cutoff for color and/or labeling
-#' @param contrast_ref column name for reference contrast in model results table
-#' @param contrast_lvl column name for comparison contrast in model results table
-#' @param label Character or numeric. If "all", all significant genes as defined by x.cutoff and y.cutoff are labels with their HGNC symbol. If numeric, that number of most significant genes are labeled.
+#' @param contrast_ref column name for reference contrast in model results table. Default \code{contrast_ref}
+#' @param contrast_lvl column name for comparison contrast level in model results table. Default \code{contrast_lvl}
+#' @param label Character or numeric. If "all", all significant genes as defined
+#' by x.cutoff and y.cutoff are labels with their HGNC symbol. If numeric, that number of most significant genes are labeled.
 #' @param genes Data frame with gene metadata for labeling points (optional). If not provided, the gene column in the model_result is used
 #' @param genes_label Character string of variable in genes to label with. Required if provide genes parameter
 #'
@@ -37,7 +38,7 @@
 plot_volcano <- function(model_result, model, variables = NULL,
                          x = "estimate", y = "FDR",
                          log2fc.cutoff = NULL, fdr.cutoff = NULL,
-                         contrast_ref = NULL, contrast_lvl = NULL,
+                         contrast_ref = "contrast_ref", contrast_lvl = "contrast_lvl",
                          label = NULL, genes = NULL, genes_label = NULL){
 
   variable <- col.group <- lab <- NULL
@@ -53,6 +54,16 @@ plot_volcano <- function(model_result, model, variables = NULL,
       dplyr::filter(variable %in% variables)
   } else {
     model.filter <- model_result[[model]]
+  }
+
+  # add "baseline" and "level" prefix to contrast_ref and contrast_lvl variables
+  # for informative facet_wrap labels
+  if(grepl("contrast", model)) {
+    model.filter <- model.filter %>%
+      dplyr::mutate(
+        contrast_ref = paste0("ref = ", contrast_ref),
+        contrast_lvl = paste0("level = ", contrast_lvl)
+      )
   }
 
   #Add gene data if provided
@@ -83,14 +94,14 @@ plot_volcano <- function(model_result, model, variables = NULL,
     model.filter <- model.filter %>%
       # Color groups for up and down
       dplyr::mutate(col.group = dplyr::case_when(
-        get(y) < fdr.cutoff & get(x) < -log2fc.cutoff ~ "down",
-        get(y) < fdr.cutoff & get(x) > log2fc.cutoff ~ "up",
+        get(y) < fdr.cutoff & get(x) < -log2fc.cutoff ~ "down in level",
+        get(y) < fdr.cutoff & get(x) > log2fc.cutoff ~ "up in level",
         TRUE ~ "NS")) %>%
       # Labels for gene names
       dplyr::mutate(lab = dplyr::case_when(
         get(y) < fdr.cutoff & abs(get(x)) > log2fc.cutoff ~ get(genes_label))) %>%
       #Order by color groups
-      dplyr::mutate(col.group = factor(col.group, levels = c("down","up","NS"))) %>%
+      dplyr::mutate(col.group = factor(col.group, levels = c("down in level","up in level","NS"))) %>%
       dplyr::arrange(dplyr::desc(col.group))
   } else if(!is.null(log2fc.cutoff)){
     # If only x group given
@@ -103,7 +114,7 @@ plot_volcano <- function(model_result, model, variables = NULL,
       dplyr::mutate(lab = dplyr::case_when(
         abs(get(x)) > log2fc.cutoff ~ get(genes_label))) %>%
       #Order by color groups
-      dplyr::mutate(col.group = factor(col.group, levels = c("down","up","NS"))) %>%
+      dplyr::mutate(col.group = factor(col.group, levels = c("down in level","up in level","NS"))) %>%
       dplyr::arrange(dplyr::desc(col.group))
 
     # Create pretty variable label
@@ -124,7 +135,7 @@ plot_volcano <- function(model_result, model, variables = NULL,
   # Add color to plot
   if(!is.null(fdr.cutoff) | !is.null(log2fc.cutoff)){
     p <- p + ggplot2::geom_point(ggplot2::aes(color = col.group)) +
-      ggplot2::scale_color_manual(values = c("down"="blue", "NS"="grey", "up"="red"),
+      ggplot2::scale_color_manual(values = c("down in level"="blue", "NS"="grey", "up in level"="red"),
                                   na.value = "grey") +
       ggplot2::labs(color = color.lab)
   } else{
@@ -165,8 +176,7 @@ plot_volcano <- function(model_result, model, variables = NULL,
           dplyr::group_by_at(c(contrast_ref, contrast_lvl)) %>%
           dplyr::slice_min(get(y), n = label)
 
-        p <- p + ggplot2::facet_wrap(vars(contrast_ref, contrast_lvl))
-
+        p <- p + ggplot2::facet_wrap(ggplot2::vars(contrast_ref, contrast_lvl))
       }
     }
 
