@@ -12,7 +12,7 @@
 #' @param contrast_ref column name for reference contrast in model results table. Default \code{contrast_ref}
 #' @param contrast_lvl column name for comparison contrast level in model results table. Default \code{contrast_lvl}
 #' @param label Character or numeric. If "all", all significant genes as defined
-#' by x.cutoff and fdr_cutoff are labels with their HGNC symbol. If numeric, that number of most significant genes are labeled.
+#' by estimate_cutoff and fdr_cutoff are labels with their HGNC symbol. If numeric, that number of most significant genes are labeled.
 #' @param genes Data frame with gene metadata for labeling points (optional). If not provided, the gene column in the model_result is used
 #' @param genes_label Character string of variable in genes to label with. Required if provide genes parameter
 #' @param x.cutoff Superseded by estimate_cutoff
@@ -25,11 +25,11 @@
 #' plot_volcano(example_model, model = "lme")
 #' plot_volcano(example_model, model = "lme", variables = "virus", y = "pval")
 #' plot_volcano(example_model, model = "lme", variables = c("virus","asthma"),
-#'              x.cutoff = 0.5, fdr_cutoff = 0.05, label = 2)
+#'              estimate_cutoff = 0.5, fdr_cutoff = 0.05, label = 2)
 #' plot_volcano(example_model, model = "lme", variables = "virus",
 #'              fdr_cutoff = 0.05, label = 2)
 #' plot_volcano(example_model, model = "lme", variables = "virus",
-#'              x.cutoff = 0.5, label = 2)
+#'              estimate_cutoff = 0.5, label = 2)
 #'
 #' plot_volcano(example_model, model = "lme", variables = "virus",
 #'              fdr_cutoff = 1E-20, label = "all")
