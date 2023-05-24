@@ -10,13 +10,13 @@ plot_volcano(
   variables = NULL,
   x = "estimate",
   y = "FDR",
-  log2fc.cutoff = NULL,
-  fdr.cutoff = NULL,
-  contrast_ref = "contrast_ref",
-  contrast_lvl = "contrast_lvl",
+  estimate_cutoff = NULL,
+  fdr_cutoff = NULL,
   label = NULL,
   genes = NULL,
-  genes_label = NULL
+  genes_label = NULL,
+  x.cutoff = NULL,
+  y.cutoff = NULL
 )
 }
 \arguments{
@@ -30,20 +30,20 @@ plot_volcano(
 
 \item{y}{Character string of variable to plot on y-axis. Default is "FDR"}
 
-\item{log2fc.cutoff}{Numeric.Optional Log2 fold change cutoff for color and/or labeling}
+\item{estimate_cutoff}{Numeric. Optional estimate (fold change or slope) cutoff for color and/or labeling}
 
-\item{fdr.cutoff}{Numeric. Optional FDR cutoff for color and/or labeling}
-
-\item{contrast_ref}{column name for reference contrast in model results table. Default \code{contrast_ref}}
-
-\item{contrast_lvl}{column name for comparison contrast level in model results table. Default \code{contrast_lvl}}
+\item{fdr_cutoff}{Numeric. Optional FDR cutoff for color and/or labeling}
 
 \item{label}{Character or numeric. If "all", all significant genes as defined
-by x.cutoff and y.cutoff are labels with their HGNC symbol. If numeric, that number of most significant genes are labeled.}
+by estimate_cutoff and fdr_cutoff are labels with their HGNC symbol. If numeric, that number of most significant genes are labeled.}
 
 \item{genes}{Data frame with gene metadata for labeling points (optional). If not provided, the gene column in the model_result is used}
 
 \item{genes_label}{Character string of variable in genes to label with. Required if provide genes parameter}
+
+\item{x.cutoff}{Superseded by estimate_cutoff}
+
+\item{y.cutoff}{Superseded by fdr_cutoff}
 }
 \value{
 ggplot object
@@ -54,16 +54,20 @@ Volcano plot of differentially expressed genes
 \examples{
 plot_volcano(example_model, model = "lme")
 plot_volcano(example_model, model = "lme", variables = "virus", y = "pval")
-plot_volcano(example_model, model = "lme", variables = c("virus","asthma"),
-             x.cutoff = 0.5, y.cutoff = 0.05, label = 2)
-plot_volcano(example_model, model = "lme", variables = "virus",
-             y.cutoff = 0.05, label = 2)
-plot_volcano(example_model, model = "lme", variables = "virus",
-             x.cutoff = 0.5, label = 2)
 
+#Select specific variables and cutoffs
+plot_volcano(example_model, model = "lme", variables = c("virus","asthma"),
+             estimate_cutoff = 0.5, fdr_cutoff = 0.05, label = 2)
+
+#Label top genes
 plot_volcano(example_model, model = "lme", variables = "virus",
-             y.cutoff = 1E-20, label = "all")
+             fdr_cutoff = 1E-20, label = "all")
 plot_volcano(example_model, model = "lme", variables = "virus",
-             y.cutoff = 1E-20, label = "all",
+             fdr_cutoff = 1E-20, label = "all",
              genes = kimma::example.voom$genes, genes_label = "hgnc_symbol")
+
+#Plot contrasts
+plot_volcano(example_model, model = "lme.contrast",
+             variables = "virus*asthma",
+             fdr_cutoff = 0.05, label="all")
 }
