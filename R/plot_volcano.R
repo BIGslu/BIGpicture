@@ -15,6 +15,8 @@
 #' by x.cutoff and fdr_cutoff are labels with their HGNC symbol. If numeric, that number of most significant genes are labeled.
 #' @param genes Data frame with gene metadata for labeling points (optional). If not provided, the gene column in the model_result is used
 #' @param genes_label Character string of variable in genes to label with. Required if provide genes parameter
+#' @param x.cutoff Superseded by estimate_cutoff
+#' @param y.cutoff Superseded by fdr_cutoff
 #'
 #' @return ggplot object
 #' @export
