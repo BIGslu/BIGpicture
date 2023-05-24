@@ -13,8 +13,6 @@
 #' by estimate_cutoff and fdr_cutoff are labels with their HGNC symbol. If numeric, that number of most significant genes are labeled.
 #' @param genes Data frame with gene metadata for labeling points (optional). If not provided, the gene column in the model_result is used
 #' @param genes_label Character string of variable in genes to label with. Required if provide genes parameter
-#' @param contrast_ref column name for reference contrast in model results table. Default \code{contrast_ref}
-#' @param contrast_lvl column name for comparison contrast level in model results table. Default \code{contrast_lvl}
 #' @param x.cutoff Superseded by estimate_cutoff
 #' @param y.cutoff Superseded by fdr_cutoff
 #'
@@ -39,16 +37,15 @@
 #' #Plot contrasts
 #' plot_volcano(example_model, model = "lme.contrast",
 #'              variables = "virus*asthma",
-#'              fdr_cutoff = 0.05)
+#'              fdr_cutoff = 0.05, label="all")
 
 plot_volcano <- function(model_result, model, variables = NULL,
                          x = "estimate", y = "FDR",
                          estimate_cutoff = NULL, fdr_cutoff = NULL,
                          label = NULL, genes = NULL, genes_label = NULL,
-                         contrast_ref = "contrast_ref", contrast_lvl = "contrast_lvl",
                          x.cutoff = NULL, y.cutoff = NULL){
 
-  variable <- col.group <- lab <- NULL
+  variable <- col.group <- lab <- facet_lab <- NULL
   x.cutoff <- estimate_cutoff
   y.cutoff <- fdr_cutoff
 
@@ -181,23 +178,18 @@ plot_volcano <- function(model_result, model, variables = NULL,
         dplyr::slice_min(get(y), n = label)
 
       if(grepl("contrast", model)) {
-
-        all(c(contrast_ref, contrast_lvl) %in% names(model.filter)) ||
-          stop("contrast_ref and contrast_lvl parameters should be valid column names from model results")
-
         model.filter2 <- model.filter %>%
           dplyr::filter(col.group != "NS") %>%
           dplyr::group_by_at(c(contrast_ref, contrast_lvl)) %>%
           dplyr::slice_min(get(y), n = label)
-
-        p <- p + ggplot2::facet_wrap(ggplot2::vars(contrast_ref, contrast_lvl))
       }
     }
 
     if(nrow(model.filter2) > 0 ){
       p <- p +
         ggrepel::geom_text_repel(data = model.filter2,
-                                 ggplot2::aes(label = lab), direction = "both",
+                                 ggplot2::aes(label = lab),
+                                 direction = "both",
                                  min.segment.length = ggplot2::unit(0, 'lines'),
                                  show.legend = FALSE, max.overlaps = Inf)
     }}
