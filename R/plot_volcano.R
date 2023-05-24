@@ -45,7 +45,7 @@ plot_volcano <- function(model_result, model, variables = NULL,
                          label = NULL, genes = NULL, genes_label = NULL,
                          x.cutoff = NULL, y.cutoff = NULL){
 
-  variable <- col.group <- lab <- facet_lab <- NULL
+  variable <- col.group <- lab <- facet_lab <- contrast_ref <- contrast_lvl <- NULL
   x.cutoff <- estimate_cutoff
   y.cutoff <- fdr_cutoff
 
