@@ -7,7 +7,7 @@
 #' @param genes_label Character string of variable in genes to label with. Required if provide genes parameter
 #' @param x Character string of variable to plot on x-axis. Default is "estimate"
 #' @param y Character string of variable to plot on y-axis. Default is "FDR"
-#' @param log2fc.cutoff Numeric.Optional Log2 fold change cutoff for color and/or labeling
+#' @param estimate.cutoff Numeric. Optional estimate (fold change or slope) cutoff for color and/or labeling
 #' @param fdr.cutoff Numeric. Optional FDR cutoff for color and/or labeling
 #' @param contrast_ref column name for reference contrast in model results table. Default \code{contrast_ref}
 #' @param contrast_lvl column name for comparison contrast level in model results table. Default \code{contrast_lvl}
@@ -37,7 +37,7 @@
 
 plot_volcano <- function(model_result, model, variables = NULL,
                          x = "estimate", y = "FDR",
-                         log2fc.cutoff = NULL, fdr.cutoff = NULL,
+                         estimate.cutoff = NULL, fdr.cutoff = NULL,
                          contrast_ref = "contrast_ref", contrast_lvl = "contrast_lvl",
                          label = NULL, genes = NULL, genes_label = NULL){
 
@@ -82,43 +82,43 @@ plot_volcano <- function(model_result, model, variables = NULL,
   # If significance cutoff given
   if(!is.null(fdr.cutoff)){
     # Set x cutoff if NOT given
-    if(is.null(log2fc.cutoff)){
-      log2fc.cutoff <- 0
+    if(is.null(estimate.cutoff)){
+      estimate.cutoff <- 0
       # Create pretty variable label
       color.lab <- paste0(y, " < ", fdr.cutoff)
     } else{
       # Create pretty variable label
-      color.lab <- paste0(y, " < ", fdr.cutoff, "\n|", x, "| > ", log2fc.cutoff)
+      color.lab <- paste0(y, " < ", fdr.cutoff, "\n|", x, "| > ", estimate.cutoff)
     }
 
     model.filter <- model.filter %>%
       # Color groups for up and down
       dplyr::mutate(col.group = dplyr::case_when(
-        get(y) < fdr.cutoff & get(x) < -log2fc.cutoff ~ "down in level",
-        get(y) < fdr.cutoff & get(x) > log2fc.cutoff ~ "up in level",
+        get(y) < fdr.cutoff & get(x) < -estimate.cutoff ~ "down in level",
+        get(y) < fdr.cutoff & get(x) > estimate.cutoff ~ "up in level",
         TRUE ~ "NS")) %>%
       # Labels for gene names
       dplyr::mutate(lab = dplyr::case_when(
-        get(y) < fdr.cutoff & abs(get(x)) > log2fc.cutoff ~ get(genes_label))) %>%
+        get(y) < fdr.cutoff & abs(get(x)) > estimate.cutoff ~ get(genes_label))) %>%
       #Order by color groups
       dplyr::mutate(col.group = factor(col.group, levels = c("down in level","up in level","NS"))) %>%
       dplyr::arrange(dplyr::desc(col.group))
-  } else if(!is.null(log2fc.cutoff)){
+  } else if(!is.null(estimate.cutoff)){
     # If only x group given
     model.filter <- model.filter %>%
       dplyr::mutate(col.group = dplyr::case_when(
-        get(x) < -log2fc.cutoff ~ "down",
-        get(x) > log2fc.cutoff ~ "up",
+        get(x) < -estimate.cutoff ~ "down",
+        get(x) > estimate.cutoff ~ "up",
         TRUE ~ "NS")) %>%
       # Labels for gene names
       dplyr::mutate(lab = dplyr::case_when(
-        abs(get(x)) > log2fc.cutoff ~ get(genes_label))) %>%
+        abs(get(x)) > estimate.cutoff ~ get(genes_label))) %>%
       #Order by color groups
       dplyr::mutate(col.group = factor(col.group, levels = c("down in level","up in level","NS"))) %>%
       dplyr::arrange(dplyr::desc(col.group))
 
     # Create pretty variable label
-    color.lab <- paste0("|", x, "| > ", log2fc.cutoff)
+    color.lab <- paste0("|", x, "| > ", estimate.cutoff)
   } else{
     model.filter <- model.filter %>%
       dplyr::mutate(col.group = "none")
@@ -133,7 +133,7 @@ plot_volcano <- function(model_result, model, variables = NULL,
     ggplot2::facet_wrap(~variable, scales = "free")
 
   # Add color to plot
-  if(!is.null(fdr.cutoff) | !is.null(log2fc.cutoff)){
+  if(!is.null(fdr.cutoff) | !is.null(estimate.cutoff)){
     p <- p + ggplot2::geom_point(ggplot2::aes(color = col.group)) +
       ggplot2::scale_color_manual(values = c("down in level"="blue", "NS"="grey", "up in level"="red"),
                                   na.value = "grey") +
@@ -148,10 +148,10 @@ plot_volcano <- function(model_result, model, variables = NULL,
       ggplot2::geom_hline(yintercept = -log10(fdr.cutoff),
                           lty = "dashed")
   }
-  if(!is.null(log2fc.cutoff)){
-    if(log2fc.cutoff != 0){
+  if(!is.null(estimate.cutoff)){
+    if(estimate.cutoff != 0){
       p <- p +
-        ggplot2::geom_vline(xintercept = c(-log2fc.cutoff,log2fc.cutoff),
+        ggplot2::geom_vline(xintercept = c(-estimate.cutoff,estimate.cutoff),
                             lty = "dashed")
     }}
 
