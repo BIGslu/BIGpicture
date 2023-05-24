@@ -7,12 +7,12 @@
 #' @param genes_label Character string of variable in genes to label with. Required if provide genes parameter
 #' @param x Character string of variable to plot on x-axis. Default is "estimate"
 #' @param y Character string of variable to plot on y-axis. Default is "FDR"
-#' @param estimate.cutoff Numeric. Optional estimate (fold change or slope) cutoff for color and/or labeling
-#' @param fdr.cutoff Numeric. Optional FDR cutoff for color and/or labeling
+#' @param estimate_cutoff Numeric. Optional estimate (fold change or slope) cutoff for color and/or labeling
+#' @param fdr_cutoff Numeric. Optional FDR cutoff for color and/or labeling
 #' @param contrast_ref column name for reference contrast in model results table. Default \code{contrast_ref}
 #' @param contrast_lvl column name for comparison contrast level in model results table. Default \code{contrast_lvl}
 #' @param label Character or numeric. If "all", all significant genes as defined
-#' by x.cutoff and y.cutoff are labels with their HGNC symbol. If numeric, that number of most significant genes are labeled.
+#' by x.cutoff and fdr_cutoff are labels with their HGNC symbol. If numeric, that number of most significant genes are labeled.
 #' @param genes Data frame with gene metadata for labeling points (optional). If not provided, the gene column in the model_result is used
 #' @param genes_label Character string of variable in genes to label with. Required if provide genes parameter
 #'
@@ -23,25 +23,28 @@
 #' plot_volcano(example_model, model = "lme")
 #' plot_volcano(example_model, model = "lme", variables = "virus", y = "pval")
 #' plot_volcano(example_model, model = "lme", variables = c("virus","asthma"),
-#'              x.cutoff = 0.5, y.cutoff = 0.05, label = 2)
+#'              x.cutoff = 0.5, fdr_cutoff = 0.05, label = 2)
 #' plot_volcano(example_model, model = "lme", variables = "virus",
-#'              y.cutoff = 0.05, label = 2)
+#'              fdr_cutoff = 0.05, label = 2)
 #' plot_volcano(example_model, model = "lme", variables = "virus",
 #'              x.cutoff = 0.5, label = 2)
 #'
 #' plot_volcano(example_model, model = "lme", variables = "virus",
-#'              y.cutoff = 1E-20, label = "all")
+#'              fdr_cutoff = 1E-20, label = "all")
 #' plot_volcano(example_model, model = "lme", variables = "virus",
-#'              y.cutoff = 1E-20, label = "all",
+#'              fdr_cutoff = 1E-20, label = "all",
 #'              genes = kimma::example.voom$genes, genes_label = "hgnc_symbol")
 
 plot_volcano <- function(model_result, model, variables = NULL,
                          x = "estimate", y = "FDR",
-                         estimate.cutoff = NULL, fdr.cutoff = NULL,
+                         estimate_cutoff = NULL, fdr_cutoff = NULL,
                          contrast_ref = "contrast_ref", contrast_lvl = "contrast_lvl",
-                         label = NULL, genes = NULL, genes_label = NULL){
+                         label = NULL, genes = NULL, genes_label = NULL,
+                         x.cutoff = NULL, y.cutoff = NULL){
 
   variable <- col.group <- lab <- NULL
+  x.cutoff <- estimate_cutoff
+  y.cutoff <- fdr_cutoff
 
   if(!is.null(genes) & is.null(genes_label)){
     stop("Please provide column name for labeling in genes_label")
@@ -80,45 +83,45 @@ plot_volcano <- function(model_result, model, variables = NULL,
   #### Color and label ####
   # Create color groups
   # If significance cutoff given
-  if(!is.null(fdr.cutoff)){
+  if(!is.null(fdr_cutoff)){
     # Set x cutoff if NOT given
-    if(is.null(estimate.cutoff)){
-      estimate.cutoff <- 0
+    if(is.null(estimate_cutoff)){
+      estimate_cutoff <- 0
       # Create pretty variable label
-      color.lab <- paste0(y, " < ", fdr.cutoff)
+      color.lab <- paste0(y, " < ", fdr_cutoff)
     } else{
       # Create pretty variable label
-      color.lab <- paste0(y, " < ", fdr.cutoff, "\n|", x, "| > ", estimate.cutoff)
+      color.lab <- paste0(y, " < ", fdr_cutoff, "\n|", x, "| > ", estimate_cutoff)
     }
 
     model.filter <- model.filter %>%
       # Color groups for up and down
       dplyr::mutate(col.group = dplyr::case_when(
-        get(y) < fdr.cutoff & get(x) < -estimate.cutoff ~ "down in level",
-        get(y) < fdr.cutoff & get(x) > estimate.cutoff ~ "up in level",
+        get(y) < fdr_cutoff & get(x) < -estimate_cutoff ~ "down in level",
+        get(y) < fdr_cutoff & get(x) > estimate_cutoff ~ "up in level",
         TRUE ~ "NS")) %>%
       # Labels for gene names
       dplyr::mutate(lab = dplyr::case_when(
-        get(y) < fdr.cutoff & abs(get(x)) > estimate.cutoff ~ get(genes_label))) %>%
+        get(y) < fdr_cutoff & abs(get(x)) > estimate_cutoff ~ get(genes_label))) %>%
       #Order by color groups
       dplyr::mutate(col.group = factor(col.group, levels = c("down in level","up in level","NS"))) %>%
       dplyr::arrange(dplyr::desc(col.group))
-  } else if(!is.null(estimate.cutoff)){
+  } else if(!is.null(estimate_cutoff)){
     # If only x group given
     model.filter <- model.filter %>%
       dplyr::mutate(col.group = dplyr::case_when(
-        get(x) < -estimate.cutoff ~ "down",
-        get(x) > estimate.cutoff ~ "up",
+        get(x) < -estimate_cutoff ~ "down",
+        get(x) > estimate_cutoff ~ "up",
         TRUE ~ "NS")) %>%
       # Labels for gene names
       dplyr::mutate(lab = dplyr::case_when(
-        abs(get(x)) > estimate.cutoff ~ get(genes_label))) %>%
+        abs(get(x)) > estimate_cutoff ~ get(genes_label))) %>%
       #Order by color groups
       dplyr::mutate(col.group = factor(col.group, levels = c("down in level","up in level","NS"))) %>%
       dplyr::arrange(dplyr::desc(col.group))
 
     # Create pretty variable label
-    color.lab <- paste0("|", x, "| > ", estimate.cutoff)
+    color.lab <- paste0("|", x, "| > ", estimate_cutoff)
   } else{
     model.filter <- model.filter %>%
       dplyr::mutate(col.group = "none")
@@ -133,7 +136,7 @@ plot_volcano <- function(model_result, model, variables = NULL,
     ggplot2::facet_wrap(~variable, scales = "free")
 
   # Add color to plot
-  if(!is.null(fdr.cutoff) | !is.null(estimate.cutoff)){
+  if(!is.null(fdr_cutoff) | !is.null(estimate_cutoff)){
     p <- p + ggplot2::geom_point(ggplot2::aes(color = col.group)) +
       ggplot2::scale_color_manual(values = c("down in level"="blue", "NS"="grey", "up in level"="red"),
                                   na.value = "grey") +
@@ -143,15 +146,15 @@ plot_volcano <- function(model_result, model, variables = NULL,
   }
 
   # Add cutoff lines
-  if(!is.null(fdr.cutoff)){
+  if(!is.null(fdr_cutoff)){
     p <- p +
-      ggplot2::geom_hline(yintercept = -log10(fdr.cutoff),
+      ggplot2::geom_hline(yintercept = -log10(fdr_cutoff),
                           lty = "dashed")
   }
-  if(!is.null(estimate.cutoff)){
-    if(estimate.cutoff != 0){
+  if(!is.null(estimate_cutoff)){
+    if(estimate_cutoff != 0){
       p <- p +
-        ggplot2::geom_vline(xintercept = c(-estimate.cutoff,estimate.cutoff),
+        ggplot2::geom_vline(xintercept = c(-estimate_cutoff,estimate_cutoff),
                             lty = "dashed")
     }}
 
