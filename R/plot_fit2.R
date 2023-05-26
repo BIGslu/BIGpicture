@@ -7,17 +7,31 @@
 #' @param x_label Character string to use for x-axis label. If NULL, the model type and variables are used
 #' @param y_label Character string to use for y-axis label. If NULL, the model type and variables are used
 #' @param metrics Character vector of metric to plot. For example, "sigma", "AIC", "BIC", "Rsq", "adj_Rsq". Default is "AIC"
+#' @param label Numeric. Total number of genes to label. Based on largest absolute change in fit metric.
+#' @param genes Data frame with gene metadata for labeling points (optional). If not provided, the gene column in the model_result is used
+#' @param genes_label Character string of variable in genes to label with. Required if provide genes parameter
 #'
 #' @return ggplot object
 #' @export
 #'
 #' @examples
-#' plot_fit(example_model, example_model, x="lme", y="lmerel", metrics=c("sigma","AIC","Rsq"))
+#' plot_fit2(example_model, example_model, x="lme", y="lmerel", metrics=c("sigma","AIC","Rsq"))
+#'
+#' plot_fit2(example_model, example_model, x="lme", y="lmerel",
+#' metrics="AIC", label=3)
 
 plot_fit2 <- function(model_result, model_result_y=NULL,
                      x, y, x_label=NULL, y_label=NULL,
-                     metrics="AIC"){
-  model <- gene <- sigma <- `Best fit` <- variable <- value <- name <- Metric <- NULL
+                     metrics="AIC",
+                     label=NULL, genes = NULL, genes_label = NULL){
+  model <- gene <- sigma <- `Best fit` <- variable <- value <- name <- Metric <- cutoff <- delta <- NULL
+
+  if(!is.numeric(label) & !is.null(label)){
+    stop("label value must be numeric. Unlike plot_volcano( ), label='all' is not allowed in plot_fit2( )")
+  }
+  if(!is.null(genes) & is.null(genes_label)){
+    stop("Please provide column name for labeling in genes_label")
+  }
 
   x_name <- paste(x, "fit", sep=".")
   y_name <- paste(y, "fit", sep=".")
@@ -80,7 +94,7 @@ plot_fit2 <- function(model_result, model_result_y=NULL,
     dplyr::mutate(delta = get(y_name2)-get(x_name2))
 
   #plot
-  plot <- ggplot2::ggplot(dat, ggplot2::aes(x=get(x_name2), y=get(y_name2))) +
+  plot <- ggplot2::ggplot(dat, ggplot2::aes(x=1, y=delta)) +
     ggplot2::geom_violin() +
     ggplot2::labs(x=paste(y_lab, "\n -", x_lab),
                   y="Change in fit metric") +
@@ -97,13 +111,42 @@ plot_fit2 <- function(model_result, model_result_y=NULL,
                                               TRUE ~ NA)) %>%
       tidyr::drop_na(cutoff)
 
-    plot2 <- plot +
+    plot <- plot +
       ggplot2::geom_hline(data = cutoffs,
                           ggplot2::aes(yintercept = cutoff),
                           lty = "dashed") +
       ggplot2::geom_hline(data = cutoffs,
                           ggplot2::aes(yintercept = -cutoff),
                           lty = "dashed")
+  }
+
+
+  #Add labels
+  if(!is.null(label)){
+    topN <- dat %>%
+      dplyr::group_by(name) %>%
+      dplyr::slice_max(order_by = abs(delta), n = label) %>%
+      dplyr::ungroup()
+
+    #Add gene data if provided
+    if(!is.null(genes)){
+      #find match variable
+      match_var <- which(colSums(genes == topN$gene[1], na.rm = TRUE) > 0)
+      match_var <- colnames(genes)[match_var]
+      topN_label <- topN %>%
+        dplyr::left_join(genes, by=c("gene"=match_var))
+    } else {
+      topN_label <- topN
+      genes_label <- "gene"
+    }
+
+    plot <- plot +
+      ggrepel::geom_text_repel(
+        data = topN_label,
+        ggplot2::aes(label = get(genes_label)),
+        direction = "both",
+        min.segment.length = ggplot2::unit(0, 'lines'),
+        show.legend = FALSE, max.overlaps = Inf)
   }
   #Summary messages
   message("Summary")
