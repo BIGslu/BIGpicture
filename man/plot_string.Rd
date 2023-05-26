@@ -7,7 +7,8 @@
 plot_string(
   map,
   layout = "fr",
-  discard = "none",
+  edge_min = 0,
+  edge_max = Inf,
   enriched_only = FALSE,
   enrichment = NULL,
   overlap = 2,
@@ -22,6 +23,10 @@ plot_string(
 
 \item{layout}{Character string for network layout algorithm. See options in igraph::layout_with_}
 
+\item{edge_min}{Numeric minimum edges a node must have to be displayed. Default is 0 meaning orphan nodes are included}
+
+\item{edge_max}{Numeric maximum edges a node must have to be displayed. Default in Inf. Set to 0 to see only orphan nodes}
+
 \item{enriched_only}{Logical if should include only genes in significantly enriched terms. Default FALSE}
 
 \item{enrichment}{Data frame output by \code{BIGprofiler}, \code{BIGenrichr}, or \code{BIGsea}. For use in coloring nodes}
@@ -35,10 +40,6 @@ plot_string(
 \item{text_size}{Numeric size of gene labels on network nodes. Default of 2}
 
 \item{node_size}{Numeric size of network nodes. Default of 1}
-
-\item{edge_min}{Numeric minimum edges a node must have to be displayed. Default is 0 meaning orphan nodes are included}
-
-\item{edge_max}{Numeric maximum edges a node must have to be displayed. Default in Inf. Set to 0 to see only orphan nodes}
 }
 \value{
 ggplot STRING network object
@@ -74,5 +75,5 @@ genes.FC <- example_model$lmerel \%>\%
 example_gsea <- BIGsea(gene_df = genes.FC, category = "H", ID = "ENSEMBL")
 
 plot_string(map2, enrichment = example_gsea, fdr_cutoff = 0.3,
-            enriched_only=TRUE)
+            edge_max = 0, enriched_only=TRUE)
 }
