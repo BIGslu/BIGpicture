@@ -70,16 +70,12 @@ plot_fit <- function(model_result, model_result_y=NULL,
     tidyr::pivot_longer(-c(model, gene)) %>%
     tidyr::pivot_wider(names_from = model, values_from = value) %>%
     #add best fit variable
-    dplyr::mutate(`Best fit` =
-                    ifelse(name %in% c("sigma","AIC","BIC") &
-                             get(x_name2)<get(y_name2), x_lab,
-                           ifelse(name %in% c("sigma","AIC","BIC") &
-                                    get(y_name2)<get(x_name2), y_lab,
-                                  ifelse(name %in% c("Rsq","adj_Rsq") &
-                                           get(x_name2)>get(y_name2), x_lab,
-                                         ifelse(name %in% c("Rsq","adj_Rsq") &
-                                                  get(y_name2)>get(x_name2),
-                                                y_lab, "none")))))
+    dplyr::mutate(`Best fit` = case_when(
+      name %in% c("sigma","AIC","BIC") & get(x_name2)<get(y_name2) ~ x_lab,
+      name %in% c("sigma","AIC","BIC") & get(y_name2)<get(x_name2) ~ y_lab,
+      name %in% c("Rsq","adj_Rsq") & get(x_name2)>get(y_name2) ~ x_lab,
+      name %in% c("Rsq","adj_Rsq") & get(y_name2)>get(x_name2) ~ y_lab,
+      TRUE ~ "none"))
 
   #plot
   plot <- ggplot2::ggplot(dat, ggplot2::aes(x=get(x_name2), y=get(y_name2),
