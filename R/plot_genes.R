@@ -95,11 +95,25 @@ plot_genes <- function(dat=NULL, counts=NULL, meta=NULL, genes=NULL,
   }
 
   ########## Combine data ##########
-  plot.dat <- dat.counts %>%
-    tidyr::pivot_longer(-geneID, names_to = libraryID,
-                        values_to = "E") %>%
-    dplyr::left_join(dat.meta, by=libraryID) %>%
-    dplyr::left_join(dat.genes, by=geneID)
+  #find match variable
+  match_var <- which(colSums(dat.counts[[geneID]][1] == dat.genes, na.rm = TRUE) > 0)
+  match_var <- colnames(dat.genes)[match_var]
+  colnames(dat.genes)[colnames(dat.genes)==match_var] <- geneID
+
+  if(!is.null(subset.genes)){
+    plot.dat <- dat.counts %>%
+      dplyr::filter(get(geneID) %in% subset.genes) %>%
+      tidyr::pivot_longer(-geneID, names_to = libraryID,
+                          values_to = "E") %>%
+      dplyr::left_join(dat.meta, by=libraryID) %>%
+      dplyr::left_join(dat.genes, by=geneID)
+  } else{
+    plot.dat <- dat.counts %>%
+      tidyr::pivot_longer(-geneID, names_to = libraryID,
+                          values_to = "E") %>%
+      dplyr::left_join(dat.meta, by=libraryID) %>%
+      dplyr::left_join(dat.genes, by=geneID)
+  }
 
   ########## Create interaction variable if selected ##########
   var.i <- variables[grepl(":|[*]", variables)]
@@ -216,7 +230,7 @@ plot_genes <- function(dat=NULL, counts=NULL, meta=NULL, genes=NULL,
     if (!is.null(dat.genes)){
       symbol <- dat.genes %>%
         dplyr::filter(get(geneID) == to_plot[i]) %>%
-        dplyr::select(dplyr::contains("symbol"), dplyr::contains("symbol")) %>%
+        dplyr::select(dplyr::ends_with("symbol")) %>%
         unlist()
 
       title <- paste(to_plot[i], unique(symbol), sep=" ", collapse=" ")
