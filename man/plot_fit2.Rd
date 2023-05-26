@@ -22,13 +22,13 @@ plot_fit2(
 
 \item{model_result_y}{List of data frame output by kimma::kmFit()}
 
-\item{x}{Character string of model to plot on x-axis. Must match object names in model_result. For example, "lm", "lme", "lmerel"}
+\item{x}{Character string of model to use as reference in fit difference = level - reference. Must match object names in model_result. For example, "lm", "lme", "lmerel"}
 
-\item{y}{Character string of model to plot on y-axis. Must match object names in model_result. For example, "lm", "lme", "lmerel"}
+\item{y}{Character string of model to use as level in fit difference = level - reference. Must match object names in model_result. For example, "lm", "lme", "lmerel"}
 
-\item{x_label}{Character string to use for x-axis label. If NULL, the model type and variables are used}
+\item{x_label}{Character string to use for x model label. If NULL, the model type and variables are used}
 
-\item{y_label}{Character string to use for y-axis label. If NULL, the model type and variables are used}
+\item{y_label}{Character string to use for y model label. If NULL, the model type and variables are used}
 
 \item{metrics}{Character vector of metric to plot. For example, "sigma", "AIC", "BIC", "Rsq", "adj_Rsq". Default is "AIC"}
 
@@ -48,5 +48,5 @@ Model fit comparisons
 plot_fit2(example_model, example_model, x="lme", y="lmerel", metrics=c("sigma","AIC","Rsq"))
 
 plot_fit2(example_model, example_model, x="lme", y="lmerel",
-metrics="AIC", label=3)
+metrics=c("sigma","AIC","Rsq"), label=3, x_label="without kinship", y_label="with kinship")
 }

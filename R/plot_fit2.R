@@ -2,10 +2,10 @@
 #'
 #' @param model_result List of data frames output by kimma::kmFit(). Must contain both x and y models if model_result_y not provided.
 #' @param model_result_y List of data frame output by kimma::kmFit()
-#' @param x Character string of model to plot on x-axis. Must match object names in model_result. For example, "lm", "lme", "lmerel"
-#' @param y Character string of model to plot on y-axis. Must match object names in model_result. For example, "lm", "lme", "lmerel"
-#' @param x_label Character string to use for x-axis label. If NULL, the model type and variables are used
-#' @param y_label Character string to use for y-axis label. If NULL, the model type and variables are used
+#' @param x Character string of model to use as reference in fit difference = level - reference. Must match object names in model_result. For example, "lm", "lme", "lmerel"
+#' @param y Character string of model to use as level in fit difference = level - reference. Must match object names in model_result. For example, "lm", "lme", "lmerel"
+#' @param x_label Character string to use for x model label. If NULL, the model type and variables are used
+#' @param y_label Character string to use for y model label. If NULL, the model type and variables are used
 #' @param metrics Character vector of metric to plot. For example, "sigma", "AIC", "BIC", "Rsq", "adj_Rsq". Default is "AIC"
 #' @param label Numeric. Total number of genes to label. Based on largest absolute change in fit metric.
 #' @param genes Data frame with gene metadata for labeling points (optional). If not provided, the gene column in the model_result is used
@@ -18,7 +18,7 @@
 #' plot_fit2(example_model, example_model, x="lme", y="lmerel", metrics=c("sigma","AIC","Rsq"))
 #'
 #' plot_fit2(example_model, example_model, x="lme", y="lmerel",
-#' metrics="AIC", label=3)
+#' metrics=c("sigma","AIC","Rsq"), label=3, x_label="without kinship", y_label="with kinship")
 
 plot_fit2 <- function(model_result, model_result_y=NULL,
                      x, y, x_label=NULL, y_label=NULL,
@@ -95,9 +95,9 @@ plot_fit2 <- function(model_result, model_result_y=NULL,
 
   #plot
   plot <- ggplot2::ggplot(dat, ggplot2::aes(x=1, y=delta)) +
-    ggplot2::geom_violin() +
+    ggplot2::geom_violin(fill="grey70", color=NA) +
     ggplot2::labs(x=paste(y_lab, "\n -", x_lab),
-                  y="Change in fit metric") +
+                  y="Change in fit") +
     ggplot2::geom_hline(yintercept = 0) +
     ggplot2::theme_classic() +
     ggplot2::facet_wrap(~name, scales="free") +
@@ -144,10 +144,11 @@ plot_fit2 <- function(model_result, model_result_y=NULL,
       ggrepel::geom_text_repel(
         data = topN_label,
         ggplot2::aes(label = get(genes_label)),
-        direction = "both",
         min.segment.length = ggplot2::unit(0, 'lines'),
+        direction='x',
         show.legend = FALSE, max.overlaps = Inf)
   }
+
   #Summary messages
   message("Summary")
   summ <- dat %>%
