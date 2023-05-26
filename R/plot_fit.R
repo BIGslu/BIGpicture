@@ -89,7 +89,8 @@ plot_fit <- function(model_result, model_result_y=NULL,
     ggplot2::geom_abline() +
     ggplot2::theme_classic() +
     ggplot2::facet_wrap(~name, scales="free") +
-    ggplot2::theme(legend.position = "bottom", legend.direction = "vertical")
+    ggplot2::theme(legend.position = "bottom", legend.direction = "vertical") +
+    ggplot2::guides(color = ggplot2::guide_legend(override.aes = list(alpha = 1)))
 
   #Summary messages
   message("Summary")
