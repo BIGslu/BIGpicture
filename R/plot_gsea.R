@@ -1,6 +1,10 @@
 #' Plot GSEA normalized enrichment
 #'
 #' @param gsea Data frame output by SEARchways::BIGsea including pathway, FDR, and NES
+#' @param fdr_cutoff Numeric. Maximum FDR to plot. Default is 0.2
+#' @param fdr_colors Numeric vector. Cutoffs for color groups. Default is c(0.01, 0.05, 0.1, 0.2)
+#' @param show_overlap Logical if should show overlap across all facets even if some missing (TRUE) or give each facet it's own axis labels (FALSE). Default is TRUE
+#'
 #' @param fdr.cutoff Numeric. Maximum FDR to plot. Default is 0.2
 #' @param fdr.colors Numeric vector. Cutoffs for color groups. Default is c(0.01, 0.05, 0.1, 0.2)
 #' @param show.overlap Logical if should show overlap across all facets even if some missing (TRUE) or give each facet it's own axis labels (FALSE). Default is TRUE
@@ -19,18 +23,27 @@
 #' example_gsea <- SEARchways::BIGsea(gene_df = genes.FC, category = "H", ID = "ENSEMBL")
 #'
 #' #Plot
-#' plot_gsea(example_gsea, fdr.cutoff = 0.5)
+#' plot_gsea(example_gsea, fdr_cutoff = 0.5)
 
-plot_gsea <- function(gsea, fdr.cutoff = 0.2,
+plot_gsea <- function(gsea, fdr_cutoff = 0.2,
+                      fdr_colors = c(0.01, 0.05, 0.1, 0.2),
+                      show_overlap = TRUE,
+                      fdr.cutoff = 0.2,
                       fdr.colors = c(0.01, 0.05, 0.1, 0.2),
                       show.overlap = TRUE
                       ){
+
+  # Back compatibility
+  fdr_cutoff <- fdr.cutoff
+  fdr_colors <- fdr.colors
+  show_overlap <- show.overlap
+  
   FDR <-NES<-Significance<-pathway<-group<- NULL
   #### Format data ####
   dat.signif <- gsea %>%
-    dplyr::filter(FDR < fdr.cutoff)
+    dplyr::filter(FDR < fdr_cutoff)
   #keep nonsignif overlap if requested
-  if(show.overlap){
+  if(show_overlap){
     dat.format <- gsea %>%
       dplyr::filter(pathway %in% dat.signif$pathway) %>%
       dplyr::mutate(pathway = gsub("_", " ", pathway)) %>%
@@ -45,17 +58,17 @@ plot_gsea <- function(gsea, fdr.cutoff = 0.2,
 
   dat.format <- gsea %>%
     dplyr::mutate(pathway = gsub("_", " ", pathway)) %>%
-    dplyr::filter(FDR < fdr.cutoff)
+    dplyr::filter(FDR < fdr_cutoff)
 
-  if(nrow(dat.format) == 0){stop("No gene sets are significant. Please increase fdr.cutoff.")}
+  if(nrow(dat.format) == 0){stop("No gene sets are significant. Please increase fdr_cutoff.")}
 
-  fdr.colors.sort <- sort(fdr.colors)
+  fdr_colors.sort <- sort(fdr_colors)
   dat.format$Significance <- NA
-  for(i in 1:length(fdr.colors.sort)){
+  for(i in 1:length(fdr_colors.sort)){
     if(i==1){
-      dat.format$Significance[dat.format$FDR < fdr.colors.sort[i]] <- paste("FDR <", fdr.colors.sort[i])
+      dat.format$Significance[dat.format$FDR < fdr_colors.sort[i]] <- paste("FDR <", fdr_colors.sort[i])
     } else{
-      dat.format$Significance[dat.format$FDR < fdr.colors.sort[i] & dat.format$FDR >= fdr.colors.sort[i-1]] <- paste("FDR <", fdr.colors.sort[i])
+      dat.format$Significance[dat.format$FDR < fdr_colors.sort[i] & dat.format$FDR >= fdr_colors.sort[i-1]] <- paste("FDR <", fdr_colors.sort[i])
     }
   }
 
@@ -77,7 +90,7 @@ plot_gsea <- function(gsea, fdr.cutoff = 0.2,
     ggplot2::labs(x="", y="Normalized Enrichment Score") +
     ggplot2::theme_bw()
 
-  if(show.overlap & length(unique(dat.format$group)) > 1){
+  if(show_overlap & length(unique(dat.format$group)) > 1){
     p1.facet <- p1 + ggplot2::facet_grid( ~ group)
   } else if(length(unique(dat.format$group)) > 1){
     p1.facet <- p1 + ggplot2::facet_wrap( ~ group, scales="free")
