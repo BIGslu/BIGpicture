@@ -37,7 +37,9 @@ plot_genes <- function(dat=NULL, counts=NULL, meta=NULL, genes=NULL,
   i <- gene <- E <- model <- variable <- contrast_ref <- contrast_lvl <- estimate <- pval <- FDR <- NULL
 
   # backwards compatibility
-  subset_genes <- subset.genes
+  if(!is.null(subset.genes)){
+    subset_genes <- subset.genes
+  }
 
   ###### Parallel ######
   #setup parallel processors

@@ -31,9 +31,16 @@ plot_enrich <- function(enrich,
   FDR <-`k/K`<-Significance<-pathway<-group<- NULL
 
   # backwards compatibility
-  fdr_cutoff <- fdr.cutoff
-  fdr_colors <- fdr.colors
-  show_overlap <- show.overlap
+  if(!is.null(fdr.cutoff)){
+    fdr_cutoff <- fdr.cutoff
+  }
+  if(!is.null(fdr.colors)){
+    fdr_colors <- fdr.colors
+  }
+  if(!is.null(show.overlap)){
+    show_overlap <- show.overlap
+  }
+
 
   #### Format data ####
   dat.signif <- enrich %>%

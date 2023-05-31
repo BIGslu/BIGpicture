@@ -51,8 +51,12 @@ plot_upset_genes <- function(model_result, models=NULL,
   FDR <- variable <- gene <- contrast_ref <- contrast_lvl <- label <- label2 <- NULL
 
   # backwards compatibility
-  return_genes <- return.genes
-  fdr_cutoff <- fdr.cutoff
+  if(!is.null(return.genes)){
+    return_genes <- return.genes
+  }
+  if(!is.null(fdr.cutoff)){
+    fdr_cutoff <- fdr.cutoff
+  }
 
   #common errors
   if(!is.null(contrasts) & any(grepl("contrast", models))){
