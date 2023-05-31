@@ -7,7 +7,8 @@
 #' @param fdr Optional. Model results output by kmFit( ). Used to label significant differences
 #' @param libraryID Character string of variable name to use when combining expression and sample data
 #' @param geneID Character string of variable name to use when combining expression and gene data
-#' @param subset.genes Optional. Character vector of genes to plot. Must match names in geneID column. If not provided, all genes are plotted.
+#' @param subset_genes Optional. Character vector of genes to plot. Must match names in geneID column. If not provided, all genes are plotted.
+#' @param subset.genes Deprecated form of subset_genes
 #' @param variables Character vector of variable names to include in plot. Variables can be character, factor, or numeric. One two-variable interaction term allowed
 #' @param colorID Optional. Character string for variable to color point by
 #' @param processors Numeric processors to run in parallel. Default is 2 less than the total available
@@ -20,19 +21,24 @@
 #' #Data from kimma
 #' example.voom <- kimma::example.voom
 #'
-#' subset.genes <- c("ENSG00000250479","ENSG00000250510","ENSG00000255823")
+#' subset_genes <- c("ENSG00000250479","ENSG00000250510","ENSG00000255823")
 #'
 #' plot_genes(dat = example.voom, fdr = example_model$lmerel,
-#'      subset.genes = subset.genes, geneID="geneName",
+#'      subset_genes = subset_genes, geneID="geneName",
 #'      variables = c("virus*asthma", "lib.size"), colorID = "virus")
 
 plot_genes <- function(dat=NULL, counts=NULL, meta=NULL, genes=NULL,
                                fdr=NULL,
                                libraryID="libID", geneID="ensembl_gene_id",
-                               subset.genes=NULL,
+                               subset_genes=NULL,
                                variables, colorID=NULL,
-                               processors=NULL) {
+                               processors=NULL,
+                       subset.genes = NULL) {
   i <- gene <- E <- model <- variable <- contrast_ref <- contrast_lvl <- estimate <- pval <- FDR <- NULL
+
+  # backwards compatibility
+  subset_genes <- subset.genes
+
   ###### Parallel ######
   #setup parallel processors
   chk <- Sys.getenv("_R_CHECK_LIMIT_CORES_", "")
@@ -100,9 +106,9 @@ plot_genes <- function(dat=NULL, counts=NULL, meta=NULL, genes=NULL,
   match_var <- colnames(dat.genes)[match_var]
   colnames(dat.genes)[colnames(dat.genes)==match_var] <- geneID
 
-  if(!is.null(subset.genes)){
+  if(!is.null(subset_genes)){
     plot.dat <- dat.counts %>%
-      dplyr::filter(get(geneID) %in% subset.genes) %>%
+      dplyr::filter(get(geneID) %in% subset_genes) %>%
       tidyr::pivot_longer(-geneID, names_to = libraryID,
                           values_to = "E") %>%
       dplyr::left_join(dat.meta, by=libraryID) %>%
@@ -128,8 +134,8 @@ plot_genes <- function(dat=NULL, counts=NULL, meta=NULL, genes=NULL,
 
   ########## Subset genes ##########
   #List all genes/modules
-  if(!is.null(subset.genes)){
-    to_plot <- subset.genes
+  if(!is.null(subset_genes)){
+    to_plot <- subset_genes
   } else{
     #list all genes
     to_plot <- sort(unique(unlist(plot.dat[,geneID])))
