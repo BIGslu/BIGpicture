@@ -44,7 +44,8 @@
 plot_venn_genes <- function(model_result, models=NULL,
                             variables=NULL, contrasts=NULL,
                             intercept=FALSE, random=FALSE,
-                            return.genes=FALSE, fdr.cutoff = c(0.05,0.1,0.2,0.3,0.4,0.5),
+                            return_genes=FALSE,
+                            fdr_cutoff = c(0.05,0.1,0.2,0.3,0.4,0.5),
                             #Deprecated
                             return.genes=NULL, fdr.cutoff = NULL){
   FDR <- dataset <- gene <- label<- NULL
