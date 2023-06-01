@@ -12,10 +12,11 @@ plot_genes(
   fdr = NULL,
   libraryID = "libID",
   geneID = "ensembl_gene_id",
-  subset.genes = NULL,
+  subset_genes = NULL,
   variables,
   colorID = NULL,
-  processors = NULL
+  processors = NULL,
+  subset.genes = NULL
 )
 }
 \arguments{
@@ -33,13 +34,15 @@ plot_genes(
 
 \item{geneID}{Character string of variable name to use when combining expression and gene data}
 
-\item{subset.genes}{Optional. Character vector of genes to plot. Must match names in geneID column. If not provided, all genes are plotted.}
+\item{subset_genes}{Optional. Character vector of genes to plot. Must match names in geneID column. If not provided, all genes are plotted.}
 
 \item{variables}{Character vector of variable names to include in plot. Variables can be character, factor, or numeric. One two-variable interaction term allowed}
 
 \item{colorID}{Optional. Character string for variable to color point by}
 
 \item{processors}{Numeric processors to run in parallel. Default is 2 less than the total available}
+
+\item{subset.genes}{Deprecated form of subset_genes}
 }
 \value{
 List of ggplot objects
@@ -51,9 +54,9 @@ Plot boxplots and dotplots for genes and variables of interest
 #Data from kimma
 example.voom <- kimma::example.voom
 
-subset.genes <- c("ENSG00000250479","ENSG00000250510","ENSG00000255823")
+subset_genes <- c("ENSG00000250479","ENSG00000250510","ENSG00000255823")
 
-     subset.genes = subset.genes, geneID="geneName",
 plot_genes(dat = example.voom, fdr = example.model$lmerel,
+     subset_genes = subset_genes, geneID="geneName",
      variables = c("virus*asthma", "lib.size"), colorID = "virus")
 }

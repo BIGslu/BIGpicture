@@ -11,8 +11,8 @@ plot_venn_genes(
   contrasts = NULL,
   intercept = FALSE,
   random = FALSE,
-  return.genes = FALSE,
-  fdr.cutoff = c(0.05, 0.1, 0.2, 0.3, 0.4, 0.5)
+  return.genes = NULL,
+  fdr.cutoff = NULL
 )
 }
 \arguments{
@@ -28,9 +28,13 @@ plot_venn_genes(
 
 \item{random}{Logical if should include random effect variable(s). Default is FALSE}
 
-\item{return.genes}{Logical if should return data frame of genes in venns. Default is FALSE}
+\item{return.genes}{Depreciated form of return_genes}
 
-\item{fdr.cutoff}{Numeric vector of FDR cutoffs to assess. One venn per FDR value}
+\item{fdr.cutoff}{Depreciated form of fdr_cutoff}
+
+\item{return_genes}{Logical if should return data frame of genes in venns. Default is FALSE}
+
+\item{fdr_cutoff}{Numeric vector of FDR cutoffs to assess. One venn per FDR value}
 }
 \value{
 List with 1 each for each FDR cutoff of (1) venn diagram ggplot object and (2) data frame of genes in venn
@@ -40,9 +44,9 @@ Venn diagrams of significant genes
 }
 \examples{
 # A single model, multiple variables
-    models = "lme", return.genes = TRUE,
-    fdr.cutoff = c(0.05,0.5))
 venn.result <- plot_venn_genes(model_result = list("example.model" = example.model),
+    models = "lme", return_genes = TRUE,
+    fdr_cutoff = c(0.05,0.5))
 #plot all venn
 patchwork::wrap_plots(venn.result[["venn"]])
 #Plot 1 venn
@@ -55,12 +59,12 @@ model1 <- list("lme" = example.model$lme)
 model2 <- list("lmerel" = example.model$lmerel)
 plot_venn_genes(list("lme"=model1, "lmerel"=model2),
     variables = c("virus","virus:asthma"),
-    fdr.cutoff = c(0.05))
+    fdr_cutoff = c(0.05))
 
 # Contrasts
 model1 <- list("lme" = example.model$lme.contrast)
 model2 <- list("lmerel" = example.model$lmerel.contrast)
 plot_venn_genes(model_result = list("lme"=model1, "lmerel"=model2),
     contrasts = c("HRV asthma - none asthma"),
-    fdr.cutoff = c(0.4))
+    fdr_cutoff = c(0.4))
 }
