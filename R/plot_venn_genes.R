@@ -48,8 +48,8 @@ plot_venn_genes <- function(model_result, models=NULL,
   FDR <- dataset <- gene <- label<- NULL
 
   # Back compatability
-  return_genes <- return.genes
-  fdr_cutoff <- fdr.cutoff
+  if(!is.null(return.genes)){return_genes <- return.genes}
+  if(!is.null(fdr.cutoff)){fdr_cutoff <- fdr.cutoff}
 
   #common errors
   if(!is.null(contrasts) & any(grepl("contrast", models))){
