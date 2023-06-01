@@ -6,19 +6,28 @@
 \usage{
 plot_gsea(
   gsea,
-  fdr.cutoff = 0.2,
-  fdr.colors = c(0.01, 0.05, 0.1, 0.2),
-  show.overlap = TRUE
+  fdr_cutoff = 0.2,
+  fdr_colors = c(0.01, 0.05, 0.1, 0.2),
+  show_overlap = TRUE,
+  fdr.cutoff = NULL,
+  fdr.colors = NULL,
+  show.overlap = NULL
 )
 }
 \arguments{
 \item{gsea}{Data frame output by SEARchways::BIGsea including pathway, FDR, and NES}
 
-\item{fdr.cutoff}{Numeric. Maximum FDR to plot. Default is 0.2}
+\item{fdr_cutoff}{Numeric. Maximum FDR to plot. Default is 0.2}
 
-\item{fdr.colors}{Numeric vector. Cutoffs for color groups. Default is c(0.01, 0.05, 0.1, 0.2)}
+\item{fdr_colors}{Numeric vector. Cutoffs for color groups. Default is c(0.01, 0.05, 0.1, 0.2)}
 
-\item{show.overlap}{Logical if should show overlap across all facets even if some missing (TRUE) or give each facet it's own axis labels (FALSE). Default is TRUE}
+\item{show_overlap}{Logical if should show overlap across all facets even if some missing (TRUE) or give each facet it's own axis labels (FALSE). Default is TRUE}
+
+\item{fdr.cutoff}{Deprecated form of fdr_cutoff}
+
+\item{fdr.colors}{NDeprecated form of fdr_colors}
+
+\item{show.overlap}{Deprecated form of show_overlap}
 }
 \value{
 ggplot2 object
@@ -30,12 +39,12 @@ Plot GSEA normalized enrichment
 library(SEARchways)
 library(dplyr)
 #Get fold change information from example model
-genes.FC <- example_model$lmerel \%>\%
+genes.FC <- example.model$lmerel \%>\%
             filter(variable == "virus") \%>\%
             select(variable, gene, estimate)
 #Run GSEA
 example_gsea <- SEARchways::BIGsea(gene_df = genes.FC, category = "H", ID = "ENSEMBL")
 
 #Plot
-plot_gsea(example_gsea, fdr.cutoff = 0.5)
+plot_gsea(example_gsea, fdr_cutoff = 0.5)
 }

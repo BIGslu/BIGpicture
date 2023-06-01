@@ -6,19 +6,28 @@
 \usage{
 plot_enrich(
   enrich,
-  fdr.cutoff = 0.2,
-  fdr.colors = c(0.01, 0.05, 0.1, 0.2),
-  show.overlap = TRUE
+  fdr_cutoff = 0.2,
+  fdr_colors = c(0.01, 0.05, 0.1, 0.2),
+  show_overlap = TRUE,
+  fdr.cutoff = NULL,
+  fdr.colors = NULL,
+  show.overlap = NULL
 )
 }
 \arguments{
 \item{enrich}{Data frame output by SEARchways::BIGprofiler or SEARchways::BIGenrichr}
 
-\item{fdr.cutoff}{Numeric. Maximum FDR to plot. Default is 0.2}
+\item{fdr_cutoff}{Numeric. Maximum FDR to plot. Default is 0.2}
 
-\item{fdr.colors}{Numeric vector. Cutoffs for color groups. Default is c(0.01, 0.05, 0.1, 0.2)}
+\item{fdr_colors}{Numeric vector. Cutoffs for color groups. Default is c(0.01, 0.05, 0.1, 0.2)}
 
-\item{show.overlap}{Logical if should show overlap across all facets even if some missing (TRUE) or give each facet it's own axis labels (FALSE). Default is TRUE}
+\item{show_overlap}{Logical if should show overlap across all facets even if some missing (TRUE) or give each facet it's own axis labels (FALSE). Default is TRUE}
+
+\item{fdr.cutoff}{Deprecated form of fdr_cutoff}
+
+\item{fdr.colors}{Deprecated form of fdr_colors}
+
+\item{show.overlap}{Deprecated form of show_overlap}
 }
 \value{
 ggplot2 object
@@ -35,5 +44,5 @@ gene_list <- list(HRV1 = names(example_gene_list[[1]]),
 enrich <- BIGprofiler(gene_list, ID="ENSEMBL", category="H")
 
 #Plot
-plot_enrich(enrich, fdr.cutoff = 0.5, fdr.colors = c(0.05, 0.5))
+plot_enrich(enrich, fdr_cutoff = 0.5, fdr_colors = c(0.05, 0.5))
 }

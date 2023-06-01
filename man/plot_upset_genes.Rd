@@ -11,8 +11,10 @@ plot_upset_genes(
   contrasts = NULL,
   intercept = FALSE,
   random = FALSE,
-  return.genes = FALSE,
-  fdr.cutoff = c(0.05, 0.1, 0.2, 0.3, 0.4, 0.5)
+  return_genes = FALSE,
+  fdr_cutoff = c(0.05, 0.1, 0.2, 0.3, 0.4, 0.5),
+  return.genes = NULL,
+  fdr.cutoff = NULL
 )
 }
 \arguments{
@@ -28,9 +30,13 @@ plot_upset_genes(
 
 \item{random}{Logical if should include random effect variable(s). Default is FALSE}
 
-\item{return.genes}{Logical if should return data frame of genes in upsets. Default is FALSE}
+\item{return_genes}{Logical if should return data frame of genes in upsets. Default is FALSE}
 
-\item{fdr.cutoff}{Numeric vector of FDR cutoffs to assess. One upset per FDR value}
+\item{fdr_cutoff}{Numeric vector of FDR cutoffs to assess. One upset per FDR value}
+
+\item{return.genes}{Deprecated form of return_genes}
+
+\item{fdr.cutoff}{Deprecated form of fdr_cutoff}
 }
 \value{
 List with 1 each for each FDR cutoff of (1) upset diagram ggplot object and (2) data frame of genes in upset
@@ -40,9 +46,9 @@ Upset plots of significant genes
 }
 \examples{
 # A single model, multiple variables
-upset.result <- plot_upset_genes(model_result = list("example_model" = example_model),
-    models = "lme", return.genes = TRUE,
-    fdr.cutoff = c(0.05,0.5))
+upset.result <- plot_upset_genes(model_result = list("example.model" = example.model),
+    models = "lme", return_genes = TRUE,
+    fdr_cutoff = c(0.05,0.5))
 #plot all upset
 patchwork::wrap_plots(upset.result[["upset"]])
 #Plot 1 upset
@@ -51,16 +57,16 @@ upset.result[["upset"]][["0.05"]]
 upset.result[["gene"]]
 
 # Multiple models, subset of variables
-model1 <- list("lme" = example_model$lme)
-model2 <- list("lmerel" = example_model$lmerel)
+model1 <- list("lme" = example.model$lme)
+model2 <- list("lmerel" = example.model$lmerel)
 plot_upset_genes(list("lme"=model1, "lmerel"=model2),
     variables = c("virus","virus:asthma"),
-    fdr.cutoff = c(0.05))
+    fdr_cutoff = c(0.05))
 
 # Contrasts
-model1 <- list("lme" = example_model$lme.contrast)
-model2 <- list("lmerel" = example_model$lmerel.contrast)
+model1 <- list("lme" = example.model$lme.contrast)
+model2 <- list("lmerel" = example.model$lmerel.contrast)
 plot_upset_genes(model_result = list("lme"=model1, "lmerel"=model2),
     contrasts = c("HRV asthma - none asthma"),
-    fdr.cutoff = c(0.4))
+    fdr_cutoff = c(0.4))
 }
