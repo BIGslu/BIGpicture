@@ -40,9 +40,9 @@ Venn diagrams of significant genes
 }
 \examples{
 # A single model, multiple variables
-venn.result <- plot_venn_genes(model_result = list("example_model" = example_model),
     models = "lme", return.genes = TRUE,
     fdr.cutoff = c(0.05,0.5))
+venn.result <- plot_venn_genes(model_result = list("example.model" = example.model),
 #plot all venn
 patchwork::wrap_plots(venn.result[["venn"]])
 #Plot 1 venn
@@ -51,15 +51,15 @@ venn.result[["venn"]][["0.05"]]
 venn.result[["gene"]]
 
 # Multiple models, subset of variables
-model1 <- list("lme" = example_model$lme)
-model2 <- list("lmerel" = example_model$lmerel)
+model1 <- list("lme" = example.model$lme)
+model2 <- list("lmerel" = example.model$lmerel)
 plot_venn_genes(list("lme"=model1, "lmerel"=model2),
     variables = c("virus","virus:asthma"),
     fdr.cutoff = c(0.05))
 
 # Contrasts
-model1 <- list("lme" = example_model$lme.contrast)
-model2 <- list("lmerel" = example_model$lmerel.contrast)
+model1 <- list("lme" = example.model$lme.contrast)
+model2 <- list("lmerel" = example.model$lmerel.contrast)
 plot_venn_genes(model_result = list("lme"=model1, "lmerel"=model2),
     contrasts = c("HRV asthma - none asthma"),
     fdr.cutoff = c(0.4))

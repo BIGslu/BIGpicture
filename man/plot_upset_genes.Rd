@@ -40,9 +40,9 @@ Upset plots of significant genes
 }
 \examples{
 # A single model, multiple variables
-upset.result <- plot_upset_genes(model_result = list("example_model" = example_model),
     models = "lme", return.genes = TRUE,
     fdr.cutoff = c(0.05,0.5))
+upset.result <- plot_upset_genes(model_result = list("example.model" = example.model),
 #plot all upset
 patchwork::wrap_plots(upset.result[["upset"]])
 #Plot 1 upset
@@ -51,15 +51,15 @@ upset.result[["upset"]][["0.05"]]
 upset.result[["gene"]]
 
 # Multiple models, subset of variables
-model1 <- list("lme" = example_model$lme)
-model2 <- list("lmerel" = example_model$lmerel)
+model1 <- list("lme" = example.model$lme)
+model2 <- list("lmerel" = example.model$lmerel)
 plot_upset_genes(list("lme"=model1, "lmerel"=model2),
     variables = c("virus","virus:asthma"),
     fdr.cutoff = c(0.05))
 
 # Contrasts
-model1 <- list("lme" = example_model$lme.contrast)
-model2 <- list("lmerel" = example_model$lmerel.contrast)
+model1 <- list("lme" = example.model$lme.contrast)
+model2 <- list("lmerel" = example.model$lmerel.contrast)
 plot_upset_genes(model_result = list("lme"=model1, "lmerel"=model2),
     contrasts = c("HRV asthma - none asthma"),
     fdr.cutoff = c(0.4))

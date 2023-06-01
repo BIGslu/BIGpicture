@@ -17,19 +17,20 @@
 #' @export
 #'
 #' @examples
-#' plot_volcano(example_model, model = "lme")
 #' plot_volcano(example_model, model = "lme", variables = "virus", y = "pval")
-#' plot_volcano(example_model, model = "lme", variables = c("virus","asthma"),
 #'              x.cutoff = 0.5, y.cutoff = 0.05, label = 2)
-#' plot_volcano(example_model, model = "lme", variables = "virus",
 #'              y.cutoff = 0.05, label = 2)
-#' plot_volcano(example_model, model = "lme", variables = "virus",
 #'              x.cutoff = 0.5, label = 2)
+#' plot_volcano(example.model, model = "lme")
+#' plot_volcano(example.model, model = "lme", variables = "virus", y = "pval")
+#' plot_volcano(example.model, model = "lme", variables = c("virus","asthma"),
+#' plot_volcano(example.model, model = "lme", variables = "virus",
+#' plot_volcano(example.model, model = "lme", variables = "virus",
 #'
-#' plot_volcano(example_model, model = "lme", variables = "virus",
 #'              y.cutoff = 1E-20, label = "all")
-#' plot_volcano(example_model, model = "lme", variables = "virus",
 #'              y.cutoff = 1E-20, label = "all",
+#' plot_volcano(example.model, model = "lme", variables = "virus",
+#' plot_volcano(example.model, model = "lme", variables = "virus",
 #'              genes = kimma::example.voom$genes, genes_label = "hgnc_symbol")
 
 plot_volcano <- function(model_result, model, variables = NULL,

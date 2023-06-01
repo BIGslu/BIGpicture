@@ -16,7 +16,7 @@
 #' library(SEARchways)
 #' library(dplyr)
 #' #Get fold change information from example model
-#' genes.FC <- example_model$lmerel %>%
+#' genes.FC <- example.model$lmerel %>%
 #'             filter(variable == "virus") %>%
 #'             select(variable, gene, estimate)
 #' #Run GSEA

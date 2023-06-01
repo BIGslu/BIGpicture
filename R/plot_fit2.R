@@ -15,9 +15,9 @@
 #' @export
 #'
 #' @examples
-#' plot_fit2(example_model, example_model, x="lme", y="lmerel", metrics=c("sigma","AIC","Rsq"))
+#' plot_fit2(example.model, example.model, x="lme", y="lmerel", metrics=c("sigma","AIC","Rsq"))
 #'
-#' plot_fit2(example_model, example_model, x="lme", y="lmerel",
+#' plot_fit2(example.model, example.model, x="lme", y="lmerel",
 #' metrics=c("sigma","AIC","Rsq"), label=3, x_label="without kinship", y_label="with kinship")
 
 plot_fit2 <- function(model_result, model_result_y=NULL,

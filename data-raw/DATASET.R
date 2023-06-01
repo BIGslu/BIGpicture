@@ -4,13 +4,13 @@ library(dplyr)
 library(SEARchways)
 
 #Linear models
-example_model <- kmFit(dat = example.voom, kin = example.kin,
-                      run.lmerel = TRUE, run.lme = TRUE,
-                      run.contrast = TRUE,
+example.model <- kmFit(dat = example.voom, kin = example.kin,
+                      run_lmerel = TRUE, run_lme = TRUE,
+                      run_contrast = TRUE,
                       metrics=TRUE,
                       model = "~ virus*asthma + (1|ptID)", processors = 6)
 
-usethis::use_data(example_model, overwrite = TRUE)
+usethis::use_data(example.model, overwrite = TRUE)
 
 #### Done within function examples. Could make data if too slow when package grows ####
 #Enrichment colors for STRING

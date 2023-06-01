@@ -53,7 +53,7 @@ example.voom <- kimma::example.voom
 
 subset.genes <- c("ENSG00000250479","ENSG00000250510","ENSG00000255823")
 
-plot_genes(dat = example.voom, fdr = example_model$lmerel,
      subset.genes = subset.genes, geneID="geneName",
+plot_genes(dat = example.voom, fdr = example.model$lmerel,
      variables = c("virus*asthma", "lib.size"), colorID = "virus")
 }

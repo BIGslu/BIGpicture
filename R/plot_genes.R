@@ -23,7 +23,7 @@
 #'
 #' subset_genes <- c("ENSG00000250479","ENSG00000250510","ENSG00000255823")
 #'
-#' plot_genes(dat = example.voom, fdr = example_model$lmerel,
+#' plot_genes(dat = example.voom, fdr = example.model$lmerel,
 #'      subset_genes = subset_genes, geneID="geneName",
 #'      variables = c("virus*asthma", "lib.size"), colorID = "virus")
 

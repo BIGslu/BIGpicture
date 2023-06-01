@@ -27,7 +27,7 @@
 #' # Add enrichment colors
 #' library(dplyr)
 #' library(SEARchways)
-#' genes.OI <- example_model$lmerel %>%
+#' genes.OI <- example.model$lmerel %>%
 #'             filter(variable == "virus" & FDR < 0.2) %>%
 #'             select(variable, gene)
 #' example_enrich <- SEARchways::BIGprofiler(gene_df = genes.OI,
@@ -39,7 +39,7 @@
 #' plot_string(map2, enrichment = example_enrich, fdr_cutoff=0.2, enriched_only=TRUE)
 #'
 #' # Add GSEA colors
-#' genes.FC <- example_model$lmerel %>%
+#' genes.FC <- example.model$lmerel %>%
 #'             filter(variable == "virus") %>%
 #'             select(variable, gene, estimate)
 #' example_gsea <- BIGsea(gene_df = genes.FC, category = "H", ID = "ENSEMBL")
