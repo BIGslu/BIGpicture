@@ -8,6 +8,7 @@
 #' @param random Logical if should include random effect variable(s). Default is FALSE
 #' @param return_genes Logical if should return data frame of genes in upsets. Default is FALSE
 #' @param fdr_cutoff Numeric vector of FDR cutoffs to assess. One upset per FDR value
+#'
 #' @param return.genes Deprecated form of return_genes
 #' @param fdr.cutoff Deprecated form of fdr_cutoff
 #'
@@ -45,18 +46,13 @@ plot_upset_genes <- function(model_result, models=NULL,
                              intercept=FALSE, random=FALSE,
                              return_genes=FALSE,
                              fdr_cutoff = c(0.05,0.1,0.2,0.3,0.4,0.5),
-                             return.genes = NULL,
-                             fdr.cutoff = NULL){
+                             return.genes = NULL,fdr.cutoff = NULL){
 
   FDR <- variable <- gene <- contrast_ref <- contrast_lvl <- label <- label2 <- NULL
 
   # backwards compatibility
-  if(!is.null(return.genes)){
-    return_genes <- return.genes
-  }
-  if(!is.null(fdr.cutoff)){
-    fdr_cutoff <- fdr.cutoff
-  }
+  if(!is.null(return.genes)){return_genes <- return.genes}
+  if(!is.null(fdr.cutoff)){fdr_cutoff <- fdr.cutoff}
 
   #common errors
   if(!is.null(contrasts) & any(grepl("contrast", models))){

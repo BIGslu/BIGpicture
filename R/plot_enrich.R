@@ -4,9 +4,11 @@
 #' @param fdr_cutoff Numeric. Maximum FDR to plot. Default is 0.2
 #' @param fdr_colors Numeric vector. Cutoffs for color groups. Default is c(0.01, 0.05, 0.1, 0.2)
 #' @param show_overlap Logical if should show overlap across all facets even if some missing (TRUE) or give each facet it's own axis labels (FALSE). Default is TRUE
+#'
 #' @param fdr.cutoff Deprecated form of fdr_cutoff
 #' @param fdr.colors Deprecated form of fdr_colors
 #' @param show.overlap Deprecated form of show_overlap
+#'
 #' @return ggplot2 object
 #' @export
 #'
@@ -25,22 +27,14 @@ plot_enrich <- function(enrich,
                         fdr_cutoff = 0.2,
                         fdr_colors = c(0.01, 0.05, 0.1, 0.2),
                         show_overlap = TRUE,
-                        fdr.cutoff = NULL,
-                        fdr.colors = NULL,
-                        show.overlap = NULL){
+                        #Deprecated
+                        fdr.cutoff = NULL, fdr.colors = NULL, show.overlap = NULL){
   FDR <-`k/K`<-Significance<-pathway<-group<- NULL
 
   # backwards compatibility
-  if(!is.null(fdr.cutoff)){
-    fdr_cutoff <- fdr.cutoff
-  }
-  if(!is.null(fdr.colors)){
-    fdr_colors <- fdr.colors
-  }
-  if(!is.null(show.overlap)){
-    show_overlap <- show.overlap
-  }
-
+  if(!is.null(fdr.cutoff)){fdr_cutoff <- fdr.cutoff}
+  if(!is.null(fdr.colors)){fdr_colors <- fdr.colors}
+  if(!is.null(show.overlap)){show_overlap <- show.overlap}
 
   #### Format data ####
   dat.signif <- enrich %>%

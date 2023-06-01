@@ -6,10 +6,11 @@
 #' @param contrasts Character vector of contrasts in model_result to include in plots. Format is c("contrast_lvl - contrast_ref", "..."). Only applicable if model name includes 'contrast'
 #' @param intercept Logical if should include the intercept variable. Default is FALSE
 #' @param random Logical if should include random effect variable(s). Default is FALSE
-#' @param return.genes Depreciated form of return_genes
 #' @param return_genes Logical if should return data frame of genes in venns. Default is FALSE
-#' @param fdr.cutoff Depreciated form of fdr_cutoff
 #' @param fdr_cutoff Numeric vector of FDR cutoffs to assess. One venn per FDR value
+
+#' @param return.genes Depreciated form of return_genes
+#' @param fdr.cutoff Depreciated form of fdr_cutoff
 #'
 #' @return List with 1 each for each FDR cutoff of (1) venn diagram ggplot object and (2) data frame of genes in venn
 #' @export
@@ -43,8 +44,9 @@
 plot_venn_genes <- function(model_result, models=NULL,
                             variables=NULL, contrasts=NULL,
                             intercept=FALSE, random=FALSE,
-                            return.genes=FALSE,
-                            fdr.cutoff = c(0.05,0.1,0.2,0.3,0.4,0.5)){
+                            return.genes=FALSE, fdr.cutoff = c(0.05,0.1,0.2,0.3,0.4,0.5),
+                            #Deprecated
+                            return.genes=NULL, fdr.cutoff = NULL){
   FDR <- dataset <- gene <- label<- NULL
 
   # Back compatability

@@ -8,10 +8,11 @@
 #' @param libraryID Character string of variable name to use when combining expression and sample data
 #' @param geneID Character string of variable name to use when combining expression and gene data
 #' @param subset_genes Optional. Character vector of genes to plot. Must match names in geneID column. If not provided, all genes are plotted.
-#' @param subset.genes Deprecated form of subset_genes
 #' @param variables Character vector of variable names to include in plot. Variables can be character, factor, or numeric. One two-variable interaction term allowed
 #' @param colorID Optional. Character string for variable to color point by
 #' @param processors Numeric processors to run in parallel. Default is 2 less than the total available
+#'
+#' @param subset.genes Deprecated form of subset_genes
 #'
 #' @importFrom foreach %dopar%
 #' @return List of ggplot objects
@@ -28,18 +29,16 @@
 #'      variables = c("virus*asthma", "lib.size"), colorID = "virus")
 
 plot_genes <- function(dat=NULL, counts=NULL, meta=NULL, genes=NULL,
-                               fdr=NULL,
-                               libraryID="libID", geneID="ensembl_gene_id",
-                               subset_genes=NULL,
-                               variables, colorID=NULL,
-                               processors=NULL,
+                       fdr=NULL,
+                       libraryID="libID", geneID="ensembl_gene_id",
+                       subset_genes=NULL,
+                       variables, colorID=NULL,
+                       processors=NULL,
                        subset.genes = NULL) {
   i <- gene <- E <- model <- variable <- contrast_ref <- contrast_lvl <- estimate <- pval <- FDR <- NULL
 
   # backwards compatibility
-  if(!is.null(subset.genes)){
-    subset_genes <- subset.genes
-  }
+  if(!is.null(subset.genes)){subset_genes <- subset.genes}
 
   ###### Parallel ######
   #setup parallel processors
