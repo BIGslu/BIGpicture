@@ -6,17 +6,20 @@
 #' @param contrasts Character vector of contrasts in model_result to include in plots. Format is c("contrast_lvl - contrast_ref", "..."). Only applicable if model name includes 'contrast'
 #' @param intercept Logical if should include the intercept variable. Default is FALSE
 #' @param random Logical if should include random effect variable(s). Default is FALSE
-#' @param return.genes Logical if should return data frame of genes in venns. Default is FALSE
-#' @param fdr.cutoff Numeric vector of FDR cutoffs to assess. One venn per FDR value
+#' @param return_genes Logical if should return data frame of genes in venns. Default is FALSE
+#' @param fdr_cutoff Numeric vector of FDR cutoffs to assess. One venn per FDR value
+
+#' @param return.genes Depreciated form of return_genes
+#' @param fdr.cutoff Depreciated form of fdr_cutoff
 #'
 #' @return List with 1 each for each FDR cutoff of (1) venn diagram ggplot object and (2) data frame of genes in venn
 #' @export
 #'
 #' @examples
 #' # A single model, multiple variables
-#' venn.result <- plot_venn_genes(model_result = list("example_model" = example_model),
-#'     models = "lme", return.genes = TRUE,
-#'     fdr.cutoff = c(0.05,0.5))
+#' venn.result <- plot_venn_genes(model_result = list("example.model" = example.model),
+#'     models = "lme", return_genes = TRUE,
+#'     fdr_cutoff = c(0.05,0.5))
 #' #plot all venn
 #' patchwork::wrap_plots(venn.result[["venn"]])
 #' #Plot 1 venn
@@ -25,25 +28,31 @@
 #' venn.result[["gene"]]
 #'
 #' # Multiple models, subset of variables
-#' model1 <- list("lme" = example_model$lme)
-#' model2 <- list("lmerel" = example_model$lmerel)
+#' model1 <- list("lme" = example.model$lme)
+#' model2 <- list("lmerel" = example.model$lmerel)
 #' plot_venn_genes(list("lme"=model1, "lmerel"=model2),
 #'     variables = c("virus","virus:asthma"),
-#'     fdr.cutoff = c(0.05))
+#'     fdr_cutoff = c(0.05))
 #'
 #' # Contrasts
-#' model1 <- list("lme" = example_model$lme.contrast)
-#' model2 <- list("lmerel" = example_model$lmerel.contrast)
+#' model1 <- list("lme" = example.model$lme.contrast)
+#' model2 <- list("lmerel" = example.model$lmerel.contrast)
 #' plot_venn_genes(model_result = list("lme"=model1, "lmerel"=model2),
 #'     contrasts = c("HRV asthma - none asthma"),
-#'     fdr.cutoff = c(0.4))
+#'     fdr_cutoff = c(0.4))
 
 plot_venn_genes <- function(model_result, models=NULL,
                             variables=NULL, contrasts=NULL,
                             intercept=FALSE, random=FALSE,
-                            return.genes=FALSE,
-                            fdr.cutoff = c(0.05,0.1,0.2,0.3,0.4,0.5)){
+                            return_genes=FALSE,
+                            fdr_cutoff = c(0.05,0.1,0.2,0.3,0.4,0.5),
+                            #Deprecated
+                            return.genes=NULL, fdr.cutoff = NULL){
   FDR <- dataset <- gene <- label<- NULL
+
+  # Back compatability
+  if(!is.null(return.genes)){return_genes <- return.genes}
+  if(!is.null(fdr.cutoff)){fdr_cutoff <- fdr.cutoff}
 
   #common errors
   if(!is.null(contrasts) & any(grepl("contrast", models))){
@@ -61,7 +70,7 @@ plot_venn_genes <- function(model_result, models=NULL,
   # Vector of all models and variables to plot
   label_all <- unique(dat_filter_all$dat$label)
 
-  for (fdr in fdr.cutoff){
+  for (fdr in fdr_cutoff){
     #list to hold gene vectors
     venn_dat <- list()
     #Significant at chosen FDR
@@ -111,7 +120,7 @@ plot_venn_genes <- function(model_result, models=NULL,
     }
 
     #Save gene lists
-    if(gene_tot > 0 & return.genes){
+    if(gene_tot > 0 & return_genes){
       all.genes <- data.frame(gene = unique(unlist(venn_dat)))
       venn.df <- data.frame(gene = all.genes)
 
@@ -135,7 +144,7 @@ plot_venn_genes <- function(model_result, models=NULL,
   if(length(venn.ls) > 0){
     venn.result <- list()
     venn.result[["venn"]] <- venn.ls
-    if(return.genes){ venn.result[["gene"]] <- venn.df.ls }
+    if(return_genes){ venn.result[["gene"]] <- venn.df.ls }
 
     return(venn.result)
   }

@@ -5,9 +5,9 @@
 #' @param fdr_colors Numeric vector. Cutoffs for color groups. Default is c(0.01, 0.05, 0.1, 0.2)
 #' @param show_overlap Logical if should show overlap across all facets even if some missing (TRUE) or give each facet it's own axis labels (FALSE). Default is TRUE
 #'
-#' @param fdr.cutoff Numeric. Maximum FDR to plot. Default is 0.2
-#' @param fdr.colors Numeric vector. Cutoffs for color groups. Default is c(0.01, 0.05, 0.1, 0.2)
-#' @param show.overlap Logical if should show overlap across all facets even if some missing (TRUE) or give each facet it's own axis labels (FALSE). Default is TRUE
+#' @param fdr.cutoff Deprecated form of fdr_cutoff
+#' @param fdr.colors NDeprecated form of fdr_colors
+#' @param show.overlap Deprecated form of show_overlap
 #'
 #' @return ggplot2 object
 #' @export
@@ -16,7 +16,7 @@
 #' library(SEARchways)
 #' library(dplyr)
 #' #Get fold change information from example model
-#' genes.FC <- example_model$lmerel %>%
+#' genes.FC <- example.model$lmerel %>%
 #'             filter(variable == "virus") %>%
 #'             select(variable, gene, estimate)
 #' #Run GSEA
@@ -28,17 +28,17 @@
 plot_gsea <- function(gsea, fdr_cutoff = 0.2,
                       fdr_colors = c(0.01, 0.05, 0.1, 0.2),
                       show_overlap = TRUE,
-                      fdr.cutoff = 0.2,
-                      fdr.colors = c(0.01, 0.05, 0.1, 0.2),
-                      show.overlap = TRUE
+                      #Deprecated
+                      fdr.cutoff = NULL, fdr.colors = NULL, show.overlap = NULL
                       ){
 
-  # Back compatibility
-  fdr_cutoff <- fdr.cutoff
-  fdr_colors <- fdr.colors
-  show_overlap <- show.overlap
-  
   FDR <-NES<-Significance<-pathway<-group<- NULL
+
+  # Back compatibility
+  if(!is.null(fdr.cutoff)){fdr_cutoff <- fdr.cutoff}
+  if(!is.null(fdr.colors)){fdr_colors <- fdr.colors}
+  if(!is.null(show.overlap)){show_overlap <- show.overlap}
+
   #### Format data ####
   dat.signif <- gsea %>%
     dplyr::filter(FDR < fdr_cutoff)

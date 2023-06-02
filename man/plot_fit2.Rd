@@ -45,8 +45,8 @@ ggplot object
 Model fit comparisons
 }
 \examples{
-plot_fit2(example_model, example_model, x="lme", y="lmerel", metrics=c("sigma","AIC","Rsq"))
+plot_fit2(example.model, example.model, x="lme", y="lmerel", metrics=c("sigma","AIC","Rsq"))
 
-plot_fit2(example_model, example_model, x="lme", y="lmerel",
+plot_fit2(example.model, example.model, x="lme", y="lmerel",
 metrics=c("sigma","AIC","Rsq"), label=3, x_label="without kinship", y_label="with kinship")
 }

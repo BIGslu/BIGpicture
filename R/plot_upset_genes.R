@@ -6,17 +6,20 @@
 #' @param contrasts Character vector of contrasts in model_result to include in plots. Format is c("contrast_lvl - contrast_ref", "..."). Only applicable if model name includes 'contrast'
 #' @param intercept Logical if should include the intercept variable. Default is FALSE
 #' @param random Logical if should include random effect variable(s). Default is FALSE
-#' @param return.genes Logical if should return data frame of genes in upsets. Default is FALSE
-#' @param fdr.cutoff Numeric vector of FDR cutoffs to assess. One upset per FDR value
+#' @param return_genes Logical if should return data frame of genes in upsets. Default is FALSE
+#' @param fdr_cutoff Numeric vector of FDR cutoffs to assess. One upset per FDR value
+#'
+#' @param return.genes Deprecated form of return_genes
+#' @param fdr.cutoff Deprecated form of fdr_cutoff
 #'
 #' @return List with 1 each for each FDR cutoff of (1) upset diagram ggplot object and (2) data frame of genes in upset
 #' @export
 #'
 #' @examples
 #' # A single model, multiple variables
-#' upset.result <- plot_upset_genes(model_result = list("example_model" = example_model),
-#'     models = "lme", return.genes = TRUE,
-#'     fdr.cutoff = c(0.05,0.5))
+#' upset.result <- plot_upset_genes(model_result = list("example.model" = example.model),
+#'     models = "lme", return_genes = TRUE,
+#'     fdr_cutoff = c(0.05,0.5))
 #' #plot all upset
 #' patchwork::wrap_plots(upset.result[["upset"]])
 #' #Plot 1 upset
@@ -25,26 +28,31 @@
 #' upset.result[["gene"]]
 #'
 #' # Multiple models, subset of variables
-#' model1 <- list("lme" = example_model$lme)
-#' model2 <- list("lmerel" = example_model$lmerel)
+#' model1 <- list("lme" = example.model$lme)
+#' model2 <- list("lmerel" = example.model$lmerel)
 #' plot_upset_genes(list("lme"=model1, "lmerel"=model2),
 #'     variables = c("virus","virus:asthma"),
-#'     fdr.cutoff = c(0.05))
+#'     fdr_cutoff = c(0.05))
 #'
 #' # Contrasts
-#' model1 <- list("lme" = example_model$lme.contrast)
-#' model2 <- list("lmerel" = example_model$lmerel.contrast)
+#' model1 <- list("lme" = example.model$lme.contrast)
+#' model2 <- list("lmerel" = example.model$lmerel.contrast)
 #' plot_upset_genes(model_result = list("lme"=model1, "lmerel"=model2),
 #'     contrasts = c("HRV asthma - none asthma"),
-#'     fdr.cutoff = c(0.4))
+#'     fdr_cutoff = c(0.4))
 
 plot_upset_genes <- function(model_result, models=NULL,
                              variables=NULL, contrasts=NULL,
                              intercept=FALSE, random=FALSE,
-                             return.genes=FALSE,
-                             fdr.cutoff = c(0.05,0.1,0.2,0.3,0.4,0.5)){
+                             return_genes=FALSE,
+                             fdr_cutoff = c(0.05,0.1,0.2,0.3,0.4,0.5),
+                             return.genes = NULL,fdr.cutoff = NULL){
 
   FDR <- variable <- gene <- contrast_ref <- contrast_lvl <- label <- label2 <- NULL
+
+  # backwards compatibility
+  if(!is.null(return.genes)){return_genes <- return.genes}
+  if(!is.null(fdr.cutoff)){fdr_cutoff <- fdr.cutoff}
 
   #common errors
   if(!is.null(contrasts) & any(grepl("contrast", models))){
@@ -59,7 +67,7 @@ plot_upset_genes <- function(model_result, models=NULL,
   upset.ls <- list()
   upset.df.ls <- list()
 
-  for (fdr in fdr.cutoff){
+  for (fdr in fdr_cutoff){
     #list to hold gene vectors
     upset_dat <- data.frame()
     #Significant at chosen FDR
@@ -113,7 +121,7 @@ plot_upset_genes <- function(model_result, models=NULL,
     }
 
     #Save gene lists
-    if(gene_tot > 0 & return.genes){
+    if(gene_tot > 0 & return_genes){
       upset.df.ls[[as.character(fdr)]] <- upset_dat %>%
         tidyr::unnest(variables) %>%
         dplyr::mutate(value = "Y") %>%
@@ -126,7 +134,7 @@ plot_upset_genes <- function(model_result, models=NULL,
   if(length(upset.ls) > 0){
     upset.result <- list()
     upset.result[["upset"]] <- upset.ls
-    if(return.genes){ upset.result[["gene"]] <- upset.df.ls }
+    if(return_genes){ upset.result[["gene"]] <- upset.df.ls }
 
     return(upset.result)
   }
