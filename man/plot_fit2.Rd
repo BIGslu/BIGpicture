@@ -14,7 +14,8 @@ plot_fit2(
   metrics = "AIC",
   label = NULL,
   genes = NULL,
-  genes_label = NULL
+  genes_label = NULL,
+  outliers = FALSE
 )
 }
 \arguments{
@@ -37,6 +38,8 @@ plot_fit2(
 \item{genes}{Data frame with gene metadata for labeling points (optional). If not provided, the gene column in the model_result is used}
 
 \item{genes_label}{Character string of variable in genes to label with. Required if provide genes parameter}
+
+\item{outliers}{Logical. Include circle for outlier genes as defined by 1.5X interquartile range, similar to geom_boxplot. Default is FALSE}
 }
 \value{
 ggplot object
@@ -45,8 +48,11 @@ ggplot object
 Model fit comparisons
 }
 \examples{
-plot_fit2(example.model, example.model, x="lme", y="lmerel", metrics=c("sigma","AIC","Rsq"))
+plot_fit2(example.model, example.model, x="lme", y="lmerel",
+          metrics=c("sigma","AIC","Rsq"))
 
 plot_fit2(example.model, example.model, x="lme", y="lmerel",
-metrics=c("sigma","AIC","Rsq"), label=3, x_label="without kinship", y_label="with kinship")
+          metrics=c("sigma","AIC","Rsq"), label=3,
+          x_label="without kinship", y_label="with kinship",
+          outliers=TRUE)
 }

@@ -10,21 +10,26 @@
 #' @param label Numeric. Total number of genes to label. Based on largest absolute change in fit metric.
 #' @param genes Data frame with gene metadata for labeling points (optional). If not provided, the gene column in the model_result is used
 #' @param genes_label Character string of variable in genes to label with. Required if provide genes parameter
+#' @param outliers Logical. Include circle for outlier genes as defined by 1.5X interquartile range, similar to geom_boxplot. Default is FALSE
 #'
 #' @return ggplot object
 #' @export
 #'
 #' @examples
-#' plot_fit2(example.model, example.model, x="lme", y="lmerel", metrics=c("sigma","AIC","Rsq"))
+#' plot_fit2(example.model, example.model, x="lme", y="lmerel",
+#'           metrics=c("sigma","AIC","Rsq"))
 #'
 #' plot_fit2(example.model, example.model, x="lme", y="lmerel",
-#' metrics=c("sigma","AIC","Rsq"), label=3, x_label="without kinship", y_label="with kinship")
+#'           metrics=c("sigma","AIC","Rsq"), label=3,
+#'           x_label="without kinship", y_label="with kinship",
+#'           outliers=TRUE)
 
 plot_fit2 <- function(model_result, model_result_y=NULL,
                      x, y, x_label=NULL, y_label=NULL,
                      metrics="AIC",
-                     label=NULL, genes = NULL, genes_label = NULL){
-  model <- gene <- sigma <- `Best fit` <- variable <- value <- name <- Metric <- cutoff <- delta <- NULL
+                     label=NULL, genes = NULL, genes_label = NULL,
+                     outliers=FALSE){
+  model <- gene <- sigma <- `Best fit` <- variable <- value <- name <- Metric <- cutoff <- delta <- q1 <- iqr <- q3 <- outlier <- NULL
 
   if(!is.numeric(label) & !is.null(label)){
     stop("label value must be numeric. Unlike plot_volcano( ), label='all' is not allowed in plot_fit2( )")
@@ -132,6 +137,33 @@ plot_fit2 <- function(model_result, model_result_y=NULL,
     plot2 <- patchwork::plot_spacer()
   }
 
+  #Add outlier dots
+  if(outliers){
+    out_dat <- dat %>%
+      dplyr::group_by(name) %>%
+      dplyr::summarise(q1 = stats::quantile(delta, probs = 0.25),
+                       q3 = stats::quantile(delta, probs = 0.75),
+                       iqr = stats::IQR(delta)*1.5,
+                       .groups = "drop") %>%
+      dplyr::mutate(low_cut = q1-iqr,
+                    high_cut = q3+iqr) %>%
+      dplyr::full_join(dat) %>%
+      dplyr::mutate(outlier = dplyr::case_when(
+        delta > high_cut | delta < low_cut ~ "outlier")) %>%
+      tidyr::drop_na(outlier)
+
+    out1 <- dplyr::filter(out_dat, name %in% c("sigma","AIC","BIC"))
+    if(nrow(out1) >0){
+      plot1 <- plot1 +
+        ggplot2::geom_point(data = out1, shape=21, fill=NA)
+    }
+
+    out2 <- dplyr::filter(out_dat, name %in% c("Rsq","adj_Rsq"))
+    if(nrow(out1) >0){
+      plot2 <- plot2 +
+        ggplot2::geom_point(data = out2, shape=21, fill=NA)
+    }
+  }
   #Add cutoffs if AIC or BIC
   if(any(c("AIC","BIC") %in% metrics)){
     cutoffs <- data.frame(name = metrics) %>%
