@@ -6,6 +6,9 @@
 \usage{
 plot_gsea(
   gsea,
+  fdr_cutoff = 0.2,
+  fdr_colors = c(0.01, 0.05, 0.1, 0.2),
+  show_overlap = TRUE,
   fdr.cutoff = 0.2,
   fdr.colors = c(0.01, 0.05, 0.1, 0.2),
   show.overlap = TRUE
@@ -13,6 +16,12 @@ plot_gsea(
 }
 \arguments{
 \item{gsea}{Data frame output by SEARchways::BIGsea including pathway, FDR, and NES}
+
+\item{fdr_cutoff}{Numeric. Maximum FDR to plot. Default is 0.2}
+
+\item{fdr_colors}{Numeric vector. Cutoffs for color groups. Default is c(0.01, 0.05, 0.1, 0.2)}
+
+\item{show_overlap}{Logical if should show overlap across all facets even if some missing (TRUE) or give each facet it's own axis labels (FALSE). Default is TRUE}
 
 \item{fdr.cutoff}{Numeric. Maximum FDR to plot. Default is 0.2}
 
@@ -37,5 +46,5 @@ genes.FC <- example_model$lmerel \%>\%
 example_gsea <- SEARchways::BIGsea(gene_df = genes.FC, category = "H", ID = "ENSEMBL")
 
 #Plot
-plot_gsea(example_gsea, fdr.cutoff = 0.5)
+plot_gsea(example_gsea, fdr_cutoff = 0.5)
 }

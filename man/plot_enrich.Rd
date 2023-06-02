@@ -30,8 +30,8 @@ Plot k/K for hypergeo enrichment
 library(SEARchways)
 library(dplyr)
 #Run enrichment
-gene_list <- list(HRV1 = names(example_gene_list[[1]]),
-                  HRV2 = names(example_gene_list[[2]]))
+gene_list <- list(HRV1 = names(example.gene.list[[1]]),
+                  HRV2 = names(example.gene.list[[2]]))
 enrich <- BIGprofiler(gene_list, ID="ENSEMBL", category="H")
 
 #Plot
