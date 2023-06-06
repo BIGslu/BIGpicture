@@ -17,13 +17,14 @@
 #' library(dplyr)
 #' #Get fold change information from example model
 #' genes.FC <- example.model$lmerel %>%
-#'             filter(variable == "virus") %>%
+#'             filter(variable %in% c("virus", "asthma")) %>%
 #'             select(variable, gene, estimate)
 #' #Run GSEA
 #' example_gsea <- SEARchways::BIGsea(gene_df = genes.FC, category = "H", ID = "ENSEMBL")
 #'
 #' #Plot
-#' plot_gsea(example_gsea, fdr_cutoff = 0.5)
+#' plot_gsea(example_gsea, fdr_cutoff = 0.5,
+#'          fdr_colors = c(0.1, 0.5))
 
 plot_gsea <- function(gsea, fdr_cutoff = 0.2,
                       fdr_colors = c(0.01, 0.05, 0.1, 0.2),
@@ -55,10 +56,6 @@ plot_gsea <- function(gsea, fdr_cutoff = 0.2,
     dat.format <- dat.signif %>%
       dplyr::mutate(pathway = gsub("_", " ", pathway))
   }
-
-  dat.format <- gsea %>%
-    dplyr::mutate(pathway = gsub("_", " ", pathway)) %>%
-    dplyr::filter(FDR < fdr_cutoff)
 
   if(nrow(dat.format) == 0){stop("No gene sets are significant. Please increase fdr_cutoff.")}
 
