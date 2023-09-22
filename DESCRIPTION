@@ -30,6 +30,8 @@ Imports:
     scales,
     scatterpie,
     STRINGdb,
+    stringr,
+    textshape,
     tibble,
     tidyr
 Suggests: kimma, limma, SEARchways

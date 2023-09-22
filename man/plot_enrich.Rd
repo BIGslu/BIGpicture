@@ -36,12 +36,11 @@ ggplot2 object
 Plot k/K for hypergeo enrichment
 }
 \examples{
-library(SEARchways)
-library(dplyr)
-#Run enrichment
-gene_list <- list(HRV1 = names(example_gene_list[[1]]),
-                  HRV2 = names(example_gene_list[[2]]))
-enrich <- BIGprofiler(gene_list, ID="ENSEMBL", category="H")
+enrich <- data.frame("pathway" = c("pathway1", "pathway2", "pathway3"))
+enrich$`k/K` = c(0.1, 0.1, 0.1)
+enrich$genes = list(c("gene1", "gene2", "gene3"), c("gene3"), c("gene1", "gene2"))
+enrich$FDR = c(0.01, 0.05, 0.2)
+enrich$n_pathway_genes = c(10, 100, 1000)
 
 #Plot
 plot_enrich(enrich, fdr_cutoff = 0.5, fdr_colors = c(0.05, 0.5))
