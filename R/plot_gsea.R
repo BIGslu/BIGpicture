@@ -6,7 +6,7 @@
 #' @param show_overlap Logical if should show overlap across all facets even if some missing (TRUE) or give each facet it's own axis labels (FALSE). Default is TRUE
 #'
 #' @param fdr.cutoff Deprecated form of fdr_cutoff
-#' @param fdr.colors NDeprecated form of fdr_colors
+#' @param fdr.colors Deprecated form of fdr_colors
 #' @param show.overlap Deprecated form of show_overlap
 #'
 #' @return ggplot2 object
