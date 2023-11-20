@@ -29,10 +29,10 @@ Imports:
     patchwork,
     scales,
     scatterpie,
-    STRINGdb,
+    stringr,
     tibble,
     tidyr
-Suggests: kimma, limma, SEARchways
+Suggests: kimma, limma, SEARchways, textshape, STRINGdb
 Depends: 
     R (>= 2.10)
 biocViews: 
