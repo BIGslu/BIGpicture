@@ -60,11 +60,12 @@ ggplot2 object
 Plotting function for hypergeometric enrichment
 }
 \examples{
-enrich <- data.frame("pathway" = c("pathway1", "pathway2", "pathway3"))
-enrich$`k/K` = c(0.1, 0.1, 0.1)
-enrich$genes = list(c("gene1", "gene2", "gene3"), c("gene3"), c("gene1", "gene2"))
-enrich$FDR = c(0.01, 0.05, 0.2)
-enrich$n_pathway_genes = c(10, 100, 1000)
+library(SEARchways)
+library(dplyr)
+#Run enrichment
+gene_list <- list(HRV1 = names(example.gene.list[[1]]),
+                  HRV2 = names(example.gene.list[[2]]))
+enrich <- BIGprofiler(gene_list, ID="ENSEMBL", category="H")
 
 #Plot
 plot_enrich2(enrich, fdr_cutoff = 0.2)
