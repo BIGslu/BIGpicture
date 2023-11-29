@@ -240,11 +240,6 @@ plot_enrich2 <- function(df = NULL,
                      panel.background = ggplot2::element_blank(),
                      plot.background = ggplot2::element_blank())
 
-    if(max(gene_prevalence) > prevalence_cutoff){
-      tilecols_cutoff <- c("0" = "#FFFFFF", "0.5" = "#80A0C6","1" = "#00418d")
-    } else{
-      tilecols_cutoff <- c("0" = "#FFFFFF", "1" = "#80A0C6")
-    }
 
     # format heatmap legend
     if(prevalence_color == "none"){
@@ -255,6 +250,13 @@ plot_enrich2 <- function(df = NULL,
       p1 <- p1 +
         ggplot2::scale_fill_gradient(low = "#FFFFFF", high = "#00418d", name = "prevalence in \nplotted gene sets")
     } else{
+
+      if(max(gene_prevalence) > prevalence_cutoff){
+        tilecols_cutoff <- c("0" = "#FFFFFF", "0.5" = "#80A0C6","1" = "#00418d")
+      } else{
+        tilecols_cutoff <- c("0" = "#FFFFFF", "1" = "#80A0C6")
+      }
+
       p1 <- ggplot2::ggplot(count_df_format, ggplot2::aes(x = factor(gene, levels = x_levels),
                                                           y = factor(geneset, levels = y_levels),
                                                           fill = as.character(color))) +
