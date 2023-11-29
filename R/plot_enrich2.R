@@ -240,7 +240,11 @@ plot_enrich2 <- function(df = NULL,
                      panel.background = ggplot2::element_blank(),
                      plot.background = ggplot2::element_blank())
 
-    tilecols_cutoff <- c("0" = "#FFFFFF", "0.5" = "#80A0C6","1" = "#00418d")
+    if(max(gene_prevalence) > prevalence_cutoff){
+      tilecols_cutoff <- c("0" = "#FFFFFF", "0.5" = "#80A0C6","1" = "#00418d")
+    } else{
+      tilecols_cutoff <- c("0" = "#FFFFFF", "1" = "#80A0C6")
+    }
 
     # format heatmap legend
     if(prevalence_color == "none"){
