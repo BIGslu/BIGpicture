@@ -6,6 +6,32 @@
 #' @return Data frame of genes per row/column, which row or column they owe to, and which cluster number
 #'
 #' @examples
+#' set.seed(101)
+#' BL_col <- sample(seq(from = -1.00, to = 1.00, by = 0.05), size = 10, replace = TRUE)
+#' hr1_col <- sample(seq(from = -1.00, to = 1.00, by = 0.05), size = 10, replace = TRUE)
+#' hr2_col <- sample(seq(from = -1.00, to = 1.00, by = 0.05), size = 10, replace = TRUE)
+#' hr3_col <- sample(seq(from = -1.00, to = 1.00, by = 0.05), size = 10, replace = TRUE)
+#' rn <- paste0("gene", seq(from = 1, to = 10))
+#'
+#' dat <- data.frame(BL_col, hr1_col, hr2_col, hr3_col, rn) %>%
+#'   column_to_rownames(var = "rn") %>%
+#'   as.matrix()
+#'
+#' Optional: Add your own column or row dendrogram, must specify value of k in ComplexHeatmap row_split or column_split
+#'
+#' # row_dend <- dat %>%
+#'#   dist() %>%
+#'#   hclust() %>%
+#'#   as.dendrogram() %>%
+#'#   dendextend::set("branches_k_color", k = 4)
+#'
+#'# col_dend <- t(dat) %>%
+#'#   dist() %>%
+#'#   hclust() %>%
+#'#   as.dendrogram() %>%
+#'#   dendextend::set("branches_k_color", k = 2)
+
+
 #' heatmap_cluster_genes <- get_hm_clust(dat = dat, hm = draw(hm), dimension = "row")
 
 get_hm_clust <- function(dat, hm, dimension){
