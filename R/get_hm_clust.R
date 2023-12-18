@@ -92,3 +92,5 @@ get_hm_clust <- function(dat, hm, dimension){
 
   return(cluster.result)
 }
+
+
