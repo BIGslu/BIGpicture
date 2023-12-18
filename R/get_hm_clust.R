@@ -1,14 +1,12 @@
-# Author: Kim Dill-McFarland
-
 #' Get data frame of genes per cluster from ComplexHeatmap output
+#'
 #' @param dat Ordered and scaled matrix of gene counts
 #' @param hm ComplexHeatMap output specified with draw(h)
 #' @param dimension Row or column clusters
 #' @return Data frame of genes per row/column, which row or column they owe to, and which cluster number
 #'
 #' @examples
-#' heatmap_cluster_genes <- get_hm_clust(dat = scaled_counts_matrix, hm = draw(heatmap), dimension = "row")
-#' heatmap_cluster_genes <- get_hm_cluster(dat = scaled_counts_matrix, hm = draw(heatmap), dimension = "col")
+#' heatmap_cluster_genes <- get_hm_clust(dat = dat, hm = draw(hm), dimension = "row")
 
 get_hm_clust <- function(dat, hm, dimension){
 
