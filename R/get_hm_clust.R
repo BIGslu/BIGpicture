@@ -1,6 +1,5 @@
-# Author: Kim Dill-McFarland
-
 #' Get data frame of genes per cluster from ComplexHeatmap output
+#'
 #' @param dat Ordered and scaled matrix of gene counts
 #' @param hm ComplexHeatMap output specified with draw(h)
 #' @param dimension Row or column clusters
@@ -96,3 +95,5 @@ get_hm_clust <- function(dat, hm, dimension){
 
   return(cluster.result)
 }
+
+

@@ -3,6 +3,7 @@
 export("%>%")
 export(map_string)
 export(plot_enrich)
+export(plot_enrich2)
 export(plot_fit)
 export(plot_fit2)
 export(plot_genes)

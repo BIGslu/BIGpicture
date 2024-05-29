@@ -55,6 +55,6 @@
 #' @references Dill-McFarland et al. 2021. Eosinophil-mediated suppression and Anti-IL-5 enhancement of plasmacytoid dendritic cell interferon responses in asthma. J Allergy Clin Immunol. In revision
 #' @description A dataset containing linear mixed effects model results with and without genetic kinship correction. Raw data were obtained from the kimma package.
 #' @docType data
-#' @name example_model
+#' @name example.model
 #' @keywords datasets
-"example_model"
+"example.model"
