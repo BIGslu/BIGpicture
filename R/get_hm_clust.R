@@ -7,8 +7,10 @@
 #' @return Data frame of genes per row/column, which row or column they owe to, and which cluster number
 #'
 #' @examples
-#' heatmap_cluster_genes <- get_hm_clust(dat = scaled_counts_matrix, hm = draw(heatmap), dimension = "row")
-#' heatmap_cluster_genes <- get_hm_cluster(dat = scaled_counts_matrix, hm = draw(heatmap), dimension = "col")
+#' heatmap_cluster_genes <- get_hm_clust(dat = scaled_counts_matrix,
+#'                         hm = draw(heatmap), dimension = "row")
+#' heatmap_cluster_genes <- get_hm_cluster(dat = scaled_counts_matrix,
+#'                         hm = draw(heatmap), dimension = "col")
 
 get_hm_clust <- function(dat, hm, dimension){
 
@@ -39,9 +41,9 @@ get_hm_clust <- function(dat, hm, dimension){
           #Convert to data frame
           as.data.frame() %>%
           #row order within cluster
-          mutate(row_within_cluster = 1:length(cluster.index)) %>%
+          dplyr::mutate(row_within_cluster = 1:length(cluster.index)) %>%
           #add cluster name
-          mutate(cluster = paste0("cluster", i)) %>%
+          dplyr::mutate(cluster = paste0("cluster", i)) %>%
           #Rename default column
           dplyr::rename(row=V1) %>%
           #concatenate results
