@@ -12,7 +12,7 @@
 #' @export
 #'
 #' @examples
-#' plot_fit(example_model, example_model, x="lme", y="lmerel", metrics=c("sigma","AIC","Rsq"))
+#' plot_fit(example.model, example.model, x="lme", y="lmerel", metrics=c("sigma","AIC","Rsq"))
 
 plot_fit <- function(model_result, model_result_y=NULL,
                      x, y, x_label=NULL, y_label=NULL,

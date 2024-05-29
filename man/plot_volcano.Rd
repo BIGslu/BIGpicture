@@ -10,11 +10,13 @@ plot_volcano(
   variables = NULL,
   x = "estimate",
   y = "FDR",
-  x.cutoff = NULL,
-  y.cutoff = NULL,
+  x_cutoff = NULL,
+  y_cutoff = NULL,
   label = NULL,
   genes = NULL,
-  genes_label = NULL
+  genes_label = NULL,
+  x.cutoff = NULL,
+  y.cutoff = NULL
 )
 }
 \arguments{
@@ -28,15 +30,19 @@ plot_volcano(
 
 \item{y}{Character string of variable to plot on y-axis. Default is "FDR"}
 
-\item{x.cutoff}{Numeric.Optional x cutoff for color and/or labeling}
+\item{x_cutoff}{Numeric.Optional x cutoff for color and/or labeling}
 
-\item{y.cutoff}{Numeric. Optional y cutoff for color and/or labeling}
+\item{y_cutoff}{Numeric. Optional y cutoff for color and/or labeling}
 
-\item{label}{Character or numeric. If "all", all significant genes as defined by x.cutoff and y.cutoff are labels with their HGNC symbol. If numeric, that number of most significant genes are labeled.}
+\item{label}{Character or numeric. If "all", all significant genes as defined by x_cutoff and y_cutoff are labels with their HGNC symbol. If numeric, that number of most significant genes are labeled.}
 
 \item{genes}{Data frame with gene metadata for labeling points (optional). If not provided, the gene column in the model_result is used}
 
 \item{genes_label}{Character string of variable in genes to label with. Required if provide genes parameter}
+
+\item{x.cutoff}{Deprecated form of x_cutoff}
+
+\item{y.cutoff}{Deprecated form of y_cutoff}
 }
 \value{
 ggplot object
@@ -45,18 +51,18 @@ ggplot object
 Volcano plot of differentially expressed genes
 }
 \examples{
-plot_volcano(example_model, model = "lme")
-plot_volcano(example_model, model = "lme", variables = "virus", y = "pval")
-plot_volcano(example_model, model = "lme", variables = c("virus","asthma"),
-             x.cutoff = 0.5, y.cutoff = 0.05, label = 2)
-plot_volcano(example_model, model = "lme", variables = "virus",
-             y.cutoff = 0.05, label = 2)
-plot_volcano(example_model, model = "lme", variables = "virus",
-             x.cutoff = 0.5, label = 2)
+plot_volcano(example.model, model = "lme")
+plot_volcano(example.model, model = "lme", variables = "virus", y = "pval")
+plot_volcano(example.model, model = "lme", variables = c("virus","asthma"),
+             x_cutoff = 0.5, y_cutoff = 0.05, label = 2)
+plot_volcano(example.model, model = "lme", variables = "virus",
+             y_cutoff = 0.05, label = 2)
+plot_volcano(example.model, model = "lme", variables = "virus",
+             x_cutoff = 0.5, label = 2)
 
-plot_volcano(example_model, model = "lme", variables = "virus",
-             y.cutoff = 1E-20, label = "all")
-plot_volcano(example_model, model = "lme", variables = "virus",
-             y.cutoff = 1E-20, label = "all",
+plot_volcano(example.model, model = "lme", variables = "virus",
+             y_cutoff = 1E-20, label = "all")
+plot_volcano(example.model, model = "lme", variables = "virus",
+             y_cutoff = 1E-20, label = "all",
              genes = kimma::example.voom$genes, genes_label = "hgnc_symbol")
 }
