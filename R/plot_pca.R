@@ -81,7 +81,7 @@ plot_pca <- function(dat, meta = NULL, vars, PCx=1, PCy=2,
       ggplot2::coord_fixed(ratio=1)
 
     #Add connecting lines if duplicate
-    if(var %in% c("duplicate","dupID")){
+    if(var %in% c("duplicate","dupID","replicate","repID")){
       pca.plot <- pca.plot + ggplot2::geom_line(data=dplyr::filter(pca.dat, !is.na(get(var))))
     }
     plot.ls[[var]] <- pca.plot
