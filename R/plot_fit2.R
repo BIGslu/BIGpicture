@@ -87,8 +87,6 @@ plot_fit2 <- function(model_result, model_result_y=NULL,
 
     dat_y <- dat_y %>%
       dplyr::filter(gene %in% subset_genes)
-  } else {
-    next
   }
 
   #Merge and format
