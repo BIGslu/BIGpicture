@@ -14,7 +14,8 @@ plot_fit2(
   metrics = "AIC",
   label = NULL,
   genes = NULL,
-  genes_label = NULL
+  genes_label = NULL,
+  subset_genes = NULL
 )
 }
 \arguments{
@@ -37,6 +38,8 @@ plot_fit2(
 \item{genes}{Data frame with gene metadata for labeling points (optional). If not provided, the gene column in the model_result is used}
 
 \item{genes_label}{Character string of variable in genes to label with. Required if provide genes parameter}
+
+\item{subset_genes}{Character vector of genes to subset and plot}
 }
 \value{
 ggplot object

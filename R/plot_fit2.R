@@ -10,6 +10,7 @@
 #' @param label Numeric. Total number of genes to label. Based on largest absolute change in fit metric.
 #' @param genes Data frame with gene metadata for labeling points (optional). If not provided, the gene column in the model_result is used
 #' @param genes_label Character string of variable in genes to label with. Required if provide genes parameter
+#' @param subset_genes Character vector of genes to subset and plot
 #'
 #' @return ggplot object
 #' @export
@@ -21,9 +22,9 @@
 #' metrics=c("sigma","AIC","Rsq"), label=3, x_label="without kinship", y_label="with kinship")
 
 plot_fit2 <- function(model_result, model_result_y=NULL,
-                     x, y, x_label=NULL, y_label=NULL,
-                     metrics="AIC",
-                     label=NULL, genes = NULL, genes_label = NULL){
+                      x, y, x_label=NULL, y_label=NULL,
+                      metrics="AIC",
+                      label=NULL, genes = NULL, genes_label = NULL, subset_genes = NULL){
   model <- gene <- sigma <- `Best fit` <- variable <- value <- name <- Metric <- cutoff <- delta <- NULL
 
   if(!is.numeric(label) & !is.null(label)){
@@ -78,6 +79,15 @@ plot_fit2 <- function(model_result, model_result_y=NULL,
 
   #Stop if only 1 unique model found
   if(x_lab == y_lab){ stop(paste("Only one unique model found.", x_lab, sep="\n")) }
+
+  # allow subsetting of genes
+  if(!is.null(subset_genes)) {
+    dat_x <- dat_x %>%
+      dplyr::filter(gene %in% subset_genes)
+
+    dat_y <- dat_y %>%
+      dplyr::filter(gene %in% subset_genes)
+  }
 
   #Merge and format
   dat <- dplyr::bind_rows(dat_x,dat_y) %>%
@@ -193,8 +203,8 @@ plot_fit2 <- function(model_result, model_result_y=NULL,
 
   #Combine final plots
   plot <- patchwork::wrap_plots(plot1,plot2,nrow = 1,
-          widths = c(length(metrics[metrics %in% c("sigma","AIC","BIC")]),
-                     length(metrics[metrics %in% c("Rsq","adj_Rsq")])))
+                                widths = c(length(metrics[metrics %in% c("sigma","AIC","BIC")]),
+                                           length(metrics[metrics %in% c("Rsq","adj_Rsq")])))
   #Summary messages
   message("Summary")
   summ <- dat %>%
