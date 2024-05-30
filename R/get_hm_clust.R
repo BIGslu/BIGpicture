@@ -4,12 +4,25 @@
 #' @param hm ComplexHeatMap output specified with draw(h)
 #' @param dimension Row or column clusters
 #' @return Data frame of genes per row/column, which row or column they owe to, and which cluster number
+#' @export
 #'
 #' @examples
-#' heatmap_cluster_genes <- get_hm_clust(dat = scaled_counts_matrix,
-#'                         hm = draw(heatmap), dimension = "row")
-#' heatmap_cluster_genes <- get_hm_cluster(dat = scaled_counts_matrix,
-#'                         hm = draw(heatmap), dimension = "col")
+#' library(ComplexHeatmap)
+#' library(dplyr)
+#' library(tidyr)
+#' library(tibble)
+#'
+#' hm.dat <- example.model$lme %>%
+#'           select(gene, variable, pval) %>%
+#'           pivot_wider(names_from = variable, values_from = pval) %>%
+#'           column_to_rownames("gene") %>% as.matrix()
+#' example.hm <- Heatmap(hm.dat, row_km=3, column_km=2)
+#' example.hm <- draw(example.hm)
+#'
+#' row_clust <- get_hm_clust(dat = hm.dat,
+#'                         hm = example.hm, dimension = "row")
+#' column_clust <- get_hm_clust(dat = hm.dat,
+#'                         hm = example.hm, dimension = "col")
 
 get_hm_clust <- function(dat, hm, dimension){
   V1 <- NULL
