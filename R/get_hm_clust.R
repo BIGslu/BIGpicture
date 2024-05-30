@@ -12,6 +12,7 @@
 #'                         hm = draw(heatmap), dimension = "col")
 
 get_hm_clust <- function(dat, hm, dimension){
+  V1 <- NULL
 
   cluster.result <- data.frame()
 
