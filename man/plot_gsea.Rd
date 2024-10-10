@@ -25,7 +25,7 @@ plot_gsea(
 
 \item{fdr.cutoff}{Deprecated form of fdr_cutoff}
 
-\item{fdr.colors}{NDeprecated form of fdr_colors}
+\item{fdr.colors}{Deprecated form of fdr_colors}
 
 \item{show.overlap}{Deprecated form of show_overlap}
 }

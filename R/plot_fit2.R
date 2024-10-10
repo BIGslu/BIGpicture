@@ -24,6 +24,10 @@
 #'           metrics=c("sigma","AIC","Rsq"), label=3,
 #'           x_label="without kinship", y_label="with kinship",
 #'           outliers=TRUE)
+#'
+#' plot_fit2(example.model, example.model, x="lme", y="lmerel",
+#'           metrics=c("sigma","AIC","Rsq"),
+#'           subset_genes=c("ENSG00000165215","ENSG00000165644","ENSG0000079739"))
 
 plot_fit2 <- function(model_result, model_result_y=NULL,
                       x, y, x_label=NULL, y_label=NULL,

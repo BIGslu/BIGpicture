@@ -15,7 +15,7 @@ plot_fit2(
   label = NULL,
   genes = NULL,
   genes_label = NULL,
-  subset_genes = NULL
+  subset_genes = NULL,
   outliers = FALSE
 )
 }
@@ -58,4 +58,8 @@ plot_fit2(example.model, example.model, x="lme", y="lmerel",
           metrics=c("sigma","AIC","Rsq"), label=3,
           x_label="without kinship", y_label="with kinship",
           outliers=TRUE)
+
+plot_fit2(example.model, example.model, x="lme", y="lmerel",
+          metrics=c("sigma","AIC","Rsq"),
+          subset_genes=c("ENSG00000165215","ENSG00000165644","ENSG0000079739"))
 }

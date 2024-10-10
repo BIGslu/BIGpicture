@@ -65,4 +65,7 @@ plot_volcano(example.model, model = "lme", variables = "virus",
 plot_volcano(example.model, model = "lme", variables = "virus",
              y_cutoff = 1E-20, label = "all",
              genes = kimma::example.voom$genes, genes_label = "hgnc_symbol")
+
+plot_volcano(example.model, model = "lme", variables = c("virus","asthma"),
+             x_cutoff = 0.5, y_cutoff = 1E-1000, label = 2)
 }
