@@ -15,6 +15,7 @@ plot_fit2(
   label = NULL,
   genes = NULL,
   genes_label = NULL,
+  subset_genes = NULL
   outliers = FALSE
 )
 }
@@ -38,6 +39,8 @@ plot_fit2(
 \item{genes}{Data frame with gene metadata for labeling points (optional). If not provided, the gene column in the model_result is used}
 
 \item{genes_label}{Character string of variable in genes to label with. Required if provide genes parameter}
+
+\item{subset_genes}{Character vector of genes to subset and plot}
 
 \item{outliers}{Logical. Include circle for outlier genes as defined by 1.5X interquartile range, similar to geom_boxplot. Default is FALSE}
 }
