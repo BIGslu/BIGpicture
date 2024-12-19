@@ -71,6 +71,8 @@ plot_gsea <- function(gsea, fdr_cutoff = 0.2,
       dat.format$Significance[dat.format$FDR < fdr_colors.sort[i] & dat.format$FDR >= fdr_colors.sort[i-1]] <- paste("FDR <", fdr_colors.sort[i])
     }
   }
+  fdr_colors.sort.labs <- paste0("FDR < ", fdr_colors.sort)
+  dat.format$Significance <- factor(dat.format$Significance, levels = fdr_colors.sort.labs)
 
   #Enrichment score limits
   plot.lim <- max(abs(dat.format$NES))+0.1
