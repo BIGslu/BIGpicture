@@ -23,11 +23,13 @@
 #' library(SEARchways)
 #' library(dplyr)
 #' #Run enrichment
-#' gene_list <- list(HRV1 = names(example.gene.list[[1]]))
+#' gene_list <- list(HRV1 = names(example.gene.list[[1]]),
+#'                   HRV2 = names(example.gene.list[[2]]))
 #' enrich <- BIGprofiler(gene_list, ID="ENSEMBL", category="H")
 #'
 #' #Plot
-#' plot_enrich2(enrich, fdr_cutoff = 0.8, gssize_col = "size_pathway")
+#' plot_enrich(enrich, fdr_cutoff = 0.5)
+
 
 plot_enrich2 <- function(df = NULL,
                          fdr_cutoff = 0.2,
@@ -327,21 +329,24 @@ plot_enrich2 <- function(df = NULL,
         fdr_levels <- c(fdr_levels, paste("FDR < ", fdr_colors.sort[i]))
       }
     }
-    df <- df %>%
+    df_lp <- df %>%
       dplyr::mutate(Significance = factor(Significance, levels = fdr_levels))
 
 
     size_bins <- c("< 10" = 1, "10 - 49" = 2, "50 - 99" = 3, "100 - 499" = 4, "500 - 999" = 5, ">= 1000" = 6)
-    df$gssize_bin <- NA
-    df <- df %>%
-      dplyr::mutate(gssize_bin = ifelse(df$n_pathway_genes < 10, "< 10",
-                                        ifelse(df$n_pathway_genes < 50, "10 - 49",
-                                               ifelse(df$n_pathway_genes < 100, "50 - 99",
-                                                      ifelse(df$n_pathway_genes < 500, "100 - 499",
-                                                             ifelse(df$n_pathway_genes < 1000, "500 - 999", ">= 1000")))))) %>%
+    df_lp$gssize_bin <- NA
 
+    df_lp$gssize_bin = ifelse(df_lp$gssize < 10, "< 10",
+                              ifelse(df_lp$gssize < 50, "10 - 49",
+                                     ifelse(df_lp$gssize < 100, "50 - 99",
+                                            ifelse(df_lp$gssize < 500, "100 - 499",
+                                                   ifelse(df_lp$gssize < 1000, "500 - 999", ">= 1000")))))
+    df_lp <- df_lp %>%
       dplyr::mutate(gssize_bin = factor(gssize_bin, levels = c("< 10", "10 - 49", "50 - 99", "100 - 499", "500 - 999", ">= 1000")))
-    p5 <- ggplot2::ggplot(df, ggplot2::aes(x = factor(gs, levels = y_levels), y = ratio)) +
+
+
+
+     p5 <- ggplot2::ggplot(df_lp, ggplot2::aes(x = factor(gs, levels = y_levels), y = ratio)) +
       ggplot2::geom_segment(ggplot2::aes(factor(gs, levels = y_levels),
                                          xend=gs, y=0, yend=ratio)) +
       ggplot2::geom_point(ggplot2::aes(fill = Significance,
@@ -363,7 +368,7 @@ plot_enrich2 <- function(df = NULL,
                      #axis.ticks.x = ggplot2::element_blank(),
                      axis.ticks.y = ggplot2::element_blank(),
                      plot.margin = ggplot2::margin(0,0,0,1, "pt"))+
-      ggplot2::scale_y_continuous(position = "right",labels = scales::label_number(accuracy = 0.1)) +
+      ggplot2::scale_y_continuous(position = "right",labels = scales::label_number(accuracy = 0.01)) +
       ggplot2::ggtitle("k/K")+
       ggplot2::guides(size=ggplot2::guide_legend(title="Gene Set Size"),
                       fill=ggplot2::guide_legend(title="Significance"))
