@@ -315,7 +315,7 @@ plot_enrich2 <- function(df = NULL,
                      plot.margin = ggplot2::margin(0,0,0,0, "pt")
       )+
       ggplot2::coord_flip() +
-      ggplot2::scale_y_continuous(position = "right",labels = scales::label_number(accuracy = 0.1))
+      ggplot2::scale_y_continuous(position = "right",labels = scales::label_number(accuracy = 0.001))
   } else if(chart_style == "lollipop"){
     fdr_colors.sort <- sort(lollipop_fdr_colors)
     df$Significance <- NA
@@ -368,7 +368,7 @@ plot_enrich2 <- function(df = NULL,
                      #axis.ticks.x = ggplot2::element_blank(),
                      axis.ticks.y = ggplot2::element_blank(),
                      plot.margin = ggplot2::margin(0,0,0,1, "pt"))+
-      ggplot2::scale_y_continuous(position = "right",labels = scales::label_number(accuracy = 0.01)) +
+      ggplot2::scale_y_continuous(position = "right",labels = scales::label_number(accuracy = 0.001)) +
       ggplot2::ggtitle("k/K")+
       ggplot2::guides(size=ggplot2::guide_legend(title="Gene Set Size"),
                       fill=ggplot2::guide_legend(title="Significance"))
