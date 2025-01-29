@@ -33,7 +33,7 @@ plot_fit2 <- function(model_result, model_result_y=NULL,
                       x, y, x_label=NULL, y_label=NULL,
                       metrics="AIC",
                       label=NULL, genes = NULL, genes_label = NULL, subset_genes = NULL, outliers=FALSE){
-  model <- gene <- sigma <- `Best fit` <- variable <- value <- name <- Metric <- cutoff <- delta <- q1 <- iqr <- q3 <- outlier <- NULL
+  model <- gene <- sigma <- `Best fit` <- variable <- value <- name <- Metric <- cutoff <- delta <- q1 <- iqr <- q3 <- outlier <- cutoff2 <- sig_group <- NULL
 
   if(!is.numeric(label) & !is.null(label)){
     stop("label value must be numeric. Unlike plot_volcano( ), label='all' is not allowed in plot_fit2( )")
@@ -182,15 +182,23 @@ plot_fit2 <- function(model_result, model_result_y=NULL,
     cutoffs <- data.frame(name = metrics) %>%
       dplyr::mutate(cutoff = dplyr::case_when(name %in% c("AIC","BIC") ~ 2,
                                               TRUE ~ NA)) %>%
+      dplyr::mutate(cutoff2 = dplyr::case_when(name %in% c("AIC","BIC") ~ 7,
+                                              TRUE ~ NA)) %>%
       tidyr::drop_na(cutoff)
 
     plot1 <- plot1 +
       ggplot2::geom_hline(data = cutoffs,
                           ggplot2::aes(yintercept = cutoff),
-                          lty = "dashed") +
+                          color="red") +
       ggplot2::geom_hline(data = cutoffs,
                           ggplot2::aes(yintercept = -cutoff),
-                          lty = "dashed")
+                          color="red") +
+      ggplot2::geom_hline(data = cutoffs,
+                          ggplot2::aes(yintercept = cutoff2),
+                          color="red", lty = "dashed") +
+      ggplot2::geom_hline(data = cutoffs,
+                          ggplot2::aes(yintercept = -cutoff2),
+                          color="red", lty = "dashed")
   }
 
 
@@ -241,16 +249,43 @@ plot_fit2 <- function(model_result, model_result_y=NULL,
                                 widths = c(length(metrics[metrics %in% c("sigma","AIC","BIC")]),
                                            length(metrics[metrics %in% c("Rsq","adj_Rsq")])))
   #Summary messages
-  message("Summary")
-  summ <- dat %>%
-    dplyr::mutate(diff=abs(get(x_name2)-get(y_name2))) %>%
-    dplyr::group_by(`Best fit`, name) %>%
-    dplyr::summarise(`Total genes`=dplyr::n(),
-                     `Mean delta`=mean(diff, na.rm=TRUE),
-                     `Stdev delta`=stats::sd(diff, na.rm=TRUE),
-                     .groups="drop") %>%
-    dplyr::rename(Metric=name) %>%
-    dplyr::arrange(Metric, `Best fit`)
-  print(as.data.frame(summ))
+  #AIC/BIC summary with more detail
+  if(any(grepl("AIC|BIC", unique(dat$name)))){
+    message("Summary: AIC and BIC")
+    summ2 <- dat %>%
+      dplyr::filter(name %in% c("AIC","BIC")) %>%
+      dplyr::mutate(diff=abs(get(x_name2)-get(y_name2))) %>%
+      dplyr::mutate(sig_group = dplyr::case_when(
+        abs(delta)<2~"Nonsignif (< 2)",
+        abs(delta)<7~paste("Moderate (2-7)", `Best fit`),
+        abs(delta)>=7~paste("Signif (> 7)", `Best fit`),
+        TRUE~NA)) %>%
+      dplyr::group_by(sig_group, name) %>%
+      dplyr::summarise(`Total genes`=dplyr::n(),
+                       `Mean delta`=mean(diff, na.rm=TRUE),
+                       `Stdev delta`=stats::sd(diff, na.rm=TRUE),
+                       .groups="drop") %>%
+      dplyr::rename(Metric=name) %>%
+      dplyr::arrange(Metric, sig_group)
+    print(as.data.frame(summ2))
+  }
+  if(any(grepl("Rsq|adj_Rsq|sigma", unique(dat$name)))){
+    message("Summary: Other metrics")
+    summ1 <- dat %>%
+      dplyr::filter(name %in% c("Rsq","adj_Rsq","sigma")) %>%
+      dplyr::mutate(diff=abs(get(x_name2)-get(y_name2))) %>%
+      dplyr::group_by(`Best fit`, name) %>%
+      dplyr::summarise(`Total genes`=dplyr::n(),
+                       `Mean delta`=mean(diff, na.rm=TRUE),
+                       `Stdev delta`=stats::sd(diff, na.rm=TRUE),
+                       .groups="drop") %>%
+      dplyr::rename(Metric=name) %>%
+      dplyr::arrange(Metric, `Best fit`)
+    print(as.data.frame(summ1))
+  }
+
+
+
+  #AIC, BIC specifics
   return(plot)
 }
