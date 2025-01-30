@@ -3,16 +3,17 @@
 #' @param df Data frame output by SEARchways::BIGprofiler or SEARchways::flexEnrich
 #' @param fdr_cutoff Numeric. Maximum FDR to plot. Default is 0.2.
 #' @param pathway_col Character string Column name for df column containing gene set names.
+#' @param gene_col Character string. Column name for df column containing gene lists names. Required if "y_grouping_method == 'hclust'".
 #' @param ratio_col Character string Column name for df column containing k/K ratios.
-#' @param fdr_col Character string Column name for df column containing corrected p-values to plot.
-#' @param gssize_col Character string Column name for df column containing gene set sizes.
-#' @param y_grouping_method Character string Method for grouping gene sets along the y-axis. "hclust", "overlap_size", "gs_size", "ratio", "fdr", and "input". Default is "fdr".
+#' @param fdr_col Character string. Column name for df column containing corrected p-values to plot.
+#' @param gssize_col Character string. Column name for df column containing gene set sizes.
+#' @param y_grouping_method Character string. Method for grouping gene sets along the y-axis. "hclust" (based on gene membership), "overlap_size", "gs_size", "ratio", "fdr", and "input". Default is "fdr".
 #' @param include_gssize Boolean. Whether or not to include a column of gene set sizes to the left of the enrichment plot. Default is FALSE.
-#' @param chart_style Character string Options are "lollipop", "bar", and "dot". Default is "lollipop".
+#' @param chart_style Character string. Options are "lollipop", "bar", and "dot". Default is "lollipop".
 #' @param fdr_binned_colors Numeric vector. Cutoffs for binned FDR value color groups for lollipop plots. Default is c(0.001, 0.01, 0.05, 0.1, 0.2, 0.5, 0.99).
 #' @param fdr_continuous Boolean. Whether or not to color points in a continuous fashions by a negative log transformed FDR value. Only applies to lollipop plots and dotplots.
 #' @param dot_sig_cutoff Numeric. What cutoff to use for applying a black outline to dotplot dots
-#' @param dot_groupcol Character string Name of the column used to group enrichment along the x axis for dotplot.
+#' @param dot_groupcol Character string. Name of the column used to group enrichment along the x axis for dotplot.
 #' @return ggplot2 object
 #' @export
 #'
@@ -30,6 +31,7 @@
 plot_enrich2 <- function(df = NULL,
                          fdr_cutoff = 0.2,
                          pathway_col = "pathway",
+                         gene_col = "genes",
                          ratio_col = "k/K",
                          fdr_col = "FDR",
                          gssize_col = "n_pathway_genes",
@@ -48,8 +50,10 @@ plot_enrich2 <- function(df = NULL,
   ### Format input ###
   # rename columns
   df$gs <- df[[pathway_col]]
+  df$gns <- df[[gene_col]]
   df$fdr <- df[[fdr_col]]
   df$ratio <- df[[ratio_col]]
+
 
   if(!is.null(gssize_col)){
     df$gssize <- df[[gssize_col]]
@@ -64,6 +68,34 @@ plot_enrich2 <- function(df = NULL,
       dplyr::pull(gs) %>% unique()
     df <- df %>%
       dplyr::filter(gs %in% gssub)
+  }
+
+  # get gene vector
+  genevec <- c()
+  for(i in 1:nrow(df)){
+    rowgenes <- df$gns[i]
+    rowgenes <- unlist(rowgenes)
+    genevec <- c(genevec,rowgenes)
+    genevec <- unique(genevec)
+  }
+
+  # get pathways
+  gsvec <- unique(df$gs)
+
+  # get count mat for overlap, clustering
+  count_df <- matrix(ncol = length(genevec), nrow = length(gsvec))
+  colnames(count_df) <- genevec
+  rownames(count_df) <- gsvec
+  ## make binary matrix
+  for(i in 1:nrow(count_df)){
+    set <- rownames(count_df)[i]
+    rowgenes <- df$gns[which(df$gs == set)]
+    rowgenes <- unlist(rowgenes)
+    for(j in 1:ncol(count_df)){
+      g <- colnames(count_df)[j]
+      val <- ifelse(g %in% rowgenes, 1,0)
+      count_df[set,g] <- val
+    }
   }
 
   ### Get order vector for gene sets ###
