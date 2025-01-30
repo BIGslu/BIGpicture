@@ -8,7 +8,7 @@
 #' @param gssize_col String. Column name for df column containing gene set sizes.
 #' @param y_grouping_method String. Method for grouping gene sets along the y-axis. "hclust", "overlap_size", "gs_size", "ratio", "fdr", and "input". Default is "fdr".
 #' @param include_gssize Boolean. Whether or not to include a column of gene set sizes to the left of the enrichment plot. Default is FALSE.
-#' @param chart_style String. Options are "bar," "lollipop," and "dotplot". Default is "lollipop".
+#' @param chart_style Character string Options are "lollipop", "bar", and "dot". Default is "lollipop".
 #' @param fdr_binned_colors Numeric vector. Cutoffs for binned FDR value color groups for lollipop plots. Default is c(0.001, 0.01, 0.05, 0.1, 0.2, 0.5, 0.99).
 #' @param fdr_continuous Boolean. Whether or not to color points in a continuous fashions by a negative log transformed FDR value. Only applies to lollipop plots and dotplots.
 #' @param dotplot_sig_cutoff Numeric. What cutoff to use for applying a black outline to dotplot dots
@@ -38,8 +38,8 @@ plot_enrich2 <- function(df = NULL,
                          chart_style = "lollipop",
                          fdr_binned_colors = c(0.001, 0.01, 0.05, 0.1, 0.2, 0.5, 0.99),
                          fdr_continuous = FALSE,
-                         dotplot_sig_cutoff = NULL,
-                         dotplot_groupcol = "group"
+                         dot_sig_cutoff = NULL,
+                         dot_groupcol = "group"
 ){
 
   fdr <- size <- gs <- gssize <- ratio <- desc <- prev <- gene <- geneset <- color <- Significance <- gssize_bin <- `k/K` <- sigyn <- group <- NULL
@@ -69,15 +69,15 @@ plot_enrich2 <- function(df = NULL,
   ### Get order vector for gene sets ###
 
   # get reference level for multi-group dotplot
-  if(!is.null(dotplot_groupcol) & chart_style == "dotplot"){
-    if(is.factor(df[[dotplot_groupcol]])){
-      lev <- levels(df[[dotplot_groupcol]])[1]
+  if(!is.null(dot_groupcol) & chart_style == "dot"){
+    if(is.factor(df[[dot_groupcol]])){
+      lev <- levels(df[[dot_groupcol]])[1]
     } else{
-      lev <- levels(as.factor(df[[dotplot_groupcol]]))[1]
+      lev <- levels(as.factor(df[[dot_groupcol]]))[1]
     }
 
     df_lev <- df
-    df_lev$group <- df[[dotplot_groupcol]]
+    df_lev$group <- df[[dot_groupcol]]
     df_lev <- df_lev %>%
       dplyr::filter(`group` == as.character(lev))
   } else{
@@ -242,12 +242,12 @@ plot_enrich2 <- function(df = NULL,
                         fill=ggplot2::guide_legend(title="-log10(FDR)", override.aes = list(size=5)))
     }
 
-  } else if(chart_style == "dotplot"){
+  } else if(chart_style == "dot"){
 
     ## get grouping column if there is one ##
     df_dp <- df
-    if(!is.null(dotplot_groupcol)){
-      df_dp$group <- df_dp[[dotplot_groupcol]]
+    if(!is.null(dot_groupcol)){
+      df_dp$group <- df_dp[[dot_groupcol]]
     } else{
       df_dp$group <- "enrichment"
     }
@@ -269,9 +269,9 @@ plot_enrich2 <- function(df = NULL,
     } else{ # continuous log transform
       df_dp$Significance <- -log10(df_dp$FDR)
     }
-    if(!is.null(dotplot_sig_cutoff)){ # add a column to indicate whether or not a black circle will be added
+    if(!is.null(dot_sig_cutoff)){ # add a column to indicate whether or not a black circle will be added
       df_dp <- df_dp %>%
-        dplyr::mutate("sigyn" = ifelse(df_dp$FDR < dotplot_sig_cutoff, "yes", "no"))
+        dplyr::mutate("sigyn" = ifelse(df_dp$FDR < dot_sig_cutoff, "yes", "no"))
     } else{
       df_dp <- df_dp %>%
         dplyr::mutate("sigyn" = "no")
@@ -306,9 +306,9 @@ plot_enrich2 <- function(df = NULL,
                         fill=ggplot2::guide_legend(title="-log10(FDR)", override.aes = list(size=5)))
     }
 
-    if(!is.null(dotplot_sig_cutoff)){
+    if(!is.null(dot_sig_cutoff)){
       p6 <- p6 +
-        ggplot2::guides(color=ggplot2::guide_legend(title=paste0("FDR < ", dotplot_sig_cutoff), override.aes = list(size=5)))
+        ggplot2::guides(color=ggplot2::guide_legend(title=paste0("FDR < ", dot_sig_cutoff), override.aes = list(size=5)))
     }
 
 
@@ -343,7 +343,7 @@ plot_enrich2 <- function(df = NULL,
     } else{
       p <- p5
     }
-  } else if(chart_style == "dotplot"){
+  } else if(chart_style == "dot"){
     if(include_gssize){
       p <- p3 + # GS size
         patchwork::plot_spacer() +
@@ -352,7 +352,7 @@ plot_enrich2 <- function(df = NULL,
     } else{
       p <- p6
     }
-  } else(stop('Valid options chart_style are "bar", "lollipop", and "dotplot".'))
+  } else(stop('Valid options chart_style are "bar", "lollipop", and "dot".'))
 
   return(p)
 
