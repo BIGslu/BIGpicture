@@ -168,23 +168,27 @@ plot_enrich2 <- function(df = NULL,
       ggplot2::coord_flip() +
       ggplot2::scale_y_continuous(position = "left",labels = scales::label_number(accuracy = 1))
   } else if(chart_style == "lollipop"){
-    fdr_colors.sort <- sort(fdr_binned_colors)
-    df$Significance <- NA
-    fdr_levels <- c()
-    for(i in 1:length(fdr_colors.sort)){
-      if(i==1){
-        df$Significance[df$FDR < fdr_colors.sort[i]] <- paste("FDR < ", fdr_colors.sort[i])
-        fdr_levels <- c(fdr_levels, paste("FDR < ", fdr_colors.sort[i]))
-      } else{
-        df$Significance[df$FDR < fdr_colors.sort[i] & df$FDR >= fdr_colors.sort[i-1]] <- paste("FDR < ", fdr_colors.sort[i])
-        fdr_levels <- c(fdr_levels, paste("FDR < ", fdr_colors.sort[i]))
+    df_lp <- df
+    ## get FDR colors ##
+    if(fdr_continuous == FALSE){ # binned categorical
+      fdr_colors.sort <- sort(fdr_binned_colors)
+      df_lp$Significance <- NA
+      fdr_levels <- c()
+      for(i in 1:length(fdr_colors.sort)){
+        if(i==1){
+          df_lp$Significance[df_lp$FDR < fdr_colors.sort[i]] <- paste("FDR < ", fdr_colors.sort[i])
+          fdr_levels <- c(fdr_levels, paste("FDR < ", fdr_colors.sort[i]))
+        } else{
+          df_lp$Significance[df_lp$FDR < fdr_colors.sort[i] & df_lp$FDR >= fdr_colors.sort[i-1]] <- paste("FDR < ", fdr_colors.sort[i])
+          fdr_levels <- c(fdr_levels, paste("FDR < ", fdr_colors.sort[i]))
+        }
       }
+    } else{ # continuous log transform
+      df_lp$Significance <- -log10(df_lp$FDR)
     }
-    df_lp <- df %>%
-      dplyr::mutate(Significance = factor(Significance, levels = fdr_levels))
 
-
-    size_bins <- c("< 10" = 1, "10 - 49" = 2, "50 - 99" = 3, "100 - 499" = 4, "500 - 999" = 5, "1000 - 2500" = 6,
+    size_bins <- c("< 10" = 1, "10 - 49" = 2, "50 - 99" = 3,
+                   "100 - 499" = 4, "500 - 999" = 5, "1000 - 2500" = 6,
                    "2500 - 5000" = 7, ">= 5000" = 8)
     df_lp$gssize_bin <- NA
 
@@ -198,8 +202,6 @@ plot_enrich2 <- function(df = NULL,
     df_lp <- df_lp %>%
       dplyr::mutate(gssize_bin = factor(gssize_bin, levels = names(size_bins)))
 
-
-
     p5 <- ggplot2::ggplot(df_lp, ggplot2::aes(x = factor(gs, levels = y_levels), y = ratio)) +
       ggplot2::geom_segment(ggplot2::aes(factor(gs, levels = y_levels),
                                          xend=gs, y=0, yend=ratio)) +
@@ -208,7 +210,6 @@ plot_enrich2 <- function(df = NULL,
                           shape=21, stroke=1) +
       ggplot2::scale_size_manual(values = size_bins) +
       ggplot2::geom_hline(yintercept = 0) +
-      ggplot2::scale_fill_brewer(palette = "RdYlBu", na.value="grey70") +
       ggplot2::coord_flip() +
       ggplot2::theme_bw() +
       ggplot2::theme(plot.background = ggplot2::element_blank(),
@@ -227,6 +228,18 @@ plot_enrich2 <- function(df = NULL,
     if(include_gssize){
       p5 <- p5 +
         ggplot2::theme(axis.text.y = ggplot2::element_blank())
+    }
+
+    if(fdr_continuous == FALSE){
+      p5 <- p5 +
+        ggplot2::scale_fill_brewer(palette = "RdYlBu", na.value="grey70") +
+        ggplot2::guides(size=ggplot2::guide_legend(title="k/K ratio"),
+                        fill=ggplot2::guide_legend(title="Significance", override.aes = list(size=5)))
+    } else{
+      p5 <- p5 +
+        ggplot2::scale_fill_gradient(low = "#FDE725", high = "red3", na.value = "red3") +
+        ggplot2::guides(size=ggplot2::guide_legend(title="k/K ratio"),
+                        fill=ggplot2::guide_legend(title="-log10(FDR)", override.aes = list(size=5)))
     }
 
   } else if(chart_style == "dotplot"){
