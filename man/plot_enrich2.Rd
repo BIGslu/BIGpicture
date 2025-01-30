@@ -8,6 +8,7 @@ plot_enrich2(
   df = NULL,
   fdr_cutoff = 0.2,
   pathway_col = "pathway",
+  gene_col = "genes",
   ratio_col = "k/K",
   fdr_col = "FDR",
   gssize_col = "n_pathway_genes",
@@ -27,17 +28,19 @@ plot_enrich2(
 
 \item{pathway_col}{Character string Column name for df column containing gene set names.}
 
+\item{gene_col}{Character string. Column name for df column containing gene lists names. Required if "y_grouping_method == 'hclust'".}
+
 \item{ratio_col}{Character string Column name for df column containing k/K ratios.}
 
-\item{fdr_col}{Character string Column name for df column containing corrected p-values to plot.}
+\item{fdr_col}{Character string. Column name for df column containing corrected p-values to plot.}
 
-\item{gssize_col}{Character string Column name for df column containing gene set sizes.}
+\item{gssize_col}{Character string. Column name for df column containing gene set sizes.}
 
-\item{y_grouping_method}{Character string Method for grouping gene sets along the y-axis. "hclust", "overlap_size", "gs_size", "ratio", "fdr", and "input". Default is "fdr".}
+\item{y_grouping_method}{Character string. Method for grouping gene sets along the y-axis. "hclust" (based on gene membership), "overlap_size", "gs_size", "ratio", "fdr", and "input". Default is "fdr".}
 
 \item{include_gssize}{Boolean. Whether or not to include a column of gene set sizes to the left of the enrichment plot. Default is FALSE.}
 
-\item{chart_style}{Character string Options are "lollipop", "bar", and "dot". Default is "lollipop".}
+\item{chart_style}{Character string. Options are "lollipop", "bar", and "dot". Default is "lollipop".}
 
 \item{fdr_binned_colors}{Numeric vector. Cutoffs for binned FDR value color groups for lollipop plots. Default is c(0.001, 0.01, 0.05, 0.1, 0.2, 0.5, 0.99).}
 
@@ -45,7 +48,7 @@ plot_enrich2(
 
 \item{dot_sig_cutoff}{Numeric. What cutoff to use for applying a black outline to dotplot dots}
 
-\item{dot_groupcol}{Character string Name of the column used to group enrichment along the x axis for dotplot.}
+\item{dot_groupcol}{Character string. Name of the column used to group enrichment along the x axis for dotplot.}
 }
 \value{
 ggplot2 object
