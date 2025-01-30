@@ -265,8 +265,9 @@ plot_fit2 <- function(model_result, model_result_y=NULL,
                        `Mean delta`=mean(diff, na.rm=TRUE),
                        `Stdev delta`=stats::sd(diff, na.rm=TRUE),
                        .groups="drop") %>%
-      dplyr::rename(Metric=name) %>%
-      dplyr::arrange(Metric, sig_group)
+      dplyr::arrange(name, sig_group) %>%
+      dplyr::rename(Metric=name, `Best fit`=sig_group)
+
     print(as.data.frame(summ2))
   }
   if(any(grepl("Rsq|adj_Rsq|sigma", unique(dat$name)))){
