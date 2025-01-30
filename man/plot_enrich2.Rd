@@ -12,14 +12,13 @@ plot_enrich2(
   ratio_col = "k/K",
   fdr_col = "FDR",
   gssize_col = "n_pathway_genes",
-  custom_genelist = NULL,
-  x_grouping_method = "geneset",
   y_grouping_method = "fdr",
-  prevalence_color = "none",
-  prevalence_cutoff = NULL,
-  chart_style = "bar",
-  include_grid = TRUE,
-  lollipop_fdr_colors = c(0.01, 0.05, 0.1, 0.2)
+  include_gssize = FALSE,
+  chart_style = "lollipop",
+  fdr_binned_colors = c(0.001, 0.01, 0.05, 0.1, 0.2, 0.5, 0.99),
+  fdr_continuous = FALSE,
+  dot_sig_cutoff = NULL,
+  dot_groupcol = "group"
 )
 }
 \arguments{
@@ -27,31 +26,29 @@ plot_enrich2(
 
 \item{fdr_cutoff}{Numeric. Maximum FDR to plot. Default is 0.2.}
 
-\item{pathway_col}{String. Column name for df column containing gene set names.}
+\item{pathway_col}{Character string Column name for df column containing gene set names.}
 
-\item{gene_col}{String. Column name for df column containing gene lists names. Required if "include_grid == TRUE".}
+\item{gene_col}{Character string. Column name for df column containing gene lists names. Required if "y_grouping_method == 'hclust'".}
 
-\item{ratio_col}{String. Column name for df column containing k/K ratios.}
+\item{ratio_col}{Character string Column name for df column containing k/K ratios.}
 
-\item{fdr_col}{String. Column name for df column containing corrected p-values to plot.}
+\item{fdr_col}{Character string. Column name for df column containing corrected p-values to plot.}
 
-\item{gssize_col}{String. Column name for df column containing gene set sizes.}
+\item{gssize_col}{Character string. Column name for df column containing gene set sizes.}
 
-\item{custom_genelist}{Optional vector of gene IDs to plot in the grid. Otherwise, all genes in the gene_col of input where set FDR < fdr_cutoff will be plotted.}
+\item{y_grouping_method}{Character string. Method for grouping gene sets along the y-axis. "hclust" (based on gene membership), "overlap_size", "gs_size", "ratio", "fdr", and "input". Default is "fdr".}
 
-\item{x_grouping_method}{String. Method for grouping genes along the x-axis. Options are "hclust", "prevalence", "input", "alphabetical", and "geneset". Default is "geneset".}
+\item{include_gssize}{Boolean. Whether or not to include a column of gene set sizes to the left of the enrichment plot. Default is FALSE.}
 
-\item{y_grouping_method}{String. Method for grouping gene sets along the y-axis. "hclust", "overlap_size", "gs_size", "ratio", "fdr", and "input". Default is "fdr".}
+\item{chart_style}{Character string. Options are "lollipop", "bar", and "dot". Default is "lollipop".}
 
-\item{prevalence_color}{String. Modes for coloring gene x gene set grid. Options are "none", "cutoff", and "heatmap". Required if "include_grid == TRUE". Default is "none".}
+\item{fdr_binned_colors}{Numeric vector. Cutoffs for binned FDR value color groups for lollipop plots. Default is c(0.001, 0.01, 0.05, 0.1, 0.2, 0.5, 0.99).}
 
-\item{prevalence_cutoff}{Numeric. Cutoff for coloring genes by prevalence in plotted gene sets. Required if 'prevalence_color == "cutoff"'.}
+\item{fdr_continuous}{Boolean. Whether or not to color points in a continuous fashions by a negative log transformed FDR value. Only applies to lollipop plots and dotplots.}
 
-\item{chart_style}{String. Options are "bar" and "lollipop". Default is "bar".}
+\item{dot_sig_cutoff}{Numeric. What cutoff to use for applying a black outline to dotplot dots}
 
-\item{include_grid}{Boolean. Whether or not to include the gene x gene set grid in the final plot. Default is TRUE.}
-
-\item{lollipop_fdr_colors}{Numeric vector. Cutoffs for binned FDR value color groups for lollipop plots. Default is c(0.01, 0.05, 0.1, 0.2).}
+\item{dot_groupcol}{Character string. Name of the column used to group enrichment along the x axis for dotplot.}
 }
 \value{
 ggplot2 object
@@ -65,8 +62,8 @@ library(dplyr)
 #Run enrichment
 gene_list <- list(HRV1 = names(example.gene.list[[1]]),
                   HRV2 = names(example.gene.list[[2]]))
-enrich <- BIGprofiler(gene_list, ID="ENSEMBL", category="H")
+enrich <- flexEnrich(gene_list, ID="ENSEMBL", category="H")
 
 #Plot
-plot_enrich(enrich, fdr_cutoff = 0.5)
+plot_enrich2(enrich, fdr_cutoff = 0.5)
 }
