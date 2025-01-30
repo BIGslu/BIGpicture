@@ -3,7 +3,6 @@
 #' @param df Data frame output by SEARchways::BIGprofiler or SEARchways::flexEnrich
 #' @param fdr_cutoff Numeric. Maximum FDR to plot. Default is 0.2.
 #' @param pathway_col String. Column name for df column containing gene set names.
-#' @param gene_col String. Column name for df column containing gene lists names. Required if "include_grid == TRUE".
 #' @param ratio_col String. Column name for df column containing k/K ratios.
 #' @param fdr_col String. Column name for df column containing corrected p-values to plot.
 #' @param gssize_col String. Column name for df column containing gene set sizes.
@@ -31,7 +30,6 @@
 plot_enrich2 <- function(df = NULL,
                          fdr_cutoff = 0.2,
                          pathway_col = "pathway",
-                         gene_col = "genes",
                          ratio_col = "k/K",
                          fdr_col = "FDR",
                          gssize_col = "n_pathway_genes",
@@ -50,10 +48,8 @@ plot_enrich2 <- function(df = NULL,
   ### Format input ###
   # rename columns
   df$gs <- df[[pathway_col]]
-  df$gns <- df[[gene_col]]
   df$fdr <- df[[fdr_col]]
   df$ratio <- df[[ratio_col]]
-
 
   if(!is.null(gssize_col)){
     df$gssize <- df[[gssize_col]]
@@ -68,34 +64,6 @@ plot_enrich2 <- function(df = NULL,
       dplyr::pull(gs) %>% unique()
     df <- df %>%
       dplyr::filter(gs %in% gssub)
-  }
-
-  # get gene vector
-  genevec <- c()
-  for(i in 1:nrow(df)){
-    rowgenes <- df$gns[i]
-    rowgenes <- unlist(rowgenes)
-    genevec <- c(genevec,rowgenes)
-    genevec <- unique(genevec)
-  }
-
-  # get pathways
-  gsvec <- unique(df$gs)
-
-  # get count mat for overlap, clustering
-  count_df <- matrix(ncol = length(genevec), nrow = length(gsvec))
-  colnames(count_df) <- genevec
-  rownames(count_df) <- gsvec
-  ## make binary matrix
-  for(i in 1:nrow(count_df)){
-    set <- rownames(count_df)[i]
-    rowgenes <- df$gns[which(df$gs == set)]
-    rowgenes <- unlist(rowgenes)
-    for(j in 1:ncol(count_df)){
-      g <- colnames(count_df)[j]
-      val <- ifelse(g %in% rowgenes, 1,0)
-      count_df[set,g] <- val
-    }
   }
 
   ### Get order vector for gene sets ###
