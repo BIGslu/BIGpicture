@@ -2,17 +2,17 @@
 #'
 #' @param df Data frame output by SEARchways::BIGprofiler or SEARchways::flexEnrich
 #' @param fdr_cutoff Numeric. Maximum FDR to plot. Default is 0.2.
-#' @param pathway_col String. Column name for df column containing gene set names.
-#' @param ratio_col String. Column name for df column containing k/K ratios.
-#' @param fdr_col String. Column name for df column containing corrected p-values to plot.
-#' @param gssize_col String. Column name for df column containing gene set sizes.
-#' @param y_grouping_method String. Method for grouping gene sets along the y-axis. "hclust", "overlap_size", "gs_size", "ratio", "fdr", and "input". Default is "fdr".
+#' @param pathway_col Character string Column name for df column containing gene set names.
+#' @param ratio_col Character string Column name for df column containing k/K ratios.
+#' @param fdr_col Character string Column name for df column containing corrected p-values to plot.
+#' @param gssize_col Character string Column name for df column containing gene set sizes.
+#' @param y_grouping_method Character string Method for grouping gene sets along the y-axis. "hclust", "overlap_size", "gs_size", "ratio", "fdr", and "input". Default is "fdr".
 #' @param include_gssize Boolean. Whether or not to include a column of gene set sizes to the left of the enrichment plot. Default is FALSE.
 #' @param chart_style Character string Options are "lollipop", "bar", and "dot". Default is "lollipop".
 #' @param fdr_binned_colors Numeric vector. Cutoffs for binned FDR value color groups for lollipop plots. Default is c(0.001, 0.01, 0.05, 0.1, 0.2, 0.5, 0.99).
 #' @param fdr_continuous Boolean. Whether or not to color points in a continuous fashions by a negative log transformed FDR value. Only applies to lollipop plots and dotplots.
-#' @param dotplot_sig_cutoff Numeric. What cutoff to use for applying a black outline to dotplot dots
-#' @param dotplot_groupcol String. Name of the column used to group enrichment along the x axis for dotplot.
+#' @param dot_sig_cutoff Numeric. What cutoff to use for applying a black outline to dotplot dots
+#' @param dot_groupcol Character string Name of the column used to group enrichment along the x axis for dotplot.
 #' @return ggplot2 object
 #' @export
 #'
