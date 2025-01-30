@@ -173,7 +173,7 @@ plot_enrich2 <- function(df = NULL,
                      axis.text.x = ggplot2::element_text(size = haxis_size, angle = 45, hjust = 1),
                      plot.margin = ggplot2::margin(1,1,1,1, "pt"),
                      axis.ticks.y = ggplot2::element_blank(),
-                     axis.line.x = element_line(color = "black", linewidth = 0.5)
+                     axis.line.x = ggplot2::element_line(color = "black", linewidth = 0.5)
       )+
       ggplot2::scale_y_reverse(position = "left", labels = scales::label_number(accuracy = 0.01)) +
       ggplot2::coord_flip()
@@ -195,7 +195,7 @@ plot_enrich2 <- function(df = NULL,
                      axis.text.y.left = ggplot2::element_blank(),
                      axis.text.y.right = ggplot2::element_blank(),
                      plot.margin = ggplot2::margin(1,1,1,1, "pt"),
-                     axis.line.x = element_line(color = "black", linewidth = 0.5)
+                     axis.line.x = ggplot2::element_line(color = "black", linewidth = 0.5)
       )+
       ggplot2::coord_flip() +
       ggplot2::scale_y_continuous(position = "left",labels = scales::label_number(accuracy = 1))
@@ -252,7 +252,7 @@ plot_enrich2 <- function(df = NULL,
                      plot.title = ggplot2::element_text(hjust = 0.5, size = titlesize),
                      axis.ticks.y = ggplot2::element_blank(),
                      plot.margin = ggplot2::margin(1,1,1,1, "pt"),
-                     axis.line.x = element_line(color = "black", linewidth = 0.5)) +
+                     axis.line.x = ggplot2::element_line(color = "black", linewidth = 0.5)) +
 
       ggplot2::scale_y_continuous(position = "left",labels = scales::label_number(accuracy = 0.001)) +
       ggplot2::labs(y="k/K ratio")
@@ -324,7 +324,7 @@ plot_enrich2 <- function(df = NULL,
                      axis.text.x = ggplot2::element_text(size = vaxis_size),
                      plot.margin = ggplot2::margin(1,1,1,1, "pt"),
                      axis.title = ggplot2::element_blank(),
-                     axis.line.x = element_line(color = "black", linewidth = 0.5))
+                     axis.line.x = ggplot2::element_line(color = "black", linewidth = 0.5))
 
     if(fdr_continuous == FALSE){
       p6 <- p6 +
