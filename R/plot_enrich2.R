@@ -115,7 +115,7 @@ plot_enrich2 <- function(df = NULL,
 
   # GS Size column
   p3 <- ggplot2::ggplot(df_lev, ggplot2::aes(x = factor(gs , levels = y_levels), y = rep(1, length(y_levels)))) +
-    ggplot2::ggtitle("GS\nsize") +
+    ggplot2::ggtitle("K") +
     ggplot2::geom_text(ggplot2::aes(label = gssize), size = 4) +
     ggplot2::coord_flip() +
     ggplot2::theme(plot.background = ggplot2::element_blank(),
