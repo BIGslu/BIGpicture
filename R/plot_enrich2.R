@@ -109,7 +109,7 @@ plot_enrich2 <- function(df = NULL,
       dplyr::pull(gs) %>% unique()
   } else{stop('Valid options for y_grouping_method are "hclust", "overlap_size", "gs_size", "ratio", "fdr", and "input".')}
 
-  titlesize <- 16
+  titlesize <- 12
   haxis_size <- 10
   vaxis_size <- 12
 
@@ -133,18 +133,18 @@ plot_enrich2 <- function(df = NULL,
     # k/K bar
     p2 <- ggplot2::ggplot(df, ggplot2::aes(x=factor(gs , levels = y_levels), y=ratio)) +
       ggplot2::geom_bar(stat = "identity", fill = "#f43545") +
-      ggplot2::ggtitle("k/K") +
-      ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5, size = titlesize),
-                     panel.grid = ggplot2::element_blank(),
+      ggplot2::labs(y="k/K") +
+      ggplot2::theme(panel.grid = ggplot2::element_blank(),
                      panel.background = ggplot2::element_blank(),
                      plot.background = ggplot2::element_blank(),
-                     axis.title = ggplot2::element_blank(),
-                     axis.text.x = ggplot2::element_text(size = haxis_size, angle = 45, hjust = -0.1),
+                     axis.title.y = ggplot2::element_blank(),
+                     axis.text.x = ggplot2::element_text(size = haxis_size, angle = 45, hjust = 1),
                      plot.margin = ggplot2::margin(1,1,1,1, "pt"),
-                     axis.ticks.y = ggplot2::element_blank()
+                     axis.ticks.y = ggplot2::element_blank(),
+                     axis.line.x = element_line(color = "black", linewidth = 0.5)
       )+
-      ggplot2::scale_y_reverse(position = "right", labels = scales::label_number(accuracy = 0.01)) +
-      ggplot2::coord_flip() #+
+      ggplot2::scale_y_reverse(position = "left", labels = scales::label_number(accuracy = 0.01)) +
+      ggplot2::coord_flip()
 
     if(include_gssize){
       p2 <- p2 +
@@ -153,20 +153,20 @@ plot_enrich2 <- function(df = NULL,
     # FDR bar
     p4 <- ggplot2::ggplot(df, ggplot2::aes(x= factor(gs , levels = y_levels), y= -log10(fdr))) +
       ggplot2::geom_bar(stat = "identity", fill = "#fa9801") +
-      ggplot2::ggtitle("-log10 FDR") +
-      ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5, size = titlesize),
-                     axis.text.x = ggplot2::element_text(size = haxis_size, angle = 45, hjust = -0.1),
+      ggplot2::labs(y="-log10 FDR") +
+      ggplot2::theme(axis.text.x = ggplot2::element_text(size = haxis_size, angle = 45, hjust = 1),
                      panel.grid = ggplot2::element_blank(),
                      plot.background = ggplot2::element_blank(),
                      panel.background = ggplot2::element_blank(),
                      axis.ticks.y = ggplot2::element_blank(),
-                     axis.title = ggplot2::element_blank(),
+                     axis.title.y = ggplot2::element_blank(),
                      axis.text.y.left = ggplot2::element_blank(),
                      axis.text.y.right = ggplot2::element_blank(),
-                     plot.margin = ggplot2::margin(1,1,1,1, "pt")
+                     plot.margin = ggplot2::margin(1,1,1,1, "pt"),
+                     axis.line.x = element_line(color = "black", linewidth = 0.5)
       )+
       ggplot2::coord_flip() +
-      ggplot2::scale_y_continuous(position = "right",labels = scales::label_number(accuracy = 0.1))
+      ggplot2::scale_y_continuous(position = "left",labels = scales::label_number(accuracy = 1))
   } else if(chart_style == "lollipop"){
     fdr_colors.sort <- sort(fdr_binned_colors)
     df$Significance <- NA
@@ -215,15 +215,15 @@ plot_enrich2 <- function(df = NULL,
                      panel.grid = ggplot2::element_blank(),
                      panel.border = ggplot2::element_blank(),
                      axis.title = ggplot2::element_blank(),
-                     axis.text.x = ggplot2::element_text(size = haxis_size, angle = 45, hjust = -0.1),
+                     axis.text.x = ggplot2::element_text(size = haxis_size, angle = 45, hjust = 1),
                      plot.title = ggplot2::element_text(hjust = 0.5, size = titlesize),
                      axis.ticks.y = ggplot2::element_blank(),
-                     plot.margin = ggplot2::margin(1,1,1,1, "pt")) +
+                     plot.margin = ggplot2::margin(1,1,1,1, "pt"),
+                     axis.line.x = element_line(color = "black", linewidth = 0.5)) +
 
-      ggplot2::scale_y_continuous(position = "right",labels = scales::label_number(accuracy = 0.001)) +
-      ggplot2::guides(size=ggplot2::guide_legend(title="Gene Set Size"),
-                      fill=ggplot2::guide_legend(title="Significance", override.aes = list(size=5))) +
-      ggplot2::ggtitle("k/K ratio")
+      ggplot2::scale_y_continuous(position = "left",labels = scales::label_number(accuracy = 0.001)) +
+      ggplot2::labs(y="k/K ratio")
+
     if(include_gssize){
       p5 <- p5 +
         ggplot2::theme(axis.text.y = ggplot2::element_blank())
@@ -278,8 +278,8 @@ plot_enrich2 <- function(df = NULL,
                      panel.grid = ggplot2::element_blank(),
                      axis.text.x = ggplot2::element_text(size = vaxis_size),
                      plot.margin = ggplot2::margin(1,1,1,1, "pt"),
-                     axis.title = ggplot2::element_blank())
-
+                     axis.title = ggplot2::element_blank(),
+                     axis.line.x = element_line(color = "black", linewidth = 0.5))
 
     if(fdr_continuous == FALSE){
       p6 <- p6 +
