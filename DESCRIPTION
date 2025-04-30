@@ -34,7 +34,7 @@ Imports:
     stringr,
     tibble,
     tidyr
-Suggests: kimma, limma, SEARchways, textshape, STRINGdb
+Suggests: kimma, limma, SEARchways, textshape, msigdbr, msigdbdf
 Depends: 
     R (>= 4.5)
 biocViews: 
