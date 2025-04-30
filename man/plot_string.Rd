@@ -29,11 +29,11 @@ plot_string(
 
 \item{enriched_only}{Logical if should include only genes in significantly enriched terms. Default FALSE}
 
-\item{enrichment}{Data frame output by \code{BIGprofiler}, \code{BIGenrichr}, or \code{BIGsea}. For use in coloring nodes}
+\item{enrichment}{Data frame output by \code{BIGprofiler}, \code{flexEnrich},  \code{BIGsea}. For use in coloring nodes}
 
-\item{overlap}{Numeric minimum of total significant genes in a enrichment term to be used as colors (\code{BIGprofiler}, \code{BIGenrichr})}
+\item{overlap}{Numeric minimum of total significant genes in a enrichment term to be used as colors (\code{BIGprofiler}, \code{flexEnrich})}
 
-\item{fdr_cutoff}{Numeric maximum FDR of enrichment terms to be used as colors (\code{BIGprofiler}, \code{BIGenrichr}, \code{BIGsea})}
+\item{fdr_cutoff}{Numeric maximum FDR of enrichment terms to be used as colors (\code{BIGprofiler}, \code{flexEnrich}, \code{BIGsea})}
 
 \item{colors}{Character vector of custom colors to use. Must be at least a long as total significant terms plus 1 for the "none" group}
 

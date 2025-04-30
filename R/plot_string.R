@@ -7,9 +7,9 @@
 #' @param edge_min Numeric minimum edges a node must have to be displayed. Default is 0 meaning orphan nodes are included
 #' @param edge_max Numeric maximum edges a node must have to be displayed. Default in Inf. Set to 0 to see only orphan nodes
 #' @param enriched_only Logical if should include only genes in significantly enriched terms. Default FALSE
-#' @param enrichment Data frame output by `BIGprofiler`, `BIGenrichr`, or `BIGsea`. For use in coloring nodes
-#' @param overlap Numeric minimum of total significant genes in a enrichment term to be used as colors (`BIGprofiler`, `BIGenrichr`)
-#' @param fdr_cutoff Numeric maximum FDR of enrichment terms to be used as colors (`BIGprofiler`, `BIGenrichr`, `BIGsea`)
+#' @param enrichment Data frame output by `BIGprofiler`, `flexEnrich`,  `BIGsea`. For use in coloring nodes
+#' @param overlap Numeric minimum of total significant genes in a enrichment term to be used as colors (`BIGprofiler`, `flexEnrich`)
+#' @param fdr_cutoff Numeric maximum FDR of enrichment terms to be used as colors (`BIGprofiler`, `flexEnrich`, `BIGsea`)
 #' @param colors Character vector of custom colors to use. Must be at least a long as total significant terms plus 1 for the "none" group
 #' @param text_size Numeric size of gene labels on network nodes. Default of 2
 #' @param node_size Numeric size of network nodes. Default of 1
