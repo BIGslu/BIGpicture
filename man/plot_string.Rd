@@ -9,6 +9,7 @@ plot_string(
   layout = "fr",
   edge_min = 0,
   edge_max = Inf,
+  main_cluster_only = FALSE,
   enriched_only = FALSE,
   enrichment = NULL,
   overlap = 2,
@@ -27,13 +28,15 @@ plot_string(
 
 \item{edge_max}{Numeric maximum edges a node must have to be displayed. Default in Inf. Set to 0 to see only orphan nodes}
 
+\item{main_cluster_only}{Logical if should include only genes connected to the largest cluster}
+
 \item{enriched_only}{Logical if should include only genes in significantly enriched terms. Default FALSE}
 
-\item{enrichment}{Data frame output by \code{BIGprofiler}, \code{BIGenrichr}, or \code{BIGsea}. For use in coloring nodes}
+\item{enrichment}{Data frame output by \code{BIGprofiler}, \code{flexEnrich},  \code{BIGsea}. For use in coloring nodes}
 
-\item{overlap}{Numeric minimum of total significant genes in a enrichment term to be used as colors (\code{BIGprofiler}, \code{BIGenrichr})}
+\item{overlap}{Numeric minimum of total significant genes in a enrichment term to be used as colors (\code{BIGprofiler}, \code{flexEnrich})}
 
-\item{fdr_cutoff}{Numeric maximum FDR of enrichment terms to be used as colors (\code{BIGprofiler}, \code{BIGenrichr}, \code{BIGsea})}
+\item{fdr_cutoff}{Numeric maximum FDR of enrichment terms to be used as colors (\code{BIGprofiler}, \code{flexEnrich}, \code{BIGsea})}
 
 \item{colors}{Character vector of custom colors to use. Must be at least a long as total significant terms plus 1 for the "none" group}
 

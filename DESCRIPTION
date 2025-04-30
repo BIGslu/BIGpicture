@@ -25,16 +25,17 @@ Imports:
     ggrepel,
     ggupset,
     ggvenn,
-    igraph,
+    igraph (>= 2.1.4),
     magrittr,
     patchwork,
+    STRINGdb (>= 2.20.0), 
     scales,
     scatterpie,
     stringr,
     tibble,
     tidyr
-Suggests: kimma, limma, SEARchways, textshape, STRINGdb
+Suggests: kimma, limma, SEARchways, textshape, msigdbr, msigdbdf
 Depends: 
-    R (>= 2.10)
+    R (>= 4.5)
 biocViews: 
 Remotes: BIGslu/kimma, BIGslu/SEARchways
