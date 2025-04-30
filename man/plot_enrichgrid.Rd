@@ -6,6 +6,7 @@
 \usage{
 plot_enrichgrid(
   df = NULL,
+  df_group = NULL,
   fdr_cutoff = 0.2,
   pathway_col = "pathway",
   gene_col = "genes",
@@ -24,6 +25,8 @@ plot_enrichgrid(
 }
 \arguments{
 \item{df}{Data frame output by SEARchways::BIGprofiler or SEARchways::flexEnrich}
+
+\item{df_group}{Character string. Level of df$group to plot}
 
 \item{fdr_cutoff}{Numeric. Maximum FDR to plot. Default is 0.2.}
 
@@ -68,5 +71,5 @@ gene_list <- list(HRV1 = names(example.gene.list[[1]]),
 enrich <- flexEnrich(gene_list, ID="ENSEMBL", category="H")
 
 #Plot
-plot_enrichgrid(enrich, fdr_cutoff = 0.5)
+plot_enrichgrid(enrich, df_group = "HRV2", fdr_cutoff = 0.5)
 }
