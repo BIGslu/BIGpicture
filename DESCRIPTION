@@ -28,6 +28,7 @@ Imports:
     igraph (>= 2.1.4),
     magrittr,
     patchwork,
+    STRINGdb (>= 2.20.0), 
     scales,
     scatterpie,
     stringr,
