@@ -54,7 +54,12 @@ plot_enrichgrid <- function(df = NULL, df_group = NULL,
   ### Check data ####
   group.tot <- length(unique(df$group))
   if(group.tot>1 & is.null(df_group)){ stop("More than one group exists in df. Please set group parameter.")}
-  df.sub <- df %>% dplyr::filter(group==df_group)
+  if(!is.null(df_group)){
+    df.sub <- df %>% dplyr::filter(group==df_group)
+  } else{
+    df.sub <- df
+  }
+
 
   ### Format input ###
   # rename columns
