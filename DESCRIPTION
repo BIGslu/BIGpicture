@@ -25,7 +25,7 @@ Imports:
     ggrepel,
     ggupset,
     ggvenn,
-    igraph,
+    igraph (>= 2.1.4),
     magrittr,
     patchwork,
     scales,
