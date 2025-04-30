@@ -32,20 +32,20 @@
 
 
 plot_enrichgrid <- function(df = NULL,
-                         fdr_cutoff = 0.2,
-                         pathway_col = "pathway",
-                         gene_col = "genes",
-                         ratio_col = "k/K",
-                         fdr_col = "FDR",
-                         gssize_col = "n_pathway_genes",
-                         custom_genelist = NULL,
-                         x_grouping_method = "geneset",
-                         y_grouping_method = "fdr",
-                         prevalence_color = "none",
-                         prevalence_cutoff = NULL,
-                         chart_style = "bar",
-                         include_grid = TRUE,
-                         lollipop_fdr_colors = c(0.001, 0.01, 0.05, 0.1, 0.2)
+                            fdr_cutoff = 0.2,
+                            pathway_col = "pathway",
+                            gene_col = "genes",
+                            ratio_col = "k/K",
+                            fdr_col = "FDR",
+                            gssize_col = "n_pathway_genes",
+                            custom_genelist = NULL,
+                            x_grouping_method = "geneset",
+                            y_grouping_method = "fdr",
+                            prevalence_color = "none",
+                            prevalence_cutoff = NULL,
+                            chart_style = "bar",
+                            include_grid = TRUE,
+                            lollipop_fdr_colors = c(0.001, 0.01, 0.05, 0.1, 0.2)
 ){
 
   fdr <- size <- gs <- gssize <- ratio <- desc <- prev <- gene <- geneset <- color <- Significance <- gssize_bin <- NULL
@@ -83,8 +83,7 @@ plot_enrichgrid <- function(df = NULL,
   genevec <- c()
   if(!is.null(custom_genelist)){
     genevec <- custom_genelist
-  }
-  else{
+  }else{
     for(i in 1:nrow(df)){
       rowgenes <- df$gns[i]
       rowgenes <- unlist(rowgenes)
@@ -116,10 +115,8 @@ plot_enrichgrid <- function(df = NULL,
 
   if(prevalence_color == "none"){
     count_df_format <- count_df
-  }
-
-  ## format binary matrix with prevalence cutoff
-  else if(prevalence_color %in% c("cutoff", "heatmap")){
+  } else if(prevalence_color %in% c("cutoff", "heatmap")){
+    ## format binary matrix with prevalence cutoff
     count_df_format <- count_df
     genesums <- colSums(count_df_format)
     gene_prevalence <- genesums/nrow(count_df_format) # calculate gene prevalence among selected gene sets
