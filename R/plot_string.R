@@ -6,6 +6,7 @@
 #' @param layout Character string for network layout algorithm. See options in igraph::layout_with_
 #' @param edge_min Numeric minimum edges a node must have to be displayed. Default is 0 meaning orphan nodes are included
 #' @param edge_max Numeric maximum edges a node must have to be displayed. Default in Inf. Set to 0 to see only orphan nodes
+#' @param main_cluster_only Logical if should include only genes connected to the largest cluster
 #' @param enriched_only Logical if should include only genes in significantly enriched terms. Default FALSE
 #' @param enrichment Data frame output by `BIGprofiler`, `flexEnrich`,  `BIGsea`. For use in coloring nodes
 #' @param overlap Numeric minimum of total significant genes in a enrichment term to be used as colors (`BIGprofiler`, `flexEnrich`)
@@ -49,7 +50,9 @@
 #' #             edge_max = 0, enriched_only=TRUE)
 
 plot_string <- function(map, layout='fr',
-                        edge_min=0, edge_max=Inf, enriched_only = FALSE,
+                        edge_min=0, edge_max=Inf,
+                        main_cluster_only=FALSE,
+                        enriched_only = FALSE,
                         enrichment=NULL, overlap=2, fdr_cutoff=0.2,
                         colors=NULL, text_size=2, node_size=1){
   pathway <- STRING_id <- combined_score <- gene <- none <- total <- value <- group_in_pathway <- FDR <- genes <- leadingEdge <- legend.title <- NULL
@@ -158,6 +161,20 @@ plot_string <- function(map, layout='fr',
 
   if(length(igraph::vertex_attr(subgraph.filter2)$name)==0){
     stop("No genes in network remain after edge filtering. Consider changind edge_min and/or edge_max")
+  }
+
+  #### Filter largest cluster if selected ####
+  if(main_cluster_only){
+    # identify connected components
+    comps <- igraph::components(subgraph.filter2)
+    # largest cluster
+    largest_comp_id <- which.max(comps$csize)
+    # Get the vertex names in the largest component
+    vertices_in_largest <- igraph::V(subgraph.filter2)[comps$membership == largest_comp_id]
+    # Filter subgraph
+    subgraph.filter2 <- igraph::induced_subgraph(
+      subgraph.filter2,
+      vids = vertices_in_largest)
   }
 
   #### Arrange metadata as in network ####

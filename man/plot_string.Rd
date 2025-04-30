@@ -9,6 +9,7 @@ plot_string(
   layout = "fr",
   edge_min = 0,
   edge_max = Inf,
+  main_cluster_only = FALSE,
   enriched_only = FALSE,
   enrichment = NULL,
   overlap = 2,
@@ -26,6 +27,8 @@ plot_string(
 \item{edge_min}{Numeric minimum edges a node must have to be displayed. Default is 0 meaning orphan nodes are included}
 
 \item{edge_max}{Numeric maximum edges a node must have to be displayed. Default in Inf. Set to 0 to see only orphan nodes}
+
+\item{main_cluster_only}{Logical if should include only genes connected to the largest cluster}
 
 \item{enriched_only}{Logical if should include only genes in significantly enriched terms. Default FALSE}
 
