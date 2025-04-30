@@ -16,7 +16,7 @@ plot_enrichgrid(
   custom_genelist = NULL,
   x_grouping_method = "geneset",
   y_grouping_method = "fdr",
-  prevalence_color = "none",
+  prevalence_color = "heatmap",
   prevalence_cutoff = NULL,
   chart_style = "bar",
   include_grid = TRUE,
