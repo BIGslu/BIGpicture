@@ -200,22 +200,30 @@ plot_string <- function(map, layout='fr',
 
   #### Plot ####
   #Get xy of nodes for manual layout
-  set.seed(8434)
   #### set layout ####
-  if(layout == "fr"){ xy <- igraph::layout_with_fr(subgraph.filter2) } else
-    if(layout == "bipar"){ xy <- igraph::layout_as_bipartite(subgraph.filter2) } else
-      if(layout == "star"){ xy <- igraph::layout_as_star(subgraph.filter2) } else
-        if(layout == "tree"){ xy <- igraph::layout_as_tree(subgraph.filter2) } else
-          if(layout == "circle"){ xy <- igraph::layout_in_circle(subgraph.filter2) } else
-            if(layout == "kk"){ xy <- igraph::layout_with_kk(subgraph.filter2) } else
-              if(layout == "graphopt"){ xy <- igraph::layout_with_graphopt(subgraph.filter2) } else
-                if(layout == "gem"){ xy <- igraph::layout_with_gem(subgraph.filter2) } else
-                  if(layout == "dh"){ xy <- igraph::layout_with_dh(subgraph.filter2) } else
-                    if(layout == "sphere"){ xy <- igraph::layout_on_sphere(subgraph.filter2) } else
-                      if(layout == "grid"){ xy <- igraph::layout_on_grid(subgraph.filter2) } else
-                        if(layout == "lgl"){ xy <- igraph::layout_with_lgl(subgraph.filter2) } else
-                          if(layout == "mds"){ xy <- igraph::layout_with_mds(subgraph.filter2) } else
-                            if(layout == "sugi"){ xy <- igraph::layout_with_sugiyama(subgraph.filter2) }
+  layout_funs <- list(
+    nice     = igraph::layout_nicely,
+    fr       = igraph::layout_with_fr,
+    bipar    = igraph::layout_as_bipartite,
+    star     = igraph::layout_as_star,
+    tree     = igraph::layout_as_tree,
+    circle   = igraph::layout_in_circle,
+    kk       = igraph::layout_with_kk,
+    graphopt = igraph::layout_with_graphopt,
+    gem      = igraph::layout_with_gem,
+    dh       = igraph::layout_with_dh,
+    sphere   = igraph::layout_on_sphere,
+    grid     = igraph::layout_on_grid,
+    lgl      = igraph::layout_with_lgl,
+    mds      = igraph::layout_with_mds,
+    sugi     = igraph::layout_with_sugiyama
+  )
+
+  if (!layout %in% names(layout_funs)) {
+    stop("Unknown layout: ", layout)
+  }
+  set.seed(8434)
+  xy <- layout_funs[[layout]](subgraph.filter2)
 
   #### plot ####
   igraph::V(subgraph.filter2)$x <- xy[, 1]
