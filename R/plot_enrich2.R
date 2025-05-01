@@ -386,6 +386,9 @@ plot_enrich2 <- function(df = NULL,
     }
   } else(stop('Valid options chart_style are "bar", "lollipop", and "dot".'))
 
+  if(length(unique(df$group))>1){
+    p <- p+ ggplot2::facet_wrap(~group)
+  }
   return(p)
 
 }
