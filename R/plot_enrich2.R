@@ -386,8 +386,13 @@ plot_enrich2 <- function(df = NULL,
     }
   } else(stop('Valid options chart_style are "bar", "lollipop", and "dot".'))
 
+  #Facet lollipop plots
   if(length(unique(df$group))>1){
-    p <- p+ ggplot2::facet_wrap(~group)
+    if(chart_style=="lollipop"){
+      p <- p+ ggplot2::facet_wrap(~group)
+    } else if(chart_style=="bar"){
+      stop("There is > 1 group in your enrichment results. Please filter to 1 group or pick a different chart_style.")
+    }
   }
   return(p)
 
