@@ -22,7 +22,7 @@ plot_string(
 \arguments{
 \item{map}{List output by map_string}
 
-\item{layout}{Character string for network layout algorithm. See options in igraph::layout_with_}
+\item{layout}{Character string for network layout algorithm. See options in igraph::layout_with_ Default is "nice" which automaticially chooses a layour based on network size}
 
 \item{edge_min}{Numeric minimum edges a node must have to be displayed. Default is 0 meaning orphan nodes are included}
 
