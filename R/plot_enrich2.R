@@ -44,8 +44,13 @@ plot_enrich2 <- function(df = NULL,
                          dot_groupcol = "group"
 ){
 
-  fdr <- size <- gs <- gssize <- ratio <- desc <- prev <- gene <- geneset <- color <- Significance <- gssize_bin <- `k/K` <- sigyn <- group <- NULL
+  fdr <- size <- gs <- gssize <- ratio <- desc <- prev <- gene <- geneset <- color <- Significance <- gssize_bin <- `k/K` <- sigyn <- group <- FDR <- NULL
 
+
+  ### errors####
+  signif.len <- df %>% dplyr::filter(FDR<fdr_cutoff) %>%
+    nrow()
+  if(signif.len==0){ stop("No pathways reach significance. Try increasing fdr_cutoff.")}
 
   ### Format input ###
   # rename columns
