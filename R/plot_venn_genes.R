@@ -55,7 +55,7 @@ plot_venn_genes <- function(model_result, models=NULL,
   if(!is.null(fdr.cutoff)){fdr_cutoff <- fdr.cutoff}
 
   #common errors
-  if(!is.null(contrasts) & any(grepl("contrast", models))){
+  if(!is.null(contrasts) & !any(grepl("contrast", models))){
     stop("Must provide contrasts model when specifying contrasts.")
   }
 
