@@ -60,13 +60,13 @@ plot_string <- function(map, layout='nice',
   #### Format enrichment colors ####
   if(!is.null(enrichment)){
     if("k/K" %in% colnames(enrichment)){
-    #Get significant enrichments
-    col.mat <- enrichment %>%
-      dplyr::ungroup() %>%
-      dplyr::filter(group_in_pathway >= overlap & FDR <= fdr_cutoff) %>%
-      dplyr::select(pathway, genes) %>%
-      dplyr::rename(gene=genes)
-    legend.title <- "Enriched pathways"
+      #Get significant enrichments
+      col.mat <- enrichment %>%
+        dplyr::ungroup() %>%
+        dplyr::filter(group_in_pathway >= overlap & FDR <= fdr_cutoff) %>%
+        dplyr::select(pathway, genes) %>%
+        dplyr::rename(gene=genes)
+      legend.title <- "Enriched pathways"
     }
     if("NES" %in% colnames(enrichment)){
       #Get significant GSEA
