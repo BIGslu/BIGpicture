@@ -33,7 +33,7 @@
 #' #             filter(variable == "virus" & FDR < 0.2) %>%
 #' #             select(variable, gene)
 #' # example_enrich <- SEARchways::BIGprofiler(gene_df = genes.OI,
-#' #                                           category = "H", ID = "ENSEMBL")
+#' #                                           collection = "H", ID = "ENSEMBL")
 #' #
 #' # map2 <- map_string(genes = genes.OI$gene,
 #' #                  version = 11.5, score_threshold = 400)
@@ -44,7 +44,7 @@
 #' # genes.FC <- example.model$lmerel %>%
 #' #             filter(variable == "virus") %>%
 #' #             select(variable, gene, estimate)
-#' # example_gsea <- BIGsea(gene_df = genes.FC, category = "H", ID = "ENSEMBL")
+#' # example_gsea <- BIGsea(gene_df = genes.FC, collection = "H", ID = "ENSEMBL")
 #' #
 #' # plot_string(map2, enrichment = example_gsea, fdr_cutoff = 0.3,
 #' #             edge_max = 0, enriched_only=TRUE)
