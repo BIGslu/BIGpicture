@@ -34,7 +34,7 @@ plot_string(
 
 \item{enrichment}{Data frame output by \code{BIGprofiler}, \code{flexEnrich},  \code{BIGsea}. For use in coloring nodes}
 
-\item{overlap}{Numeric minimum of total significant genes in a enrichment term to be used as colors (\code{BIGprofiler}, \code{flexEnrich})}
+\item{overlap}{Numeric minimum of total significant genes in a enrichment term (\code{n_query_genes_in_pathway}) to be used as colors (\code{BIGprofiler}, \code{flexEnrich})}
 
 \item{fdr_cutoff}{Numeric maximum FDR of enrichment terms to be used as colors (\code{BIGprofiler}, \code{flexEnrich}, \code{BIGsea})}
 

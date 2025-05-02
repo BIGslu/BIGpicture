@@ -9,7 +9,7 @@
 #' @param main_cluster_only Logical if should include only genes connected to the largest cluster
 #' @param enriched_only Logical if should include only genes in significantly enriched terms. Default FALSE
 #' @param enrichment Data frame output by `BIGprofiler`, `flexEnrich`,  `BIGsea`. For use in coloring nodes
-#' @param overlap Numeric minimum of total significant genes in a enrichment term to be used as colors (`BIGprofiler`, `flexEnrich`)
+#' @param overlap Numeric minimum of total significant genes in a enrichment term (`n_query_genes_in_pathway`) to be used as colors (`BIGprofiler`, `flexEnrich`)
 #' @param fdr_cutoff Numeric maximum FDR of enrichment terms to be used as colors (`BIGprofiler`, `flexEnrich`, `BIGsea`)
 #' @param colors Character vector of custom colors to use. Must be at least a long as total significant terms plus 1 for the "none" group
 #' @param text_size Numeric size of gene labels on network nodes. Default of 2
@@ -63,7 +63,7 @@ plot_string <- function(map, layout='nice',
       #Get significant enrichments
       col.mat <- enrichment %>%
         dplyr::ungroup() %>%
-        dplyr::filter(group_in_pathway >= overlap & FDR <= fdr_cutoff) %>%
+        dplyr::filter(n_query_genes_in_pathway >= overlap & FDR <= fdr_cutoff) %>%
         dplyr::select(pathway, genes) %>%
         dplyr::rename(gene=genes)
       legend.title <- "Enriched pathways"
