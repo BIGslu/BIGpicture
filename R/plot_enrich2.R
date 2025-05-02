@@ -101,20 +101,20 @@ plot_enrich2 <- function(df = NULL,
   ### Get order vector for gene sets ###
 
   # get reference level for multi-group dotplot
-  if(!is.null(dot_groupcol) & chart_style == "dot"){
-    if(is.factor(df[[dot_groupcol]])){
-      lev <- levels(df[[dot_groupcol]])[1]
-    } else{
-      lev <- levels(as.factor(df[[dot_groupcol]]))[1]
-    }
-
+  # if(!is.null(dot_groupcol) & chart_style == "dot"){
+  #   if(is.factor(df[[dot_groupcol]])){
+  #     lev <- levels(df[[dot_groupcol]])[1]
+  #   } else{
+  #     lev <- levels(as.factor(df[[dot_groupcol]]))[1]
+  #   }
+  #
+  #   df_lev <- df
+  #   df_lev$group <- df[[dot_groupcol]]
+  #   df_lev <- df_lev %>%
+  #     dplyr::filter(`group` == as.character(lev))
+  # } else{
     df_lev <- df
-    df_lev$group <- df[[dot_groupcol]]
-    df_lev <- df_lev %>%
-      dplyr::filter(`group` == as.character(lev))
-  } else{
-    df_lev <- df
-  }
+  # }
 
 
   if(y_grouping_method == "hclust"){ # hierarchical clustering by shared genes
@@ -122,18 +122,26 @@ plot_enrich2 <- function(df = NULL,
     y_levels <- rownames(y_cluster_df)
   } else if(y_grouping_method == "overlap_size"){ # number of shared genes between set and plotted genes
     y_levels <- data.frame("gs" = rownames(count_df), "size" = rowSums(count_df)) %>%
+      dplyr::group_by(gs) %>%
+      dplyr::summarise(size = max(size), .groups="drop") %>%
       dplyr::arrange(size) %>%
       dplyr::pull(gs) %>% unique()
   } else if(y_grouping_method == "gs_size"){ # size of gene set
     y_levels <- df_lev %>%
+      dplyr::group_by(gs) %>%
+      dplyr::summarise(gssize = max(gssize), .groups="drop") %>%
       dplyr::arrange(gssize) %>%
       dplyr::pull(gs) %>% unique()
   } else if(y_grouping_method == "ratio"){ # ratio of set genes in query
     y_levels <- df_lev %>%
+      dplyr::group_by(gs) %>%
+      dplyr::summarise(ratio = max(ratio), .groups="drop") %>%
       dplyr::arrange(ratio) %>%
       dplyr::pull(gs) %>% unique()
   } else if(y_grouping_method == "fdr"){
     y_levels <- df_lev %>%
+      dplyr::group_by(gs) %>%
+      dplyr::summarise(fdr = min(fdr), .groups="drop") %>%
       dplyr::arrange(desc(fdr)) %>%
       dplyr::pull(gs) %>% unique()
   } else if(y_grouping_method == "input"){
@@ -146,7 +154,7 @@ plot_enrich2 <- function(df = NULL,
   vaxis_size <- 12
 
   # GS Size column
-  p3 <- ggplot2::ggplot(df_lev, ggplot2::aes(x = factor(gs , levels = y_levels), y = rep(1, length(y_levels)))) +
+  p3 <- ggplot2::ggplot(df_lev, ggplot2::aes(x = factor(gs , levels = y_levels), y = 1)) +
     ggplot2::ggtitle("K") +
     ggplot2::geom_text(ggplot2::aes(label = gssize), size = 4) +
     ggplot2::coord_flip() +
@@ -353,6 +361,9 @@ plot_enrich2 <- function(df = NULL,
 
   ### Final patchwork ###
   if(chart_style == "bar"){
+    if(length(unique(df$group))>1){
+      stop("There is > 1 group in your enrichment results. Please filter to 1 group or pick a different chart_style.")
+    }
     if(include_gssize){
       p <- p3 + # GS size
         patchwork::plot_spacer() +
@@ -370,10 +381,10 @@ plot_enrich2 <- function(df = NULL,
     if(include_gssize){
       p <- p3 + # GS size
         patchwork::plot_spacer() +
-        p5 + # lollipop
+        p5 + ggplot2::facet_wrap(~group) +# lollipop
         patchwork::plot_layout(widths = c(1.2, -0.2,  6))
     } else{
-      p <- p5
+      p <- p5 + ggplot2::facet_wrap(~group)
     }
   } else if(chart_style == "dot"){
     if(include_gssize){
@@ -386,14 +397,6 @@ plot_enrich2 <- function(df = NULL,
     }
   } else(stop('Valid options chart_style are "bar", "lollipop", and "dot".'))
 
-  #Facet lollipop plots
-  if(length(unique(df$group))>1){
-    if(chart_style=="lollipop"){
-      p <- p+ ggplot2::facet_wrap(~group)
-    } else if(chart_style=="bar"){
-      stop("There is > 1 group in your enrichment results. Please filter to 1 group or pick a different chart_style.")
-    }
-  }
   return(p)
 
 }
