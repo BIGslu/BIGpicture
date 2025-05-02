@@ -3,7 +3,7 @@
 #' To be used in conjunction with map_string
 #'
 #' @param map List output by map_string
-#' @param layout Character string for network layout algorithm. See options in igraph::layout_with_
+#' @param layout Character string for network layout algorithm. See options in igraph::layout_with_ Default is "nice" which automaticially chooses a layour based on network size
 #' @param edge_min Numeric minimum edges a node must have to be displayed. Default is 0 meaning orphan nodes are included
 #' @param edge_max Numeric maximum edges a node must have to be displayed. Default in Inf. Set to 0 to see only orphan nodes
 #' @param main_cluster_only Logical if should include only genes connected to the largest cluster
@@ -49,7 +49,7 @@
 #' # plot_string(map2, enrichment = example_gsea, fdr_cutoff = 0.3,
 #' #             edge_max = 0, enriched_only=TRUE)
 
-plot_string <- function(map, layout='fr',
+plot_string <- function(map, layout='nice',
                         edge_min=0, edge_max=Inf,
                         main_cluster_only=FALSE,
                         enriched_only = FALSE,

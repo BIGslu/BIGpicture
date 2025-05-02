@@ -6,7 +6,7 @@
 \usage{
 plot_string(
   map,
-  layout = "fr",
+  layout = "nice",
   edge_min = 0,
   edge_max = Inf,
   main_cluster_only = FALSE,
