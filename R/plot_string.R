@@ -179,6 +179,7 @@ plot_string <- function(map, layout='nice',
 
   #### Arrange metadata as in network ####
   map.arrange <- map.unique %>%
+    dplyr::distinct() %>%
     dplyr::filter(STRING_id %in% igraph::vertex_attr(subgraph.filter2)$name) %>%
     dplyr::arrange(match(STRING_id, c(igraph::vertex_attr(subgraph.filter2)$name)))
 
