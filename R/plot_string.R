@@ -186,7 +186,7 @@ plot_string <- function(map, layout='nice',
   # Set attributes
   ## Check order first
   if(!identical(igraph::vertex_attr(subgraph.filter2)$name, map.arrange$STRING_id)){
-    stop("igraph gene order does not match color information.")
+    stop("igraph gene order does not match color information. Check that gene identifiers match in genes and enrichment.")
   }
 
   ##gene names
