@@ -20,7 +20,7 @@ plot_enrichgrid(
   prevalence_cutoff = NULL,
   chart_style = "bar",
   include_grid = TRUE,
-  lollipop_fdr_colors = c(0.001, 0.01, 0.05, 0.1, 0.2)
+  fdr_binned_colors = c(0.001, 0.01, 0.05, 0.1, 0.2)
 )
 }
 \arguments{
@@ -54,7 +54,7 @@ plot_enrichgrid(
 
 \item{include_grid}{Boolean. Whether or not to include the gene x gene set grid in the final plot. Default is TRUE.}
 
-\item{lollipop_fdr_colors}{Numeric vector. Cutoffs for binned FDR value color groups for lollipop plots. Default is c(0.001, 0.01, 0.05, 0.1, 0.2).}
+\item{fdr_binned_colors}{Numeric vector. Cutoffs for binned FDR value color groups for lollipop plots. Default is c(0.001, 0.01, 0.05, 0.1, 0.2).}
 }
 \value{
 ggplot2 object
@@ -68,7 +68,7 @@ library(dplyr)
 #Run enrichment
 gene_list <- list(HRV1 = names(example.gene.list[[1]]),
                   HRV2 = names(example.gene.list[[2]]))
-enrich <- flexEnrich(gene_list, ID="ENSEMBL", category="H")
+enrich <- flexEnrich(gene_list, ID="ENSEMBL", collection="H")
 
 #Plot
 plot_enrichgrid(enrich, df_group = "HRV2", fdr_cutoff = 0.5)

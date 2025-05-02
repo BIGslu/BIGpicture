@@ -15,7 +15,7 @@
 #' @param prevalence_cutoff Numeric. Cutoff for coloring genes by prevalence in plotted gene sets. Required if 'prevalence_color == "cutoff"'.
 #' @param chart_style String. Options are "bar" and "lollipop". Default is "bar".
 #' @param include_grid Boolean. Whether or not to include the gene x gene set grid in the final plot. Default is TRUE.
-#' @param lollipop_fdr_colors Numeric vector. Cutoffs for binned FDR value color groups for lollipop plots. Default is c(0.001, 0.01, 0.05, 0.1, 0.2).
+#' @param fdr_binned_colors Numeric vector. Cutoffs for binned FDR value color groups for lollipop plots. Default is c(0.001, 0.01, 0.05, 0.1, 0.2).
 #'
 #' @return ggplot2 object
 #' @export
@@ -26,7 +26,7 @@
 #' #Run enrichment
 #' gene_list <- list(HRV1 = names(example.gene.list[[1]]),
 #'                   HRV2 = names(example.gene.list[[2]]))
-#' enrich <- flexEnrich(gene_list, ID="ENSEMBL", category="H")
+#' enrich <- flexEnrich(gene_list, ID="ENSEMBL", collection="H")
 #'
 #' #Plot
 #' plot_enrichgrid(enrich, df_group = "HRV2", fdr_cutoff = 0.5)
@@ -46,7 +46,7 @@ plot_enrichgrid <- function(df = NULL, df_group = NULL,
                             prevalence_cutoff = NULL,
                             chart_style = "bar",
                             include_grid = TRUE,
-                            lollipop_fdr_colors = c(0.001, 0.01, 0.05, 0.1, 0.2)
+                            fdr_binned_colors = c(0.001, 0.01, 0.05, 0.1, 0.2)
 ){
 
   fdr <- size <- gs <- gssize <- ratio <- desc <- prev <- gene <- geneset <- color <- Significance <- gssize_bin <- group <- NULL
@@ -343,7 +343,7 @@ plot_enrichgrid <- function(df = NULL, df_group = NULL,
       ggplot2::coord_flip() +
       ggplot2::scale_y_continuous(position = "right",labels = scales::label_number(accuracy = 0.001))
   } else if(chart_style == "lollipop"){
-    fdr_colors.sort <- sort(lollipop_fdr_colors)
+    fdr_colors.sort <- sort(fdr_binned_colors)
     df.sub$Significance <- NA
     fdr_levels <- c()
     for(i in 1:length(fdr_colors.sort)){

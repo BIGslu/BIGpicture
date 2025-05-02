@@ -28,18 +28,29 @@
 #' venn.result[["gene"]]
 #'
 #' # Multiple models, subset of variables
-#' model1 <- list("lme" = example.model$lme)
-#' model2 <- list("lmerel" = example.model$lmerel)
-#' plot_venn_genes(list("lme"=model1, "lmerel"=model2),
+#' plot_venn_genes(model_result = list("example.model" = example.model),
+#'     models = c("lme","lmerel"),
+#'     variables = c("virus","virus:asthma"),
+#'     fdr_cutoff = c(0.05))
+#'
+#' plot_venn_genes(model_result = list("model1" = example.model[c(1,3,5)],
+#'                                      "model2" = example.model[c(2,4,6)]),
+#'     models = c("lme","lmerel"),
 #'     variables = c("virus","virus:asthma"),
 #'     fdr_cutoff = c(0.05))
 #'
 #' # Contrasts
-#' model1 <- list("lme" = example.model$lme.contrast)
-#' model2 <- list("lmerel" = example.model$lmerel.contrast)
-#' plot_venn_genes(model_result = list("lme"=model1, "lmerel"=model2),
-#'     contrasts = c("HRV asthma - none asthma"),
-#'     fdr_cutoff = c(0.4))
+#' plot_venn_genes(model_result = list("example.model" = example.model),
+#'     models = "lme.contrast",
+#'     contrasts = c("HRV asthma - none asthma",
+#'                   "HRV healthy - none healthy"),
+#'     fdr_cutoff = c(0.5))
+#' plot_venn_genes(model_result = list("model1" = example.model[c(1,3,5)],
+#'                                      "model2" = example.model[c(2,4,6)]),
+#'     models = c("lme.contrast","lmerel.contrast"),
+#'     contrasts = c("HRV asthma - none asthma",
+#'                   "HRV healthy - none healthy"),
+#'     fdr_cutoff = c(0.5))
 
 plot_venn_genes <- function(model_result, models=NULL,
                             variables=NULL, contrasts=NULL,
@@ -55,7 +66,7 @@ plot_venn_genes <- function(model_result, models=NULL,
   if(!is.null(fdr.cutoff)){fdr_cutoff <- fdr.cutoff}
 
   #common errors
-  if(!is.null(contrasts) & any(grepl("contrast", models))){
+  if(!is.null(contrasts) & !any(grepl("contrast", models))){
     stop("Must provide contrasts model when specifying contrasts.")
   }
 
@@ -107,13 +118,21 @@ plot_venn_genes <- function(model_result, models=NULL,
     if(length(venn_dat)>4){
       print(paste0("More than 4 variables/contrasts with genes at FDR < ", fdr, ". Venns are unreadable. Consider plot_upset_genes( ) instead"))
     } else if(gene_tot > 0){
-      venn.ls[[as.character(fdr)]] <-
+      venn.temp <-
         suppressWarnings(
           ggvenn::ggvenn(venn_dat, show_percentage = FALSE,
                          text_size = 4, set_name_size = 4, stroke_size = 0.5) +
             ggplot2::labs(x = paste("FDR <", fdr)) +
             ggplot2::theme(axis.title.x = ggplot2::element_text())
         )
+      #expand axis to not cutoff labels
+      n_lines <- max(stringr::str_count(names(venn_dat),"\n"))
+      yb <- ggplot2::ggplot_build(venn.temp)
+      y_lim <- yb$layout$panel_params[[1]]$y.range
+      y_lim_new <- c(y_lim[1],  y_lim[2]+0.1*n_lines*y_lim[2])
+
+      venn.ls[[as.character(fdr)]] <- venn.temp +
+        ggplot2::lims(y=y_lim_new)
     }
     else {
       print(paste("Zero genes significant at FDR <", fdr))

@@ -6,7 +6,7 @@
 \usage{
 plot_string(
   map,
-  layout = "fr",
+  layout = "nice",
   edge_min = 0,
   edge_max = Inf,
   main_cluster_only = FALSE,
@@ -22,7 +22,7 @@ plot_string(
 \arguments{
 \item{map}{List output by map_string}
 
-\item{layout}{Character string for network layout algorithm. See options in igraph::layout_with_}
+\item{layout}{Character string for network layout algorithm. See options in igraph::layout_with_ Default is "nice" which automaticially chooses a layour based on network size}
 
 \item{edge_min}{Numeric minimum edges a node must have to be displayed. Default is 0 meaning orphan nodes are included}
 
@@ -34,7 +34,7 @@ plot_string(
 
 \item{enrichment}{Data frame output by \code{BIGprofiler}, \code{flexEnrich},  \code{BIGsea}. For use in coloring nodes}
 
-\item{overlap}{Numeric minimum of total significant genes in a enrichment term to be used as colors (\code{BIGprofiler}, \code{flexEnrich})}
+\item{overlap}{Numeric minimum of total significant genes in a enrichment term (\code{n_query_genes_in_pathway}) to be used as colors (\code{BIGprofiler}, \code{flexEnrich})}
 
 \item{fdr_cutoff}{Numeric maximum FDR of enrichment terms to be used as colors (\code{BIGprofiler}, \code{flexEnrich}, \code{BIGsea})}
 
@@ -65,7 +65,7 @@ To be used in conjunction with map_string
 #             filter(variable == "virus" & FDR < 0.2) \%>\%
 #             select(variable, gene)
 # example_enrich <- SEARchways::BIGprofiler(gene_df = genes.OI,
-#                                           category = "H", ID = "ENSEMBL")
+#                                           collection = "H", ID = "ENSEMBL")
 #
 # map2 <- map_string(genes = genes.OI$gene,
 #                  version = 11.5, score_threshold = 400)
@@ -76,7 +76,7 @@ To be used in conjunction with map_string
 # genes.FC <- example.model$lmerel \%>\%
 #             filter(variable == "virus") \%>\%
 #             select(variable, gene, estimate)
-# example_gsea <- BIGsea(gene_df = genes.FC, category = "H", ID = "ENSEMBL")
+# example_gsea <- BIGsea(gene_df = genes.FC, collection = "H", ID = "ENSEMBL")
 #
 # plot_string(map2, enrichment = example_gsea, fdr_cutoff = 0.3,
 #             edge_max = 0, enriched_only=TRUE)
