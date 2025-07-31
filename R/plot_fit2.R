@@ -10,21 +10,30 @@
 #' @param label Numeric. Total number of genes to label. Based on largest absolute change in fit metric.
 #' @param genes Data frame with gene metadata for labeling points (optional). If not provided, the gene column in the model_result is used
 #' @param genes_label Character string of variable in genes to label with. Required if provide genes parameter
+#' @param subset_genes Character vector of genes to subset and plot
+#' @param outliers Logical. Include circle for outlier genes as defined by 1.5X interquartile range, similar to geom_boxplot. Default is FALSE
 #'
 #' @return ggplot object
 #' @export
 #'
 #' @examples
-#' plot_fit2(example.model, example.model, x="lme", y="lmerel", metrics=c("sigma","AIC","Rsq"))
+#' plot_fit2(example.model, example.model, x="lme", y="lmerel",
+#'           metrics=c("sigma","AIC","Rsq"))
 #'
 #' plot_fit2(example.model, example.model, x="lme", y="lmerel",
-#' metrics=c("sigma","AIC","Rsq"), label=3, x_label="without kinship", y_label="with kinship")
+#'           metrics=c("sigma","AIC","Rsq"), label=3,
+#'           x_label="without kinship", y_label="with kinship",
+#'           outliers=TRUE)
+#'
+#' plot_fit2(example.model, example.model, x="lme", y="lmerel",
+#'           metrics=c("sigma","AIC","Rsq"),
+#'           subset_genes=c("ENSG00000165215","ENSG00000165644","ENSG0000079739"))
 
 plot_fit2 <- function(model_result, model_result_y=NULL,
-                     x, y, x_label=NULL, y_label=NULL,
-                     metrics="AIC",
-                     label=NULL, genes = NULL, genes_label = NULL){
-  model <- gene <- sigma <- `Best fit` <- variable <- value <- name <- Metric <- cutoff <- delta <- NULL
+                      x, y, x_label=NULL, y_label=NULL,
+                      metrics="AIC",
+                      label=NULL, genes = NULL, genes_label = NULL, subset_genes = NULL, outliers=FALSE){
+  model <- gene <- sigma <- `Best fit` <- variable <- value <- name <- Metric <- cutoff <- delta <- q1 <- iqr <- q3 <- outlier <- cutoff2 <- sig_group <- NULL
 
   if(!is.numeric(label) & !is.null(label)){
     stop("label value must be numeric. Unlike plot_volcano( ), label='all' is not allowed in plot_fit2( )")
@@ -79,6 +88,15 @@ plot_fit2 <- function(model_result, model_result_y=NULL,
   #Stop if only 1 unique model found
   if(x_lab == y_lab){ stop(paste("Only one unique model found.", x_lab, sep="\n")) }
 
+  # allow subsetting of genes
+  if(!is.null(subset_genes)) {
+    dat_x <- dat_x %>%
+      dplyr::filter(gene %in% subset_genes)
+
+    dat_y <- dat_y %>%
+      dplyr::filter(gene %in% subset_genes)
+  }
+
   #Merge and format
   dat <- dplyr::bind_rows(dat_x,dat_y) %>%
     tidyr::pivot_longer(-c(model, gene)) %>%
@@ -132,20 +150,55 @@ plot_fit2 <- function(model_result, model_result_y=NULL,
     plot2 <- patchwork::plot_spacer()
   }
 
+  #Add outlier dots
+  if(outliers){
+    out_dat <- dat %>%
+      dplyr::group_by(name) %>%
+      dplyr::summarise(q1 = stats::quantile(delta, probs = 0.25),
+                       q3 = stats::quantile(delta, probs = 0.75),
+                       iqr = stats::IQR(delta)*1.5,
+                       .groups = "drop") %>%
+      dplyr::mutate(low_cut = q1-iqr,
+                    high_cut = q3+iqr) %>%
+      dplyr::full_join(dat) %>%
+      dplyr::mutate(outlier = dplyr::case_when(
+        delta > high_cut | delta < low_cut ~ "outlier")) %>%
+      tidyr::drop_na(outlier)
+
+    out1 <- dplyr::filter(out_dat, name %in% c("sigma","AIC","BIC"))
+    if(nrow(out1) >0){
+      plot1 <- plot1 +
+        ggplot2::geom_point(data = out1, shape=21, fill=NA)
+    }
+
+    out2 <- dplyr::filter(out_dat, name %in% c("Rsq","adj_Rsq"))
+    if(nrow(out1) >0){
+      plot2 <- plot2 +
+        ggplot2::geom_point(data = out2, shape=21, fill=NA)
+    }
+  }
   #Add cutoffs if AIC or BIC
   if(any(c("AIC","BIC") %in% metrics)){
     cutoffs <- data.frame(name = metrics) %>%
       dplyr::mutate(cutoff = dplyr::case_when(name %in% c("AIC","BIC") ~ 2,
+                                              TRUE ~ NA)) %>%
+      dplyr::mutate(cutoff2 = dplyr::case_when(name %in% c("AIC","BIC") ~ 7,
                                               TRUE ~ NA)) %>%
       tidyr::drop_na(cutoff)
 
     plot1 <- plot1 +
       ggplot2::geom_hline(data = cutoffs,
                           ggplot2::aes(yintercept = cutoff),
-                          lty = "dashed") +
+                          color="red") +
       ggplot2::geom_hline(data = cutoffs,
                           ggplot2::aes(yintercept = -cutoff),
-                          lty = "dashed")
+                          color="red") +
+      ggplot2::geom_hline(data = cutoffs,
+                          ggplot2::aes(yintercept = cutoff2),
+                          color="red", lty = "dashed") +
+      ggplot2::geom_hline(data = cutoffs,
+                          ggplot2::aes(yintercept = -cutoff2),
+                          color="red", lty = "dashed")
   }
 
 
@@ -193,19 +246,47 @@ plot_fit2 <- function(model_result, model_result_y=NULL,
 
   #Combine final plots
   plot <- patchwork::wrap_plots(plot1,plot2,nrow = 1,
-          widths = c(length(metrics[metrics %in% c("sigma","AIC","BIC")]),
-                     length(metrics[metrics %in% c("Rsq","adj_Rsq")])))
+                                widths = c(length(metrics[metrics %in% c("sigma","AIC","BIC")]),
+                                           length(metrics[metrics %in% c("Rsq","adj_Rsq")])))
   #Summary messages
-  message("Summary")
-  summ <- dat %>%
-    dplyr::mutate(diff=abs(get(x_name2)-get(y_name2))) %>%
-    dplyr::group_by(`Best fit`, name) %>%
-    dplyr::summarise(`Total genes`=dplyr::n(),
-                     `Mean delta`=mean(diff, na.rm=TRUE),
-                     `Stdev delta`=stats::sd(diff, na.rm=TRUE),
-                     .groups="drop") %>%
-    dplyr::rename(Metric=name) %>%
-    dplyr::arrange(Metric, `Best fit`)
-  print(as.data.frame(summ))
+  #AIC/BIC summary with more detail
+  if(any(grepl("AIC|BIC", unique(dat$name)))){
+    message("Summary: AIC and BIC")
+    summ2 <- dat %>%
+      dplyr::filter(name %in% c("AIC","BIC")) %>%
+      dplyr::mutate(diff=abs(get(x_name2)-get(y_name2))) %>%
+      dplyr::mutate(sig_group = dplyr::case_when(
+        abs(delta)<2~"Nonsignif (< 2)",
+        abs(delta)<7~paste("Moderate (2-7)", `Best fit`),
+        abs(delta)>=7~paste("Signif (> 7)", `Best fit`),
+        TRUE~NA)) %>%
+      dplyr::group_by(sig_group, name) %>%
+      dplyr::summarise(`Total genes`=dplyr::n(),
+                       `Mean delta`=mean(diff, na.rm=TRUE),
+                       `Stdev delta`=stats::sd(diff, na.rm=TRUE),
+                       .groups="drop") %>%
+      dplyr::arrange(name, sig_group) %>%
+      dplyr::rename(Metric=name, `Best fit`=sig_group)
+
+    print(as.data.frame(summ2))
+  }
+  if(any(grepl("Rsq|adj_Rsq|sigma", unique(dat$name)))){
+    message("Summary: Other metrics")
+    summ1 <- dat %>%
+      dplyr::filter(name %in% c("Rsq","adj_Rsq","sigma")) %>%
+      dplyr::mutate(diff=abs(get(x_name2)-get(y_name2))) %>%
+      dplyr::group_by(`Best fit`, name) %>%
+      dplyr::summarise(`Total genes`=dplyr::n(),
+                       `Mean delta`=mean(diff, na.rm=TRUE),
+                       `Stdev delta`=stats::sd(diff, na.rm=TRUE),
+                       .groups="drop") %>%
+      dplyr::rename(Metric=name) %>%
+      dplyr::arrange(Metric, `Best fit`)
+    print(as.data.frame(summ1))
+  }
+
+
+
+  #AIC, BIC specifics
   return(plot)
 }

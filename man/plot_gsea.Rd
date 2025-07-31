@@ -16,13 +16,16 @@ plot_gsea(
 }
 \arguments{
 \item{gsea}{Data frame output by SEARchways::BIGsea including pathway, FDR, and NES}
+
 \item{fdr_cutoff}{Numeric. Maximum FDR to plot. Default is 0.2}
+
 \item{fdr_colors}{Numeric vector. Cutoffs for color groups. Default is c(0.01, 0.05, 0.1, 0.2)}
+
 \item{show_overlap}{Logical if should show overlap across all facets even if some missing (TRUE) or give each facet it's own axis labels (FALSE). Default is TRUE}
 
 \item{fdr.cutoff}{Deprecated form of fdr_cutoff}
 
-\item{fdr.colors}{NDeprecated form of fdr_colors}
+\item{fdr.colors}{Deprecated form of fdr_colors}
 
 \item{show.overlap}{Deprecated form of show_overlap}
 }
@@ -37,11 +40,12 @@ library(SEARchways)
 library(dplyr)
 #Get fold change information from example model
 genes.FC <- example.model$lmerel \%>\%
-            filter(variable == "virus") \%>\%
+            filter(variable \%in\% c("virus", "asthma")) \%>\%
             select(variable, gene, estimate)
 #Run GSEA
-example_gsea <- SEARchways::BIGsea(gene_df = genes.FC, category = "H", ID = "ENSEMBL")
+example_gsea <- SEARchways::BIGsea(gene_df = genes.FC, collection = "H", ID = "ENSEMBL")
 
 #Plot
-plot_gsea(example_gsea, fdr_cutoff = 0.5)
+plot_gsea(example_gsea, fdr_cutoff = 0.5,
+         fdr_colors = c(0.1, 0.5))
 }

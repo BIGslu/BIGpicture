@@ -1,6 +1,6 @@
 Package: BIGpicture
 Title: Standard Plots for BIGslu
-Version: 1.1.0
+Version: 1.2.0
 Authors@R: 
     person(given = "Kim",
            family = "Dill-McFarland",
@@ -13,6 +13,7 @@ LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
 Imports: 
+    ComplexHeatmap,
     doParallel,
     dplyr,
     edgeR,
@@ -25,16 +26,17 @@ Imports:
     ggupset,
     ggvenn,
     Hmisc,
-    igraph,
+    igraph (>= 2.1.4),
     magrittr,
     patchwork,
+    STRINGdb (>= 2.20.0), 
     scales,
     scatterpie,
     stringr,
     tibble,
     tidyr
-Suggests: kimma, limma, SEARchways, textshape, STRINGdb
+Suggests: kimma, limma, SEARchways, textshape, msigdbr, msigdbdf
 Depends: 
-    R (>= 2.10)
+    R (>= 4.5)
 biocViews: 
 Remotes: BIGslu/kimma, BIGslu/SEARchways

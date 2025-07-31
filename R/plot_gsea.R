@@ -6,7 +6,7 @@
 #' @param show_overlap Logical if should show overlap across all facets even if some missing (TRUE) or give each facet it's own axis labels (FALSE). Default is TRUE
 #'
 #' @param fdr.cutoff Deprecated form of fdr_cutoff
-#' @param fdr.colors NDeprecated form of fdr_colors
+#' @param fdr.colors Deprecated form of fdr_colors
 #' @param show.overlap Deprecated form of show_overlap
 #'
 #' @return ggplot2 object
@@ -17,13 +17,14 @@
 #' library(dplyr)
 #' #Get fold change information from example model
 #' genes.FC <- example.model$lmerel %>%
-#'             filter(variable == "virus") %>%
+#'             filter(variable %in% c("virus", "asthma")) %>%
 #'             select(variable, gene, estimate)
 #' #Run GSEA
-#' example_gsea <- SEARchways::BIGsea(gene_df = genes.FC, category = "H", ID = "ENSEMBL")
+#' example_gsea <- SEARchways::BIGsea(gene_df = genes.FC, collection = "H", ID = "ENSEMBL")
 #'
 #' #Plot
-#' plot_gsea(example_gsea, fdr_cutoff = 0.5)
+#' plot_gsea(example_gsea, fdr_cutoff = 0.5,
+#'          fdr_colors = c(0.1, 0.5))
 
 plot_gsea <- function(gsea, fdr_cutoff = 0.2,
                       fdr_colors = c(0.01, 0.05, 0.1, 0.2),
@@ -56,10 +57,6 @@ plot_gsea <- function(gsea, fdr_cutoff = 0.2,
       dplyr::mutate(pathway = gsub("_", " ", pathway))
   }
 
-  dat.format <- gsea %>%
-    dplyr::mutate(pathway = gsub("_", " ", pathway)) %>%
-    dplyr::filter(FDR < fdr_cutoff)
-
   if(nrow(dat.format) == 0){stop("No gene sets are significant. Please increase fdr_cutoff.")}
 
   fdr_colors.sort <- sort(fdr_colors)
@@ -71,6 +68,8 @@ plot_gsea <- function(gsea, fdr_cutoff = 0.2,
       dat.format$Significance[dat.format$FDR < fdr_colors.sort[i] & dat.format$FDR >= fdr_colors.sort[i-1]] <- paste("FDR <", fdr_colors.sort[i])
     }
   }
+  fdr_colors.sort.labs <- paste0("FDR < ", fdr_colors.sort)
+  dat.format$Significance <- factor(dat.format$Significance, levels = fdr_colors.sort.labs)
 
   #Enrichment score limits
   plot.lim <- max(abs(dat.format$NES))+0.1

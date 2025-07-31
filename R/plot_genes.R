@@ -30,7 +30,7 @@
 
 plot_genes <- function(dat=NULL, counts=NULL, meta=NULL, genes=NULL,
                        fdr=NULL,
-                       libraryID="libID", geneID="ensembl_gene_id",
+                       libraryID="libID", geneID="geneName",
                        subset_genes=NULL,
                        variables, colorID=NULL,
                        processors=NULL,

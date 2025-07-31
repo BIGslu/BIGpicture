@@ -15,8 +15,8 @@
 #' @export
 #'
 #' @examples
-#' plot_pca(kimma::example.voom, var=c("virus","outlier"))
-#' plot_pca(kimma::example.voom, var=c("virus","outlier"), PCx=1, PCy=3)
+#' plot_pca(kimma::example.voom, vars=c("virus","outlier"))
+#' plot_pca(kimma::example.voom, vars=c("virus","outlier"), PCx=1, PCy=3)
 
 plot_pca <- function(dat, meta = NULL, vars, PCx=1, PCy=2,
                      scale = FALSE, outlier_sd = 3,

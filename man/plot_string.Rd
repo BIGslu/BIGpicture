@@ -6,9 +6,10 @@
 \usage{
 plot_string(
   map,
-  layout = "fr",
+  layout = "nice",
   edge_min = 0,
   edge_max = Inf,
+  main_cluster_only = FALSE,
   enriched_only = FALSE,
   enrichment = NULL,
   overlap = 2,
@@ -21,19 +22,21 @@ plot_string(
 \arguments{
 \item{map}{List output by map_string}
 
-\item{layout}{Character string for network layout algorithm. See options in igraph::layout_with_}
+\item{layout}{Character string for network layout algorithm. See options in igraph::layout_with_ Default is "nice" which automaticially chooses a layour based on network size}
 
 \item{edge_min}{Numeric minimum edges a node must have to be displayed. Default is 0 meaning orphan nodes are included}
 
 \item{edge_max}{Numeric maximum edges a node must have to be displayed. Default in Inf. Set to 0 to see only orphan nodes}
 
+\item{main_cluster_only}{Logical if should include only genes connected to the largest cluster}
+
 \item{enriched_only}{Logical if should include only genes in significantly enriched terms. Default FALSE}
 
-\item{enrichment}{Data frame output by \code{BIGprofiler}, \code{BIGenrichr}, or \code{BIGsea}. For use in coloring nodes}
+\item{enrichment}{Data frame output by \code{BIGprofiler}, \code{flexEnrich},  \code{BIGsea}. For use in coloring nodes}
 
-\item{overlap}{Numeric minimum of total significant genes in a enrichment term to be used as colors (\code{BIGprofiler}, \code{BIGenrichr})}
+\item{overlap}{Numeric minimum of total significant genes in a enrichment term (\code{n_query_genes_in_pathway}) to be used as colors (\code{BIGprofiler}, \code{flexEnrich})}
 
-\item{fdr_cutoff}{Numeric maximum FDR of enrichment terms to be used as colors (\code{BIGprofiler}, \code{BIGenrichr}, \code{BIGsea})}
+\item{fdr_cutoff}{Numeric maximum FDR of enrichment terms to be used as colors (\code{BIGprofiler}, \code{flexEnrich}, \code{BIGsea})}
 
 \item{colors}{Character vector of custom colors to use. Must be at least a long as total significant terms plus 1 for the "none" group}
 
@@ -48,32 +51,33 @@ ggplot STRING network object
 To be used in conjunction with map_string
 }
 \examples{
-map <- map_string(genes = c("MTHFD2","ISOC1","IL2RB","SAMHD1","NAMPT","NOD1",
-                            "NFKB1","IFIT3","ZBP1","IL15RA","SP110","ITGB7",
-                            "SERPING1","B2M","CXCL11","USP18","MAPKAPK2","DKK1"),
-                 version = 11.5, score_threshold = 400)
-plot_string(map)
-
+#NOT RUN
+# map <- map_string(genes = c("MTHFD2","ISOC1","IL2RB","SAMHD1","NAMPT","NOD1",
+#                            "NFKB1","IFIT3","ZBP1","IL15RA","SP110","ITGB7",
+#                            "SERPING1","B2M","CXCL11","USP18","MAPKAPK2","DKK1"),
+#                version = 12, score_threshold = 400)
+# plot_string(map)
+#
 # Add enrichment colors
-library(dplyr)
-library(SEARchways)
-genes.OI <- example.model$lmerel \%>\%
-            filter(variable == "virus" & FDR < 0.2) \%>\%
-            select(variable, gene)
-example_enrich <- SEARchways::BIGprofiler(gene_df = genes.OI,
-                                          category = "H", ID = "ENSEMBL")
-
-map2 <- map_string(genes = genes.OI$gene,
-                 version = 11.5, score_threshold = 400)
-plot_string(map2, enrichment = example_enrich, fdr_cutoff=0.2)
-plot_string(map2, enrichment = example_enrich, fdr_cutoff=0.2, enriched_only=TRUE)
-
+# library(dplyr)
+# library(SEARchways)
+# genes.OI <- example.model$lmerel \%>\%
+#             filter(variable == "virus" & FDR < 0.2) \%>\%
+#             select(variable, gene)
+# example_enrich <- SEARchways::BIGprofiler(gene_df = genes.OI,
+#                                           collection = "H", ID = "ENSEMBL")
+#
+# map2 <- map_string(genes = genes.OI$gene,
+#                  version = 11.5, score_threshold = 400)
+# plot_string(map2, enrichment = example_enrich, fdr_cutoff=0.2)
+# plot_string(map2, enrichment = example_enrich, fdr_cutoff=0.2, enriched_only=TRUE)
+#
 # Add GSEA colors
-genes.FC <- example.model$lmerel \%>\%
-            filter(variable == "virus") \%>\%
-            select(variable, gene, estimate)
-example_gsea <- BIGsea(gene_df = genes.FC, category = "H", ID = "ENSEMBL")
-
-plot_string(map2, enrichment = example_gsea, fdr_cutoff = 0.3,
-            edge_max = 0, enriched_only=TRUE)
+# genes.FC <- example.model$lmerel \%>\%
+#             filter(variable == "virus") \%>\%
+#             select(variable, gene, estimate)
+# example_gsea <- BIGsea(gene_df = genes.FC, collection = "H", ID = "ENSEMBL")
+#
+# plot_string(map2, enrichment = example_gsea, fdr_cutoff = 0.3,
+#             edge_max = 0, enriched_only=TRUE)
 }

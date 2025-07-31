@@ -3,13 +3,14 @@
 #' To be used in conjunction with map_string
 #'
 #' @param map List output by map_string
-#' @param layout Character string for network layout algorithm. See options in igraph::layout_with_
+#' @param layout Character string for network layout algorithm. See options in igraph::layout_with_ Default is "nice" which automaticially chooses a layour based on network size
 #' @param edge_min Numeric minimum edges a node must have to be displayed. Default is 0 meaning orphan nodes are included
 #' @param edge_max Numeric maximum edges a node must have to be displayed. Default in Inf. Set to 0 to see only orphan nodes
+#' @param main_cluster_only Logical if should include only genes connected to the largest cluster
 #' @param enriched_only Logical if should include only genes in significantly enriched terms. Default FALSE
-#' @param enrichment Data frame output by `BIGprofiler`, `BIGenrichr`, or `BIGsea`. For use in coloring nodes
-#' @param overlap Numeric minimum of total significant genes in a enrichment term to be used as colors (`BIGprofiler`, `BIGenrichr`)
-#' @param fdr_cutoff Numeric maximum FDR of enrichment terms to be used as colors (`BIGprofiler`, `BIGenrichr`, `BIGsea`)
+#' @param enrichment Data frame output by `BIGprofiler`, `flexEnrich`,  `BIGsea`. For use in coloring nodes
+#' @param overlap Numeric minimum of total significant genes in a enrichment term (`n_query_genes_in_pathway`) to be used as colors (`BIGprofiler`, `flexEnrich`)
+#' @param fdr_cutoff Numeric maximum FDR of enrichment terms to be used as colors (`BIGprofiler`, `flexEnrich`, `BIGsea`)
 #' @param colors Character vector of custom colors to use. Must be at least a long as total significant terms plus 1 for the "none" group
 #' @param text_size Numeric size of gene labels on network nodes. Default of 2
 #' @param node_size Numeric size of network nodes. Default of 1
@@ -18,37 +19,40 @@
 #' @export
 #'
 #' @examples
-#' map <- map_string(genes = c("MTHFD2","ISOC1","IL2RB","SAMHD1","NAMPT","NOD1",
-#'                             "NFKB1","IFIT3","ZBP1","IL15RA","SP110","ITGB7",
-#'                             "SERPING1","B2M","CXCL11","USP18","MAPKAPK2","DKK1"),
-#'                  version = 11.5, score_threshold = 400)
-#' plot_string(map)
-#'
+#' #NOT RUN
+#' # map <- map_string(genes = c("MTHFD2","ISOC1","IL2RB","SAMHD1","NAMPT","NOD1",
+#' #                            "NFKB1","IFIT3","ZBP1","IL15RA","SP110","ITGB7",
+#' #                            "SERPING1","B2M","CXCL11","USP18","MAPKAPK2","DKK1"),
+#' #                version = 12, score_threshold = 400)
+#' # plot_string(map)
+#' #
 #' # Add enrichment colors
-#' library(dplyr)
-#' library(SEARchways)
-#' genes.OI <- example.model$lmerel %>%
-#'             filter(variable == "virus" & FDR < 0.2) %>%
-#'             select(variable, gene)
-#' example_enrich <- SEARchways::BIGprofiler(gene_df = genes.OI,
-#'                                           category = "H", ID = "ENSEMBL")
-#'
-#' map2 <- map_string(genes = genes.OI$gene,
-#'                  version = 11.5, score_threshold = 400)
-#' plot_string(map2, enrichment = example_enrich, fdr_cutoff=0.2)
-#' plot_string(map2, enrichment = example_enrich, fdr_cutoff=0.2, enriched_only=TRUE)
-#'
+#' # library(dplyr)
+#' # library(SEARchways)
+#' # genes.OI <- example.model$lmerel %>%
+#' #             filter(variable == "virus" & FDR < 0.2) %>%
+#' #             select(variable, gene)
+#' # example_enrich <- SEARchways::BIGprofiler(gene_df = genes.OI,
+#' #                                           collection = "H", ID = "ENSEMBL")
+#' #
+#' # map2 <- map_string(genes = genes.OI$gene,
+#' #                  version = 11.5, score_threshold = 400)
+#' # plot_string(map2, enrichment = example_enrich, fdr_cutoff=0.2)
+#' # plot_string(map2, enrichment = example_enrich, fdr_cutoff=0.2, enriched_only=TRUE)
+#' #
 #' # Add GSEA colors
-#' genes.FC <- example.model$lmerel %>%
-#'             filter(variable == "virus") %>%
-#'             select(variable, gene, estimate)
-#' example_gsea <- BIGsea(gene_df = genes.FC, category = "H", ID = "ENSEMBL")
-#'
-#' plot_string(map2, enrichment = example_gsea, fdr_cutoff = 0.3,
-#'             edge_max = 0, enriched_only=TRUE)
+#' # genes.FC <- example.model$lmerel %>%
+#' #             filter(variable == "virus") %>%
+#' #             select(variable, gene, estimate)
+#' # example_gsea <- BIGsea(gene_df = genes.FC, collection = "H", ID = "ENSEMBL")
+#' #
+#' # plot_string(map2, enrichment = example_gsea, fdr_cutoff = 0.3,
+#' #             edge_max = 0, enriched_only=TRUE)
 
-plot_string <- function(map, layout='fr',
-                        edge_min=0, edge_max=Inf, enriched_only = FALSE,
+plot_string <- function(map, layout='nice',
+                        edge_min=0, edge_max=Inf,
+                        main_cluster_only=FALSE,
+                        enriched_only = FALSE,
                         enrichment=NULL, overlap=2, fdr_cutoff=0.2,
                         colors=NULL, text_size=2, node_size=1){
   pathway <- STRING_id <- combined_score <- gene <- none <- total <- value <- group_in_pathway <- FDR <- genes <- leadingEdge <- legend.title <- NULL
@@ -56,13 +60,13 @@ plot_string <- function(map, layout='fr',
   #### Format enrichment colors ####
   if(!is.null(enrichment)){
     if("k/K" %in% colnames(enrichment)){
-    #Get significant enrichments
-    col.mat <- enrichment %>%
-      dplyr::ungroup() %>%
-      dplyr::filter(group_in_pathway >= overlap & FDR <= fdr_cutoff) %>%
-      dplyr::select(pathway, genes) %>%
-      dplyr::rename(gene=genes)
-    legend.title <- "Enriched pathways"
+      #Get significant enrichments
+      col.mat <- enrichment %>%
+        dplyr::ungroup() %>%
+        dplyr::filter(n_query_genes_in_pathway >= overlap & FDR <= fdr_cutoff) %>%
+        dplyr::select(pathway, genes) %>%
+        dplyr::rename(gene=genes)
+      legend.title <- "Enriched pathways"
     }
     if("NES" %in% colnames(enrichment)){
       #Get significant GSEA
@@ -159,15 +163,30 @@ plot_string <- function(map, layout='fr',
     stop("No genes in network remain after edge filtering. Consider changind edge_min and/or edge_max")
   }
 
+  #### Filter largest cluster if selected ####
+  if(main_cluster_only){
+    # identify connected components
+    comps <- igraph::components(subgraph.filter2)
+    # largest cluster
+    largest_comp_id <- which.max(comps$csize)
+    # Get the vertex names in the largest component
+    vertices_in_largest <- igraph::V(subgraph.filter2)[comps$membership == largest_comp_id]
+    # Filter subgraph
+    subgraph.filter2 <- igraph::induced_subgraph(
+      subgraph.filter2,
+      vids = vertices_in_largest)
+  }
+
   #### Arrange metadata as in network ####
   map.arrange <- map.unique %>%
+    dplyr::distinct() %>%
     dplyr::filter(STRING_id %in% igraph::vertex_attr(subgraph.filter2)$name) %>%
     dplyr::arrange(match(STRING_id, c(igraph::vertex_attr(subgraph.filter2)$name)))
 
   # Set attributes
   ## Check order first
   if(!identical(igraph::vertex_attr(subgraph.filter2)$name, map.arrange$STRING_id)){
-    stop("igraph gene order does not match color information.")
+    stop("igraph gene order does not match color information. Check that gene identifiers match in genes and enrichment.")
   }
 
   ##gene names
@@ -199,22 +218,30 @@ plot_string <- function(map, layout='fr',
 
   #### Plot ####
   #Get xy of nodes for manual layout
-  set.seed(8434)
   #### set layout ####
-  if(layout == "fr"){ xy <- igraph::layout_with_fr(subgraph.filter2) } else
-    if(layout == "bipar"){ xy <- igraph::layout_as_bipartite(subgraph.filter2) } else
-      if(layout == "star"){ xy <- igraph::layout_as_star(subgraph.filter2) } else
-        if(layout == "tree"){ xy <- igraph::layout_as_tree(subgraph.filter2) } else
-          if(layout == "circle"){ xy <- igraph::layout_in_circle(subgraph.filter2) } else
-            if(layout == "kk"){ xy <- igraph::layout_with_kk(subgraph.filter2) } else
-              if(layout == "graphopt"){ xy <- igraph::layout_with_graphopt(subgraph.filter2) } else
-                if(layout == "gem"){ xy <- igraph::layout_with_gem(subgraph.filter2) } else
-                  if(layout == "dh"){ xy <- igraph::layout_with_dh(subgraph.filter2) } else
-                    if(layout == "sphere"){ xy <- igraph::layout_on_sphere(subgraph.filter2) } else
-                      if(layout == "grid"){ xy <- igraph::layout_on_grid(subgraph.filter2) } else
-                        if(layout == "lgl"){ xy <- igraph::layout_with_lgl(subgraph.filter2) } else
-                          if(layout == "mds"){ xy <- igraph::layout_with_mds(subgraph.filter2) } else
-                            if(layout == "sugi"){ xy <- igraph::layout_with_sugiyama(subgraph.filter2) }
+  layout_funs <- list(
+    nice     = igraph::layout_nicely,
+    fr       = igraph::layout_with_fr,
+    bipar    = igraph::layout_as_bipartite,
+    star     = igraph::layout_as_star,
+    tree     = igraph::layout_as_tree,
+    circle   = igraph::layout_in_circle,
+    kk       = igraph::layout_with_kk,
+    graphopt = igraph::layout_with_graphopt,
+    gem      = igraph::layout_with_gem,
+    dh       = igraph::layout_with_dh,
+    sphere   = igraph::layout_on_sphere,
+    grid     = igraph::layout_on_grid,
+    lgl      = igraph::layout_with_lgl,
+    mds      = igraph::layout_with_mds,
+    sugi     = igraph::layout_with_sugiyama
+  )
+
+  if (!layout %in% names(layout_funs)) {
+    stop("Unknown layout: ", layout)
+  }
+  set.seed(8434)
+  xy <- layout_funs[[layout]](subgraph.filter2)
 
   #### plot ####
   igraph::V(subgraph.filter2)$x <- xy[, 1]
