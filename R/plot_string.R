@@ -55,7 +55,7 @@ plot_string <- function(map, layout='nice',
                         enriched_only = FALSE,
                         enrichment=NULL, overlap=2, fdr_cutoff=0.2,
                         colors=NULL, text_size=2, node_size=1){
-  pathway <- STRING_id <- combined_score <- gene <- none <- total <- value <- group_in_pathway <- FDR <- genes <- leadingEdge <- legend.title <- NULL
+  pathway <- STRING_id <- combined_score <- gene <- none <- total <- value <- group_in_pathway <- FDR <- genes <- leadingEdge <- legend.title <- n_query_genes_in_pathway <- NULL
 
   #### Format enrichment colors ####
   if(!is.null(enrichment)){
