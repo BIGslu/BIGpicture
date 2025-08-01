@@ -1,4 +1,4 @@
-#' Plot PCA colored by variables (does not calculate PCA)
+#' Plot PCA colored by variables (does not calculate PCA. see calculate_pca( ))
 #'
 #' @param dat edgeR DGEList, limma EList, or list object containing gene counts in libraries, metadata, and PCA calculations from calculate_pca()
 #' @param vars Character vector of variables to color PCA by
@@ -13,15 +13,16 @@
 #' @export
 #'
 #' @examples
-#' plot_pca(calculate_pca(kimma::example.voom), var=c("virus","outlier"))
-#' plot_pca(calculate_pca(kimma::example.voom), var=c("virus","outlier"), PCx=1, PCy=3)
+#' dat <- calculate_pca(dat = kimma::example.voom)
+#' plot_pca(dat = dat, var=c("virus","outlier"))
+#' plot_pca(dat = dat, var=c("virus","outlier"), PCx=1, PCy=3)
 
 plot_pca2 <- function(dat, vars, PCx=1, PCy=2,
                       scale = FALSE, outlier_sd = 3,
                       outlier_group = NULL,
                       libraryID = "libID"){
 
-  PC <- PC1 <- PC2 <- PC1.max <- PC1.mean <- PC1.min <- PC1.sd <- PC2 <- PC2.max <- PC2.mean <- PC2.min <- PC2.sd <- col.group <- pct.var <- sd  <- NULL
+PC <- PC1 <- PC2 <- PC1.max <- PC1.mean <- PC1.min <- PC1.sd <- PC2 <- PC2.max <- PC2.mean <- PC2.min <- PC2.sd <- col.group <- pct.var <- sd  <- NULL
 
   # check for data format
   if(!(class(dat) %in% c("DGEList","EList","list"))){

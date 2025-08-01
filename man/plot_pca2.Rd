@@ -2,7 +2,7 @@
 % Please edit documentation in R/plot_pca2.R
 \name{plot_pca2}
 \alias{plot_pca2}
-\title{Plot PCA colored by variables (does not calculate PCA)}
+\title{Plot PCA colored by variables (does not calculate PCA. see calculate_pca( ))}
 \usage{
 plot_pca2(
   dat,
@@ -36,7 +36,7 @@ plot_pca2(
 List of ggplot objects
 }
 \description{
-Plot PCA colored by variables (does not calculate PCA)
+Plot PCA colored by variables (does not calculate PCA. see calculate_pca( ))
 }
 \examples{
 plot_pca(calculate_pca(kimma::example.voom), var=c("virus","outlier"))
