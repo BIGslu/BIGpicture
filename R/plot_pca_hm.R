@@ -15,8 +15,8 @@
 #'
 #' @examples
 #' dat_PCA <- calculate_pca(dat = kimma::example.voom, scale=TRUE)
-#' plot_pca_hm(dat_PCA,
-#'             vars = c("median_cv_coverage","lib.size"),
+#' plot_pca_hm(dat = dat_PCA,
+#'             vars = c("median_cv_coverage","lib.size", "virus"),
 #'             scale=TRUE, flip_axes = TRUE)
 
 plot_pca_hm <- function(dat, vars, scale = FALSE, corr_type = "pearson",
@@ -73,13 +73,27 @@ plot_pca_hm <- function(dat, vars, scale = FALSE, corr_type = "pearson",
     tidyr::pivot_longer(-PC,names_to = libraryID,values_to = "val") %>%
     tidyr::pivot_wider(names_from = PC,values_from = "val") %>%
     # Merge with metadata
-    dplyr::left_join(meta.df)
+    dplyr::left_join(meta.df, by=libraryID)
 
   #get the names of all PCs in the data
   pcs <- pca.df$PC
 
   sub_pca.dat <- pca.dat %>%
     dplyr::select(dplyr::contains("PC"),dplyr::all_of(vars))
+
+  #Convert categorical to numeric
+  for(var in vars){
+    if(!is.numeric(unlist(sub_pca.dat[,var]))){
+      #Convert to numeric if already is a factor
+      if(is.factor(unlist(sub_pca.dat[,var]))){
+        sub_pca.dat[,var] <- as.numeric(unlist(sub_pca.dat[,var]))
+        message(paste(var,"converted to numeric using factor levels."))
+      } else if(is.character(unlist(sub_pca.dat[,var]))){
+        sub_pca.dat[,var] <- as.numeric(as.factor(unlist(sub_pca.dat[,var])))
+        message(paste(var,"converted to numeric. No factor levels found; thus, alphabetical was used."))
+      }
+    }
+  }
 
   # calculate correlations
   corr <- Hmisc::rcorr(as.matrix(sub_pca.dat),type=corr_type)
