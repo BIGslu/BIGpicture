@@ -1,7 +1,8 @@
 #' Plot PCA colored by variables of interest
 #'
-#' @param dat Data frame, edgeR DGEList, or limma EList object containing gene counts in libraries
-#' @param meta Data frame containing meta data with vars. Only needed if dat is a counts table and not an edgeR or limma object
+#' @param dat edgeR DGEList or limma EList object containing gene counts in libraries
+#' @param counts Data frame containing gene counts in libraries
+#' @param meta Data frame containing meta data with vars. Only needed if counts is a counts table
 #' @param vars Character vector of variables to color PCA by
 #' @param PCx Numeric value for PC to plot on x-axis. Default it 1
 #' @param PCy Numeric value for PC to plot on y-axis. Default it 2
@@ -18,7 +19,9 @@
 #' plot_pca(kimma::example.voom, vars=c("virus","outlier"))
 #' plot_pca(kimma::example.voom, vars=c("virus","outlier"), PCx=1, PCy=3)
 
-plot_pca <- function(dat, meta = NULL, vars, PCx=1, PCy=2,
+plot_pca <- function(dat = NULL,
+                     counts = NULL, meta = NULL,
+                     vars, PCx=1, PCy=2,
                      scale = FALSE, outlier_sd = 3,
                      outlier_group = NULL, transform_logCPM = FALSE,
                      libraryID = "libID"){
@@ -26,8 +29,11 @@ plot_pca <- function(dat, meta = NULL, vars, PCx=1, PCy=2,
   PC1 <- PC2 <- PC1.max <- PC1.mean <- PC1.min <- PC1.sd <- PC2.max <- PC2.mean <- PC2.min <- PC2.sd <- col.group <- libID <- sd  <- NULL
 
   #common errors
-  if((is.data.frame(dat) | is.matrix(dat)) & is.null(meta)){
-    stop("meta must be provided when dat is a counts table.")
+  if(!is.null(dat) & !is.null(counts)){
+    stop("Only provide one of dat or counts.")
+  }
+  if(!is.null(counts) & is.null(meta)){
+    stop("meta must be provided when counts is used.")
   }
 
   #Extract metadata table
@@ -42,7 +48,7 @@ plot_pca <- function(dat, meta = NULL, vars, PCx=1, PCy=2,
     count.df <- dat$counts
   } else if (any(class(dat) == "EList")){
     count.df <- dat$E
-  } else { count.df <- dat }
+  } else { count.df <- counts }
 
   #Move rownames if in data frame
   if(!is.numeric(as.matrix(count.df))){

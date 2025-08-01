@@ -5,7 +5,8 @@
 \title{Plot PCA colored by variables of interest}
 \usage{
 plot_pca(
-  dat,
+  dat = NULL,
+  counts = NULL,
   meta = NULL,
   vars,
   PCx = 1,
@@ -18,9 +19,11 @@ plot_pca(
 )
 }
 \arguments{
-\item{dat}{Data frame, edgeR DGEList, or limma EList object containing gene counts in libraries}
+\item{dat}{edgeR DGEList or limma EList object containing gene counts in libraries}
 
-\item{meta}{Data frame containing meta data with vars. Only needed if dat is a counts table and not an edgeR or limma object}
+\item{counts}{Data frame containing gene counts in libraries}
+
+\item{meta}{Data frame containing meta data with vars. Only needed if counts is a counts table}
 
 \item{vars}{Character vector of variables to color PCA by}
 
