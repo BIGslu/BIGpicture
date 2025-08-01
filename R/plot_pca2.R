@@ -10,14 +10,14 @@
 #' @param outlier_label Character string of variable to label outlying libraries with
 #' @param libraryID Character of variable name to match dat meta data frames
 #'
-#' @returns List of ggplot objects
+#' @return List of ggplot objects
 #' @importFrom rlang .data
 #' @export
 #'
 #' @examples
 #' dat <- calculate_pca(dat = kimma::example.voom)
-#' plot_pca(dat = dat, var=c("virus","outlier"))
-#' plot_pca(dat = dat, var=c("virus","outlier"), PCx=1, PCy=3)
+#' plot_pca(dat = dat, vars=c("virus","outlier"))
+#' plot_pca(dat = dat, vars=c("virus","outlier"), PCx=1, PCy=3)
 
 plot_pca2 <- function(dat, vars, PCx=1, PCy=2,
                       scale = FALSE, outlier_sd = 3,
