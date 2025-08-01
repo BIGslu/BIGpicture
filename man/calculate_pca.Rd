@@ -5,7 +5,8 @@
 \title{Calculate PCA. Input either voom object or counts and metadata tables}
 \usage{
 calculate_pca(
-  dat,
+  dat = NULL,
+  counts = NULL,
   meta = NULL,
   scale = FALSE,
   transform_logCPM = FALSE,
@@ -14,9 +15,11 @@ calculate_pca(
 )
 }
 \arguments{
-\item{dat}{Data frame, edgeR DGEList, or limma EList object containing gene counts in libraries}
+\item{dat}{edgeR DGEList, or limma EList object containing gene counts in libraries. If provided, counts and meta are ignored}
 
-\item{meta}{Data frame containing meta data with vars. Only needed if dat is a counts table and not an edgeR or limma object}
+\item{counts}{Data frame or matrix containing gene counts in libraries}
+
+\item{meta}{Data frame or matrix containing meta data with vars. Only needed if using counts, not dat}
 
 \item{scale}{Logical if should scale variance in PCA calculation see stats::prcomp for details. Default is FALSE}
 

@@ -15,7 +15,8 @@
 #' calculate_pca(kimma::example.voom,scale = TRUE)
 #' calculate_pca(kimma::example.count,meta=kimma::example.dat$samples,transform_logCPM = TRUE)
 
-calculate_pca <- function(dat, meta = NULL,
+calculate_pca <- function(dat = NULL,
+                          counts = NULL, meta = NULL,
                           scale = FALSE, transform_logCPM = FALSE,
                           force = FALSE,
                           libraryID = "libID"){
@@ -26,21 +27,24 @@ calculate_pca <- function(dat, meta = NULL,
 
   # check if PCA data already exists
   # if dat is a df or matrix then it wont have the PCA data
-  if(!(is.data.frame(dat) | is.matrix(dat))){
+  if(!(is.null(dat))){
     if(scale){
       if(!is.null(dat$PCA.scaled) & !force){
-        stop("You've already calculated scaled PCA, if you want to re-run please set force=TRUE")
+        stop("You've already calculated scaled PCA. If you want to re-run, please set force=TRUE")
       }
     }else{
       if(!is.null(dat$PCA.unscaled) & !force){
-        stop("You've already calculated unscaled PCA, if you want to re-run please set force=TRUE")
+        stop("You've already calculated unscaled PCA. If you want to re-run, please set force=TRUE")
       }
     }
   }
 
   #common errors
-  if((is.data.frame(dat) | is.matrix(dat)) & is.null(meta)){
-    stop("meta must be provided when dat is a counts table.")
+  if(!is.null(dat) & !is.null(counts)){
+    stop("Only provide one of dat or counts.")
+  }
+  if(!is.null(counts) & is.null(meta)){
+    stop("meta must be provided when counts is used.")
   }
 
   #Extract metadata table
@@ -55,7 +59,7 @@ calculate_pca <- function(dat, meta = NULL,
     count.df <- dat$counts
   } else if (any(class(dat) == "EList")){
     count.df <- dat$E
-  } else { count.df <- dat }
+  } else { count.df <- counts }
 
   #Move rownames if in data frame
   if(!is.numeric(as.matrix(count.df))){
@@ -78,16 +82,16 @@ calculate_pca <- function(dat, meta = NULL,
     dplyr::mutate(pct.var = summary(PCA)$importance[2,PC])
 
   # If not a voom object, create list and add PCA data
-  if((is.data.frame(dat) | is.matrix(dat))){
+  if(is.null(dat)){
     dat.out <- list()
-    dat.out$counts <- dat
+    dat.out$counts <- counts
     dat.out$samples <- meta
     if(scale){
       dat.out$PCA.scaled <- pca.dat
     }else{
       dat.out$PCA.unscaled <- pca.dat
     }
-  }else{ # if voom, add pca data to $PCA.scaled/PCA.unscaled
+  }else{ # if voom or edgeR, add pca data to $PCA.scaled/PCA.unscaled
     dat.out <- dat
     if(scale){
       dat.out$PCA.scaled <- pca.dat
