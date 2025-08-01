@@ -9,6 +9,7 @@
 #' @param scale Logical if should scale variance in PCA calculation see stats::prcomp for details. Default is FALSE
 #' @param outlier_sd Numeric. If vars includes "outlier", statistical outliers are determined and colored based on this standard deviation along PC1 and PC2.
 #' @param outlier_group Character string in which to group sd calculations
+#' @param outlier_label Character string of variable to label outlying libraries with
 #' @param transform_logCPM Logical if should convert counts to log counts per million
 #' @param libraryID Character of variable name to match dat meta data frames
 #'
@@ -24,7 +25,8 @@ plot_pca <- function(dat = NULL,
                      counts = NULL, meta = NULL,
                      vars, PCx=1, PCy=2,
                      scale = FALSE, outlier_sd = 3,
-                     outlier_group = NULL, transform_logCPM = FALSE,
+                     outlier_group = NULL, outlier_label = NULL,
+                     transform_logCPM = FALSE,
                      libraryID = "libID"){
   PCx.max <- PCx.mean <- PCx.min <- PCx.sd <- PCy.max <- PCy.mean <- PCy.min <- PCy.sd <- col.group <- NULL
 
@@ -153,16 +155,20 @@ plot_pca <- function(dat = NULL,
                                           y = .data[[PCy_name]],
                                           color = col.group)) +
       ggplot2::geom_point(size=3) +
-      ggrepel::geom_text_repel(data=dplyr::filter(pca.dat.sd,
-                                  col.group == "yes"),
-                               ggplot2::aes(label=get(libraryID)),
-                               show.legend = FALSE, max.overlaps = Inf) +
       #Beautify
       ggplot2::theme_classic() +
       ggplot2::labs(x=PC1.label, y=PC2.label,
                     color=paste0("Std dev > ", outlier_sd, "X")) +
       ggplot2::coord_fixed(ratio=1) +
       ggplot2::scale_color_manual(values = c("#969696","#b10026"))
+
+    if(!is.null(outlier_label)){
+      plot2 <- plot2 +
+        ggrepel::geom_text_repel(data=dplyr::filter(pca.dat.sd,
+                                                    col.group == "yes"),
+                                 ggplot2::aes(label = .data[[outlier_label]]),
+                                 show.legend = FALSE, max.overlaps = Inf)
+    }
 
     plot.ls[["outlier"]] <- plot2
   }

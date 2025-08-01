@@ -7,6 +7,7 @@
 #' @param scale Logical if you want to use scaled PCA values or not. see stats::prcomp for details. Default is FALSE
 #' @param outlier_sd Numeric. If vars includes "outlier", statistical outliers are determined and colored based on this standard deviation along PC1 and PC2.
 #' @param outlier_group Character string in which to group sd calculations
+#' @param outlier_label Character string of variable to label outlying libraries with
 #' @param libraryID Character of variable name to match dat meta data frames
 #'
 #' @returns List of ggplot objects
@@ -20,7 +21,7 @@
 
 plot_pca2 <- function(dat, vars, PCx=1, PCy=2,
                       scale = FALSE, outlier_sd = 3,
-                      outlier_group = NULL,
+                      outlier_group = NULL, outlier_label = NULL,
                       libraryID = "libID"){
 
   PC <- PCx.max <- PCx.mean <- PCx.min <- PCx.sd <- PCy.max <- PCy.mean <- PCy.min <- PCy.sd <- col.group <- pct.var <- NULL
@@ -147,10 +148,6 @@ plot_pca2 <- function(dat, vars, PCx=1, PCy=2,
                                           y = .data[[PCy_name]],
                                           color = col.group)) +
       ggplot2::geom_point(size=3) +
-      ggrepel::geom_text_repel(data=dplyr::filter(pca.dat.sd,
-                                                  col.group == "yes"),
-                               ggplot2::aes(label=get(libraryID)),
-                               show.legend = FALSE, max.overlaps = Inf) +
       #Beautify
       ggplot2::theme_classic() +
       ggplot2::labs(x=PC1.label, y=PC2.label,
@@ -158,6 +155,13 @@ plot_pca2 <- function(dat, vars, PCx=1, PCy=2,
       ggplot2::coord_fixed(ratio=1) +
       ggplot2::scale_color_manual(values = c("#969696","#b10026"))
 
+    if(!is.null(outlier_label)){
+      plot2 <- plot2 +
+        ggrepel::geom_text_repel(data=dplyr::filter(pca.dat.sd,
+                                                    col.group == "yes"),
+                                 ggplot2::aes(label = .data[[outlier_label]]),
+                                 show.legend = FALSE, max.overlaps = Inf)
+    }
     plot.ls[["outlier"]] <- plot2
   }
 
