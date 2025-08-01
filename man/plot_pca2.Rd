@@ -12,6 +12,7 @@ plot_pca2(
   scale = FALSE,
   outlier_sd = 3,
   outlier_group = NULL,
+  outlier_label = NULL,
   libraryID = "libID"
 )
 }
@@ -30,6 +31,8 @@ plot_pca2(
 
 \item{outlier_group}{Character string in which to group sd calculations}
 
+\item{outlier_label}{Character string of variable to label outlying libraries with}
+
 \item{libraryID}{Character of variable name to match dat meta data frames}
 }
 \value{
@@ -40,6 +43,6 @@ Plot PCA colored by variables (does not calculate PCA. see calculate_pca( ))
 }
 \examples{
 dat <- calculate_pca(dat = kimma::example.voom)
-plot_pca(dat = dat, var=c("virus","outlier"))
-plot_pca(dat = dat, var=c("virus","outlier"), PCx=1, PCy=3)
+plot_pca(dat = dat, vars=c("virus","outlier"))
+plot_pca(dat = dat, vars=c("virus","outlier"), PCx=1, PCy=3)
 }
