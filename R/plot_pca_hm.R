@@ -114,7 +114,8 @@ plot_pca_hm <- function(dat,vars,scale=FALSE,corr_type="pearson",
       ggplot2::scale_y_discrete(expand=c(0,0)) +
       ggplot2::theme(axis.text.x = ggplot2::element_text(angle=45,hjust=-0.01)) +
       ggplot2::xlab("") + ggplot2::ylab("") +
-      ggplot2::scale_fill_gradient2(low = "blue", mid = "white", high = "red", midpoint = 0,name = "Correlation") +
+      ggplot2::scale_fill_gradient2(low = "blue", mid = "white", high = "red",
+                                    midpoint = 0,name = corr_type) +
       ggplot2::coord_fixed()
 
     if(show_signif_p){
@@ -133,7 +134,8 @@ plot_pca_hm <- function(dat,vars,scale=FALSE,corr_type="pearson",
       ggplot2::scale_y_discrete(expand=c(0,0)) +
       ggplot2::theme(axis.text.x = ggplot2::element_text(angle=45,hjust=-0.01)) +
       ggplot2::xlab("") + ggplot2::ylab("") +
-      ggplot2::scale_fill_gradient2(low = "blue", mid = "white", high = "red", midpoint = 0,name = "Correlation") +
+      ggplot2::scale_fill_gradient2(low = "blue", mid = "white", high = "red",
+                                    midpoint = 0, name = corr_type) +
       ggplot2::coord_fixed()
     if(show_signif_p){
       plot <- plot +
