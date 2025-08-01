@@ -3,7 +3,7 @@
 #' @param dat edgeR DGEList, limma EList, or list object containing gene counts in libraries, metadata, and PCA calculations from calculate_pca()
 #' @param vars Character vector of variables to color PCA by
 #' @param scale Logical if should scale variance in PCA calculation see stats::prcomp for details. Default is FALSE
-#' @param corr_type Character of correlation metric to use. Options: pearson or spearman. Default is pearson
+#' @param corr_type Character of correlation metric to use. Options: pearson,  spearman, or kendall. Default is pearson
 #' @param pct_cutoff Numeric cutoff value for percent explained by PC (0 to 1). Default is 0.01 (1%)
 #' @param flip_axes Logical whether to swap x and y axes. Default is FALSE
 #' @param show_signif_p Logical whether to show correlation significance. Default is TRUE
@@ -28,7 +28,7 @@ plot_pca_hm <- function(dat,vars,scale=FALSE,corr_type="pearson",
     stop("Input should be DEGList, EList, or list. Maybe you need to run calculate_pca first?")
   }
   # check corr_type
-  if(!(corr_type %in% c("pearson","spearman"))){
+  if(!(corr_type %in% c("pearson","spearman","kendall"))){
     stop(paste0("Unrecognized corr_type: ",corr_type))
   }
 

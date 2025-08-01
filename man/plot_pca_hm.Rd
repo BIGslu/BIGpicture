@@ -23,7 +23,7 @@ plot_pca_hm(
 
 \item{scale}{Logical if should scale variance in PCA calculation see stats::prcomp for details. Default is FALSE}
 
-\item{corr_type}{Character of correlation metric to use. Options: pearson or spearman. Default is pearson}
+\item{corr_type}{Character of correlation metric to use. Options: pearson,  spearman, or kendall. Default is pearson}
 
 \item{pct_cutoff}{Numeric cutoff value for percent explained by PC (0 to 1). Default is 0.01 (1\%)}
 
