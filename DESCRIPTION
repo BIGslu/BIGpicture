@@ -1,6 +1,6 @@
 Package: BIGpicture
 Title: Standard Plots for BIGslu
-Version: 1.2.1
+Version: 1.2.2
 Authors@R: 
     person(given = "Kim",
            family = "Dill-McFarland",
@@ -29,6 +29,7 @@ Imports:
     igraph (>= 2.1.4),
     magrittr,
     patchwork,
+    rlang,
     STRINGdb (>= 2.20.0), 
     scales,
     scatterpie,
