@@ -5,7 +5,8 @@
 \title{Plot PCA colored by variables of interest}
 \usage{
 plot_pca(
-  dat,
+  dat = NULL,
+  counts = NULL,
   meta = NULL,
   vars,
   PCx = 1,
@@ -13,14 +14,17 @@ plot_pca(
   scale = FALSE,
   outlier_sd = 3,
   outlier_group = NULL,
+  outlier_label = NULL,
   transform_logCPM = FALSE,
   libraryID = "libID"
 )
 }
 \arguments{
-\item{dat}{Data frame, edgeR DGEList, or limma EList object containing gene counts in libraries}
+\item{dat}{edgeR DGEList or limma EList object containing gene counts in libraries}
 
-\item{meta}{Data frame containing meta data with vars. Only needed if dat is a counts table and not an edgeR or limma object}
+\item{counts}{Data frame containing gene counts in libraries}
+
+\item{meta}{Data frame containing meta data with vars. Only needed if counts is a counts table}
 
 \item{vars}{Character vector of variables to color PCA by}
 
@@ -34,6 +38,8 @@ plot_pca(
 
 \item{outlier_group}{Character string in which to group sd calculations}
 
+\item{outlier_label}{Character string of variable to label outlying libraries with}
+
 \item{transform_logCPM}{Logical if should convert counts to log counts per million}
 
 \item{libraryID}{Character of variable name to match dat meta data frames}
@@ -45,6 +51,8 @@ List of ggplot objects
 Plot PCA colored by variables of interest
 }
 \examples{
-plot_pca(kimma::example.voom, vars=c("virus","outlier"))
-plot_pca(kimma::example.voom, vars=c("virus","outlier"), PCx=1, PCy=3)
+plot_pca(dat = kimma::example.voom, vars=c("virus","outlier"))
+plot_pca(dat = kimma::example.voom, vars=c("virus","outlier"), PCx=1, PCy=3)
+plot_pca(counts = kimma::example.count, meta = kimma::example.voom$targets,
+         vars=c("virus","outlier"), transform_logCPM = TRUE)
 }
