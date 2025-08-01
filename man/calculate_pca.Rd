@@ -2,7 +2,7 @@
 % Please edit documentation in R/calculate_pca.R
 \name{calculate_pca}
 \alias{calculate_pca}
-\title{Calculate PCA}
+\title{Calculate PCA. Input either voom object or counts and metadata tables}
 \usage{
 calculate_pca(
   dat,
@@ -31,7 +31,7 @@ If a voom object is input, returns voom object with $PCA.scaled or $PCA.unscaled
 If a data frame or matrix of counts is input, returns a list with slots $counts, $samples, and $PCA.scaled or $PCA.unscaled slot depending of if scale=TRUE or FALSE
 }
 \description{
-Calculate PCA
+Calculate PCA. Input either voom object or counts and metadata tables
 }
 \examples{
 calculate_pca(kimma::example.voom,scale = TRUE)

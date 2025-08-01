@@ -1,11 +1,7 @@
-# can provide either voom input or counts table (counts requires metadata also)
-# if voom provided, outputs voom object with PCA.scaled or PCA.unscaled slot
-# if count provided, outputs a list object with $counts, $samples, $PCA.scaled/PCA.unscaled
-
-#' Calculate PCA
-#'
-#' @param dat Data frame, edgeR DGEList, or limma EList object containing gene counts in libraries
-#' @param meta Data frame containing meta data with vars. Only needed if dat is a counts table and not an edgeR or limma object
+#' Calculate PCA. Input either voom object or counts and metadata tables
+#' @param dat edgeR DGEList, or limma EList object containing gene counts in libraries. If provided, counts and meta are ignored
+#' @param counts Data frame or matrix containing gene counts in libraries
+#' @param meta Data frame or matrix containing meta data with vars. Only needed if using counts, not dat
 #' @param scale Logical if should scale variance in PCA calculation see stats::prcomp for details. Default is FALSE
 #' @param transform_logCPM Logical if should convert counts to log counts per million
 #' @param force If you already ran PCA but want to overwrite previous results set force=TRUE (default is FALSE)
@@ -21,7 +17,7 @@
 
 calculate_pca <- function(dat, meta = NULL,
                           scale = FALSE, transform_logCPM = FALSE,
-                          force=FALSE,
+                          force = FALSE,
                           libraryID = "libID"){
 
   # PC1 <- PC2 <- PC1.max <- PC1.mean <- PC1.min <- PC1.sd <- PC2.max <- PC2.mean <- PC2.min <- PC2.sd <- col.group <- libID <- sd  <- NULL
@@ -41,7 +37,6 @@ calculate_pca <- function(dat, meta = NULL,
       }
     }
   }
-
 
   #common errors
   if((is.data.frame(dat) | is.matrix(dat)) & is.null(meta)){
