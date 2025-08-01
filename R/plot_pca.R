@@ -13,6 +13,7 @@
 #' @param libraryID Character of variable name to match dat meta data frames
 #'
 #' @return List of ggplot objects
+#' @importFrom rlang .data
 #' @export
 #'
 #' @examples
@@ -25,8 +26,10 @@ plot_pca <- function(dat = NULL,
                      scale = FALSE, outlier_sd = 3,
                      outlier_group = NULL, transform_logCPM = FALSE,
                      libraryID = "libID"){
+  PCx.max <- PCx.mean <- PCx.min <- PCx.sd <- PCy.max <- PCy.mean <- PCy.min <- PCy.sd <- col.group <- NULL
 
-  PC1 <- PC2 <- PC1.max <- PC1.mean <- PC1.min <- PC1.sd <- PC2.max <- PC2.mean <- PC2.min <- PC2.sd <- col.group <- libID <- sd  <- NULL
+  PCx_name <- paste0("PC", PCx)
+  PCy_name <- paste0("PC", PCy)
 
   #common errors
   if(!is.null(dat) & !is.null(counts)){
@@ -101,46 +104,54 @@ plot_pca <- function(dat = NULL,
         dplyr::group_by(dplyr::across(outlier_group)) %>%
         #Calculate PC mean std deviation
         dplyr::summarise(.groups="keep",
-                         PC1.mean = mean(PC1),
-                         PC1.sd = sd(PC1),
-                         PC2.mean = mean(PC2),
-                         PC2.sd = sd(PC2)) %>%
+                         PCx.mean = mean(.data[[PCx_name]]),
+                         PCx.sd = stats::sd(.data[[PCx_name]]),
+                         PCy.mean = mean(.data[[PCy_name]]),
+                         PCy.sd = stats::sd(.data[[PCy_name]])) %>%
         #Calculate +/- sd limits
         dplyr::mutate(
-          PC1.min = PC1.mean-(outlier_sd*PC1.sd),
-          PC1.max = PC1.mean+(outlier_sd*PC1.sd),
-          PC2.min = PC2.mean-(outlier_sd*PC2.sd),
-          PC2.max = PC2.mean+(outlier_sd*PC2.sd)) %>%
+          PCx.min = PCx.mean-(outlier_sd*PCx.sd),
+          PCx.max = PCx.mean+(outlier_sd*PCx.sd),
+          PCy.min = PCy.mean-(outlier_sd*PCy.sd),
+          PCy.max = PCy.mean+(outlier_sd*PCy.sd)) %>%
         #add to PCA data
         dplyr::full_join(pca.dat, by=outlier_group) %>%
         #ID potential outliers
-        dplyr::mutate(col.group = ifelse(PC1 > PC1.max | PC1 < PC1.min |
-                                           PC2 > PC2.max | PC2 < PC2.min,
-                                         "yes", "no"))
+        dplyr::mutate(col.group = ifelse(
+          .data[[PCx_name]] > PCx.max |
+            .data[[PCx_name]] < PCx.min |
+            .data[[PCy_name]] > PCy.max |
+            .data[[PCy_name]] < PCy.min,
+          "yes", "no"))
     } else {
       dat.sd <- pca.dat %>%
+        dplyr::ungroup() %>%
         #Calculate PC mean std deviation
-        dplyr::summarise(.groups="keep",
-                         PC1.mean = mean(PC1),
-                         PC1.sd = sd(PC1),
-                         PC2.mean = mean(PC2),
-                         PC2.sd = sd(PC2)) %>%
+        dplyr::summarise(PCx.mean = mean(.data[[PCx_name]]),
+                         PCx.sd = stats::sd(.data[[PCx_name]]),
+                         PCy.mean = mean(.data[[PCy_name]]),
+                         PCy.sd = stats::sd(.data[[PCy_name]])) %>%
         #Calculate +/- sd limits
         dplyr::mutate(
-          PC1.min = PC1.mean-(outlier_sd*PC1.sd),
-          PC1.max = PC1.mean+(outlier_sd*PC1.sd),
-          PC2.min = PC2.mean-(outlier_sd*PC2.sd),
-          PC2.max = PC2.mean+(outlier_sd*PC2.sd))
+          PCx.min = PCx.mean-(outlier_sd*PCx.sd),
+          PCx.max = PCx.mean+(outlier_sd*PCx.sd),
+          PCy.min = PCy.mean-(outlier_sd*PCy.sd),
+          PCy.max = PCy.mean+(outlier_sd*PCy.sd))
 
-      #Calculate SD
+      #ID potential outliers
       pca.dat.sd <- pca.dat %>%
-        #ID potential outliers
-        dplyr::mutate(col.group = ifelse(PC1 > dat.sd$PC1.max | PC1 < dat.sd$PC1.min |
-                                           PC2 > dat.sd$PC2.max | PC2 < dat.sd$PC2.min,
-                                         "yes", "no"))
+        dplyr::mutate(col.group = ifelse(
+          .data[[PCx_name]] > dat.sd$PCx.max |
+            .data[[PCx_name]] < dat.sd$PCx.min |
+            .data[[PCy_name]] > dat.sd$PCy.max |
+            .data[[PCy_name]] < dat.sd$PCy.min,
+          "yes", "no"))
       }
 
-    plot2 <- ggplot2::ggplot(pca.dat.sd, ggplot2::aes(PC1, PC2, color=col.group)) +
+    plot2 <- ggplot2::ggplot(pca.dat.sd,
+                             ggplot2::aes(x = .data[[PCx_name]],
+                                          y = .data[[PCy_name]],
+                                          color = col.group)) +
       ggplot2::geom_point(size=3) +
       ggrepel::geom_text_repel(data=dplyr::filter(pca.dat.sd,
                                   col.group == "yes"),
