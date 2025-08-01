@@ -14,12 +14,15 @@
 #' @export
 #'
 #' @examples
-#' dat_PCA <- calculate_pca(kimma::example.voom,scale=TRUE)
-#' plot_pca_hm(dat_PCA,vars = c("median_cv_coverage","lib.size"),scale=TRUE,flip_axes = TRUE)
-plot_pca_hm <- function(dat,vars,scale=FALSE,corr_type="pearson",
-                        pct_cutoff = 0.01,flip_axes=FALSE,
-                        show_signif_p=TRUE,signif_p_cutoff=0.05,
-                        libraryID="libID"){
+#' dat_PCA <- calculate_pca(dat = kimma::example.voom, scale=TRUE)
+#' plot_pca_hm(dat_PCA,
+#'             vars = c("median_cv_coverage","lib.size"),
+#'             scale=TRUE, flip_axes = TRUE)
+
+plot_pca_hm <- function(dat, vars, scale = FALSE, corr_type = "pearson",
+                        pct_cutoff = 0.01, flip_axes = FALSE,
+                        show_signif_p = TRUE, signif_p_cutoff = 0.05,
+                        libraryID = "libID"){
 
   P <- PC <- PC_num <- PClabel <- pct.var <- sig_label <- var <- NULL
 

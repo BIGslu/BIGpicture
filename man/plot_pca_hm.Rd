@@ -42,6 +42,8 @@ ggplot2 object
 Plot PCA Correlation Heatmap (does not calculate PCA)
 }
 \examples{
-dat_PCA <- calculate_pca(kimma::example.voom,scale=TRUE)
-plot_pca_hm(dat_PCA,vars = c("median_cv_coverage","lib.size"),scale=TRUE,flip_axes = TRUE)
+dat_PCA <- calculate_pca(dat = kimma::example.voom, scale=TRUE)
+plot_pca_hm(dat_PCA,
+            vars = c("median_cv_coverage","lib.size"),
+            scale=TRUE, flip_axes = TRUE)
 }
