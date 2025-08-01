@@ -37,6 +37,8 @@ If a data frame or matrix of counts is input, returns a list with slots $counts,
 Calculate PCA. Input either voom object or counts and metadata tables
 }
 \examples{
-calculate_pca(kimma::example.voom,scale = TRUE)
-calculate_pca(kimma::example.count,meta=kimma::example.dat$samples,transform_logCPM = TRUE)
+calculate_pca(dat = kimma::example.voom, scale = TRUE)
+calculate_pca(counts = kimma::example.count,
+              meta = kimma::example.dat$samples,
+              transform_logCPM = TRUE)
 }
