@@ -39,6 +39,7 @@ List of ggplot objects
 Plot PCA colored by variables (does not calculate PCA. see calculate_pca( ))
 }
 \examples{
-plot_pca(calculate_pca(kimma::example.voom), var=c("virus","outlier"))
-plot_pca(calculate_pca(kimma::example.voom), var=c("virus","outlier"), PCx=1, PCy=3)
+dat <- calculate_pca(dat = kimma::example.voom)
+plot_pca(dat = dat, var=c("virus","outlier"))
+plot_pca(dat = dat, var=c("virus","outlier"), PCx=1, PCy=3)
 }
