@@ -79,7 +79,7 @@ plot_pca_hm <- function(dat, vars, scale = FALSE, corr_type = "pearson",
   pcs <- pca.df$PC
 
   sub_pca.dat <- pca.dat %>%
-    dplyr::select(dplyr::contains("PC"),dplyr::all_of(vars))
+    dplyr::select(dplyr::all_of(pcs),dplyr::all_of(vars))
 
   #Convert categorical to numeric
   for(var in vars){
