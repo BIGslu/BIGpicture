@@ -238,8 +238,8 @@ plot_enrichgrid <- function(df = NULL, df_group = NULL,
     count_df_format$color <- scale_values(count_df_format$value)
 
 
-    p1 <- ggplot2::ggplot(count_df_format, ggplot2::aes(x = factor(gene, levels = x_levels),
-                                                        y = factor(geneset, levels = y_levels),
+    p1 <- ggplot2::ggplot(count_df_format, ggplot2::aes(x = factor(gene, levels = unique(x_levels)),
+                                                        y = factor(geneset, levels = unique(y_levels)),
                                                         fill = color)) +
       ggplot2::geom_tile(color = "grey30") +
 
@@ -268,8 +268,8 @@ plot_enrichgrid <- function(df = NULL, df_group = NULL,
         tilecols_cutoff <- c("0" = "#FFFFFF", "1" = "#80A0C6")
       }
 
-      p1 <- ggplot2::ggplot(count_df_format, ggplot2::aes(x = factor(gene, levels = x_levels),
-                                                          y = factor(geneset, levels = y_levels),
+      p1 <- ggplot2::ggplot(count_df_format, ggplot2::aes(x = factor(gene, levels = unique(x_levels)),
+                                                          y = factor(geneset, levels = unique(y_levels)),
                                                           fill = as.character(color))) +
         ggplot2::geom_tile(color = "grey30") +
 
@@ -288,7 +288,7 @@ plot_enrichgrid <- function(df = NULL, df_group = NULL,
   }
 
   # GS Size column
-  p3 <- ggplot2::ggplot(df.sub, ggplot2::aes(x = factor(gs , levels = y_levels), y = rep(1, length(y_levels)))) +
+  p3 <- ggplot2::ggplot(df, ggplot2::aes(x = factor(gs , levels = unique(y_levels)), y = rep(1, length(y_levels)))) +
     #ggplot2::geom_tile(fill = "white", width = 0.5) +
     ggplot2::ggtitle("GS\nsize") +
     ggplot2::geom_text(ggplot2::aes(label = gssize), size = 4) +
@@ -307,7 +307,7 @@ plot_enrichgrid <- function(df = NULL, df_group = NULL,
   ### Make charts of k/K and fdr values ###
   if(chart_style == "bar"){
     # k/K bar
-    p2 <- ggplot2::ggplot(df.sub, ggplot2::aes(x=factor(gs , levels = y_levels), y=ratio)) +
+    p2 <- ggplot2::ggplot(df, ggplot2::aes(x=factor(gs , levels = unique(y_levels)), y=ratio)) +
       ggplot2::geom_bar(stat = "identity", fill = "#f43545") +
       ggplot2::ggtitle("k/K") +
       #ggplot2::geom_text(aes(label = paste0(overlap, "/", gssize)), color = "black", fontface = "bold", size = 4) +
@@ -326,7 +326,7 @@ plot_enrichgrid <- function(df = NULL, df_group = NULL,
     # ggplot2::scale_x_discrete(position = "bottom", labels = function(gs) str_wrap(gs, width = 50))
 
     # FDR bar
-    p4 <- ggplot2::ggplot(df.sub, ggplot2::aes(x= factor(gs , levels = y_levels), y= -log10(fdr))) +
+    p4 <- ggplot2::ggplot(df, ggplot2::aes(x= factor(gs , levels = unique(y_levels)), y= -log10(fdr))) +
       ggplot2::geom_bar(stat = "identity", fill = "#fa9801") +
       ggplot2::ggtitle("-log10 FDR") +
       ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5, size = titlesize),
@@ -375,8 +375,8 @@ plot_enrichgrid <- function(df = NULL, df_group = NULL,
 
 
 
-     p5 <- ggplot2::ggplot(df_lp, ggplot2::aes(x = factor(gs, levels = y_levels), y = ratio)) +
-      ggplot2::geom_segment(ggplot2::aes(factor(gs, levels = y_levels),
+     p5 <- ggplot2::ggplot(df_lp, ggplot2::aes(x = factor(gs, levels = unique(y_levels)), y = ratio)) +
+      ggplot2::geom_segment(ggplot2::aes(factor(gs, levels = unique(y_levels)),
                                          xend=gs, y=0, yend=ratio)) +
       ggplot2::geom_point(ggplot2::aes(fill = Significance,
                                        size = gssize_bin),
