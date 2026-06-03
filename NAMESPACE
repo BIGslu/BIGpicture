@@ -2,6 +2,7 @@
 
 export("%>%")
 export(get_hm_clust)
+export(make_corr_plot_matrix)
 export(map_string)
 export(plot_enrich)
 export(plot_enrich2)
