@@ -1,7 +1,7 @@
 #' Upset plots of significant genes
 #'
 #' @param model_result NAMED list of lists output by kimma::kmFit() such as list("model1"=model_result1, "model2"=model_result2)
-#' @param models Character vector of model(s) to plot. Must match object names in model_result. For example, "lm", "lme", "lmerel", "limma"
+#' @param models Character vector of model(s) to plot. Must match object names in model_result. For example, "lm", "lme", "lmerel", "limma" or similar with ".contrast"
 #' @param variables Character vector of variables in model_result to include in plots
 #' @param contrasts Character vector of contrasts in model_result to include in plots. Format is c("contrast_lvl - contrast_ref", "..."). Only applicable if model name includes 'contrast'
 #' @param intercept Logical if should include the intercept variable. Default is FALSE
@@ -24,22 +24,33 @@
 #' patchwork::wrap_plots(upset.result[["upset"]])
 #' #Plot 1 upset
 #' upset.result[["upset"]][["0.05"]]
-#' #see genes in intersections
+#' #see genes in intersections because return_genes = TRUE
 #' upset.result[["gene"]]
 #'
 #' # Multiple models, subset of variables
-#' model1 <- list("lme" = example.model$lme)
-#' model2 <- list("lmerel" = example.model$lmerel)
-#' plot_upset_genes(list("lme"=model1, "lmerel"=model2),
+#' plot_upset_genes(model_result = list("example.model" = example.model),
+#'     models = c("lme","lmerel"),
+#'     variables = c("virus","virus:asthma"),
+#'     fdr_cutoff = c(0.05))
+#' # Multiple models in two different objects, subset of variables
+#' plot_upset_genes(model_result = list("model1" = example.model[c(1,3,5)],
+#'                                      "model2" = example.model[c(2,4,6)]),
+#'     models = c("lme","lmerel"),
 #'     variables = c("virus","virus:asthma"),
 #'     fdr_cutoff = c(0.05))
 #'
 #' # Contrasts
-#' model1 <- list("lme" = example.model$lme.contrast)
-#' model2 <- list("lmerel" = example.model$lmerel.contrast)
-#' plot_upset_genes(model_result = list("lme"=model1, "lmerel"=model2),
-#'     contrasts = c("HRV asthma - none asthma"),
-#'     fdr_cutoff = c(0.4))
+#' plot_upset_genes(model_result = list("example.model" = example.model),
+#'     models = "lme.contrast",
+#'     contrasts = c("HRV asthma - none asthma",
+#'                   "HRV healthy - none healthy"),
+#'     fdr_cutoff = c(0.5))
+#' plot_upset_genes(model_result = list("model1" = example.model[c(1,3,5)],
+#'                                      "model2" = example.model[c(2,4,6)]),
+#'     models = c("lme.contrast","lmerel.contrast"),
+#'     contrasts = c("HRV asthma - none asthma",
+#'                   "HRV healthy - none healthy"),
+#'     fdr_cutoff = c(0.5))
 
 plot_upset_genes <- function(model_result, models=NULL,
                              variables=NULL, contrasts=NULL,
@@ -55,7 +66,7 @@ plot_upset_genes <- function(model_result, models=NULL,
   if(!is.null(fdr.cutoff)){fdr_cutoff <- fdr.cutoff}
 
   #common errors
-  if(!is.null(contrasts) & any(grepl("contrast", models))){
+  if(!is.null(contrasts) & !any(grepl("contrast", models))){
     stop("Must provide contrasts model when specifying contrasts.")
   }
 
@@ -70,8 +81,11 @@ plot_upset_genes <- function(model_result, models=NULL,
   for (fdr in fdr_cutoff){
     #list to hold gene vectors
     upset_dat <- data.frame()
-    #Significant at chosen FDR
-    dat_filter_signif <- dat_filter_all$dat %>% dplyr::filter(FDR < fdr)
+    dat_filter_signif <- dat_filter_all$dat %>%
+      #Significant at chosen FDR
+      dplyr::filter(FDR < fdr) %>%
+      #Fix label to 1 line
+      dplyr::mutate(label = gsub("\n"," ",label))
     # Vector of genes
     gene_all <- unique(dat_filter_signif$gene)
 
@@ -91,7 +105,7 @@ plot_upset_genes <- function(model_result, models=NULL,
     } else{
       upset_dat <- dat_filter_signif %>%
         dplyr::group_by(gene) %>%
-        dplyr::summarise(variables=list(variable))
+        dplyr::summarise(variables=list(label))
     }
 
     #total genes in upset
@@ -112,7 +126,7 @@ plot_upset_genes <- function(model_result, models=NULL,
                            axis.line = ggplot2::element_line(color = "black"),
                            legend.key = ggplot2::element_blank(),
                            strip.background = ggplot2::element_rect(fill = "white",
-                                                           color = "black")) +
+                                                                    color = "black")) +
             ggplot2::xlab(paste0("variables (FDR < ", fdr, ")"))
         )
     }

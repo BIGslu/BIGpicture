@@ -11,7 +11,7 @@ plot_genes(
   genes = NULL,
   fdr = NULL,
   libraryID = "libID",
-  geneID = "ensembl_gene_id",
+  geneID = "geneName",
   subset_genes = NULL,
   variables,
   colorID = NULL,

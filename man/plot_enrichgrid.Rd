@@ -6,6 +6,7 @@
 \usage{
 plot_enrichgrid(
   df = NULL,
+  df_group = NULL,
   fdr_cutoff = 0.2,
   pathway_col = "pathway",
   gene_col = "genes",
@@ -15,15 +16,17 @@ plot_enrichgrid(
   custom_genelist = NULL,
   x_grouping_method = "geneset",
   y_grouping_method = "fdr",
-  prevalence_color = "none",
+  prevalence_color = "heatmap",
   prevalence_cutoff = NULL,
   chart_style = "bar",
   include_grid = TRUE,
-  lollipop_fdr_colors = c(0.001, 0.01, 0.05, 0.1, 0.2)
+  fdr_binned_colors = c(0.001, 0.01, 0.05, 0.1, 0.2)
 )
 }
 \arguments{
 \item{df}{Data frame output by SEARchways::BIGprofiler or SEARchways::flexEnrich}
+
+\item{df_group}{Character string. Level of df$group to plot}
 
 \item{fdr_cutoff}{Numeric. Maximum FDR to plot. Default is 0.2.}
 
@@ -51,7 +54,7 @@ plot_enrichgrid(
 
 \item{include_grid}{Boolean. Whether or not to include the gene x gene set grid in the final plot. Default is TRUE.}
 
-\item{lollipop_fdr_colors}{Numeric vector. Cutoffs for binned FDR value color groups for lollipop plots. Default is c(0.001, 0.01, 0.05, 0.1, 0.2).}
+\item{fdr_binned_colors}{Numeric vector. Cutoffs for binned FDR value color groups for lollipop plots. Default is c(0.001, 0.01, 0.05, 0.1, 0.2).}
 }
 \value{
 ggplot2 object
@@ -68,5 +71,5 @@ gene_list <- list(HRV1 = names(example.gene.list[[1]]),
 enrich <- flexEnrich(gene_list, ID="ENSEMBL", collection="H")
 
 #Plot
-plot_enrichgrid(enrich, fdr_cutoff = 0.5)
+plot_enrichgrid(enrich, df_group = "HRV2", fdr_cutoff = 0.5)
 }

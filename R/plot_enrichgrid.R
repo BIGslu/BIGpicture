@@ -1,6 +1,7 @@
 #' Plotting function for hypergeometric enrichment
 #'
 #' @param df Data frame output by SEARchways::BIGprofiler or SEARchways::flexEnrich
+#' @param df_group Character string. Level of df$group to plot
 #' @param fdr_cutoff Numeric. Maximum FDR to plot. Default is 0.2.
 #' @param pathway_col String. Column name for df column containing gene set names.
 #' @param gene_col String. Column name for df column containing gene lists names. Required if "include_grid == TRUE".
@@ -14,7 +15,7 @@
 #' @param prevalence_cutoff Numeric. Cutoff for coloring genes by prevalence in plotted gene sets. Required if 'prevalence_color == "cutoff"'.
 #' @param chart_style String. Options are "bar" and "lollipop". Default is "bar".
 #' @param include_grid Boolean. Whether or not to include the gene x gene set grid in the final plot. Default is TRUE.
-#' @param lollipop_fdr_colors Numeric vector. Cutoffs for binned FDR value color groups for lollipop plots. Default is c(0.001, 0.01, 0.05, 0.1, 0.2).
+#' @param fdr_binned_colors Numeric vector. Cutoffs for binned FDR value color groups for lollipop plots. Default is c(0.001, 0.01, 0.05, 0.1, 0.2).
 #'
 #' @return ggplot2 object
 #' @export
@@ -28,65 +29,75 @@
 #' enrich <- flexEnrich(gene_list, ID="ENSEMBL", collection="H")
 #'
 #' #Plot
-#' plot_enrichgrid(enrich, fdr_cutoff = 0.5)
+#' plot_enrichgrid(enrich, df_group = "HRV2", fdr_cutoff = 0.5)
 
 
-plot_enrichgrid <- function(df = NULL,
-                         fdr_cutoff = 0.2,
-                         pathway_col = "pathway",
-                         gene_col = "genes",
-                         ratio_col = "k/K",
-                         fdr_col = "FDR",
-                         gssize_col = "n_pathway_genes",
-                         custom_genelist = NULL,
-                         x_grouping_method = "geneset",
-                         y_grouping_method = "fdr",
-                         prevalence_color = "none",
-                         prevalence_cutoff = NULL,
-                         chart_style = "bar",
-                         include_grid = TRUE,
-                         lollipop_fdr_colors = c(0.001, 0.01, 0.05, 0.1, 0.2)
+plot_enrichgrid <- function(df = NULL, df_group = NULL,
+                            fdr_cutoff = 0.2,
+                            pathway_col = "pathway",
+                            gene_col = "genes",
+                            ratio_col = "k/K",
+                            fdr_col = "FDR",
+                            gssize_col = "n_pathway_genes",
+                            custom_genelist = NULL,
+                            x_grouping_method = "geneset",
+                            y_grouping_method = "fdr",
+                            prevalence_color = "heatmap",
+                            prevalence_cutoff = NULL,
+                            chart_style = "bar",
+                            include_grid = TRUE,
+                            fdr_binned_colors = c(0.001, 0.01, 0.05, 0.1, 0.2)
 ){
 
-  fdr <- size <- gs <- gssize <- ratio <- desc <- prev <- gene <- geneset <- color <- Significance <- gssize_bin <- NULL
+  fdr <- size <- gs <- gssize <- ratio <- desc <- prev <- gene <- geneset <- color <- Significance <- gssize_bin <- group <- NULL
+
+  ### Check data ####
+  group.tot <- length(unique(df$group))
+  if(group.tot>1 & is.null(df_group)){ stop("More than one group exists in df. Please set group parameter.")}
+  if(!is.null(df_group)){
+    df.sub <- df %>% dplyr::filter(group==df_group)
+  } else{
+    df.sub <- df
+  }
+
+
   ### Format input ###
   # rename columns
-  df$gs <- df[[pathway_col]]
-  df$gns <- df[[gene_col]]
-  df$fdr <- df[[fdr_col]]
-  df$ratio <- df[[ratio_col]]
+  df.sub$gs <- df.sub[[pathway_col]]
+  df.sub$gns <- df.sub[[gene_col]]
+  df.sub$fdr <- df.sub[[fdr_col]]
+  df.sub$ratio <- df.sub[[ratio_col]]
 
 
   if(!is.null(gssize_col)){
-    df$gssize <- df[[gssize_col]]
+    df.sub$gssize <- df.sub[[gssize_col]]
   }
 
   # subset by FDR
-  if(is.null(df[[fdr_col]])){
+  if(is.null(df.sub[[fdr_col]])){
     stop("Your column name indicating FDR values is not valid. Please check.")
   } else{
-    df <- df %>%
+    df.sub <- df.sub %>%
       dplyr::filter(fdr < fdr_cutoff)
   }
 
   # get length of overlap for each set
   ov <- c()
-  for(i in 1:nrow(df)){
-    rowgenes <- df$gns[i]
+  for(i in 1:nrow(df.sub)){
+    rowgenes <- df.sub$gns[i]
     rowgenes <- unlist(rowgenes)
     ov <- c(ov, length(rowgenes))
   }
-  df$overlap <- ov
+  df.sub$overlap <- ov
 
 
   # get gene vector
   genevec <- c()
   if(!is.null(custom_genelist)){
     genevec <- custom_genelist
-  }
-  else{
-    for(i in 1:nrow(df)){
-      rowgenes <- df$gns[i]
+  }else{
+    for(i in 1:nrow(df.sub)){
+      rowgenes <- df.sub$gns[i]
       rowgenes <- unlist(rowgenes)
       genevec <- c(genevec,rowgenes)
     }
@@ -95,9 +106,9 @@ plot_enrichgrid <- function(df = NULL,
 
 
   # get pathways
-  gsvec <- df$gs
+  gsvec <- df.sub$gs
 
-  # make count df
+  # make count df.sub
   count_df <- matrix(ncol = length(genevec), nrow = length(gsvec))
   colnames(count_df) <- genevec
   rownames(count_df) <- gsvec
@@ -105,7 +116,7 @@ plot_enrichgrid <- function(df = NULL,
   ## make binary matrix
   for(i in 1:nrow(count_df)){
     set <- rownames(count_df)[i]
-    rowgenes <- df$gns[which(df$gs == set)]
+    rowgenes <- df.sub$gns[which(df.sub$gs == set)]
     rowgenes <- unlist(rowgenes)
     for(j in 1:ncol(count_df)){
       g <- colnames(count_df)[j]
@@ -116,10 +127,8 @@ plot_enrichgrid <- function(df = NULL,
 
   if(prevalence_color == "none"){
     count_df_format <- count_df
-  }
-
-  ## format binary matrix with prevalence cutoff
-  else if(prevalence_color %in% c("cutoff", "heatmap")){
+  } else if(prevalence_color %in% c("cutoff", "heatmap")){
+    ## format binary matrix with prevalence cutoff
     count_df_format <- count_df
     genesums <- colSums(count_df_format)
     gene_prevalence <- genesums/nrow(count_df_format) # calculate gene prevalence among selected gene sets
@@ -161,19 +170,19 @@ plot_enrichgrid <- function(df = NULL,
       dplyr::arrange(size) %>%
       dplyr::pull(gs)
   } else if(y_grouping_method == "gs_size"){ # size of gene set
-    y_levels <- df %>%
+    y_levels <- df.sub %>%
       dplyr::arrange(gssize) %>%
       dplyr::pull(gs)
   } else if(y_grouping_method == "ratio"){ # ratio of set genes in query
-    y_levels <- df %>%
+    y_levels <- df.sub %>%
       dplyr::arrange(ratio) %>%
       dplyr::pull(gs)
   } else if(y_grouping_method == "fdr"){
-    y_levels <- df %>%
+    y_levels <- df.sub %>%
       dplyr::arrange(desc(fdr)) %>%
       dplyr::pull(gs)
   } else if(y_grouping_method == "input"){
-    y_levels <- df %>%
+    y_levels <- df.sub %>%
       dplyr::pull(gs)
   } else{stop('Valid options for y_grouping_method are "hclust", "overlap_size", "gs_size", "ratio", "fdr", and "input".')}
 
@@ -278,7 +287,6 @@ plot_enrichgrid <- function(df = NULL,
     }
   }
 
-
   # GS Size column
   p3 <- ggplot2::ggplot(df, ggplot2::aes(x = factor(gs , levels = unique(y_levels)), y = rep(1, length(y_levels)))) +
     #ggplot2::geom_tile(fill = "white", width = 0.5) +
@@ -335,19 +343,19 @@ plot_enrichgrid <- function(df = NULL,
       ggplot2::coord_flip() +
       ggplot2::scale_y_continuous(position = "right",labels = scales::label_number(accuracy = 0.001))
   } else if(chart_style == "lollipop"){
-    fdr_colors.sort <- sort(lollipop_fdr_colors)
-    df$Significance <- NA
+    fdr_colors.sort <- sort(fdr_binned_colors)
+    df.sub$Significance <- NA
     fdr_levels <- c()
     for(i in 1:length(fdr_colors.sort)){
       if(i==1){
-        df$Significance[df$FDR < fdr_colors.sort[i]] <- paste("FDR < ", fdr_colors.sort[i])
+        df.sub$Significance[df.sub$FDR < fdr_colors.sort[i]] <- paste("FDR < ", fdr_colors.sort[i])
         fdr_levels <- c(fdr_levels, paste("FDR < ", fdr_colors.sort[i]))
       } else{
-        df$Significance[df$FDR < fdr_colors.sort[i] & df$FDR >= fdr_colors.sort[i-1]] <- paste("FDR < ", fdr_colors.sort[i])
+        df.sub$Significance[df.sub$FDR < fdr_colors.sort[i] & df.sub$FDR >= fdr_colors.sort[i-1]] <- paste("FDR < ", fdr_colors.sort[i])
         fdr_levels <- c(fdr_levels, paste("FDR < ", fdr_colors.sort[i]))
       }
     }
-    df_lp <- df %>%
+    df_lp <- df.sub %>%
       dplyr::mutate(Significance = factor(Significance, levels = fdr_levels))
 
 

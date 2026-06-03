@@ -1,16 +1,13 @@
-#' Plot PCA colored by variables of interest
+#' Plot PCA colored by variables (does not calculate PCA. see calculate_pca( ))
 #'
-#' @param dat edgeR DGEList or limma EList object containing gene counts in libraries
-#' @param counts Data frame containing gene counts in libraries
-#' @param meta Data frame containing meta data with vars. Only needed if counts is a counts table
+#' @param dat edgeR DGEList, limma EList, or list object containing gene counts in libraries, metadata, and PCA calculations from calculate_pca()
 #' @param vars Character vector of variables to color PCA by
-#' @param PCx Numeric value for PC to plot on x-axis. Default it 1
-#' @param PCy Numeric value for PC to plot on y-axis. Default it 2
-#' @param scale Logical if should scale variance in PCA calculation see stats::prcomp for details. Default is FALSE
+#' @param PCx Numeric value for PC to plot on x-axis. Default is 1
+#' @param PCy Numeric value for PC to plot on y-axis. Default is 2
+#' @param scale Logical if you want to use scaled PCA values or not. see stats::prcomp for details. Default is FALSE
 #' @param outlier_sd Numeric. If vars includes "outlier", statistical outliers are determined and colored based on this standard deviation along PC1 and PC2.
 #' @param outlier_group Character string in which to group sd calculations
 #' @param outlier_label Character string of variable to label outlying libraries with
-#' @param transform_logCPM Logical if should convert counts to log counts per million
 #' @param libraryID Character of variable name to match dat meta data frames
 #'
 #' @return List of ggplot objects
@@ -18,75 +15,69 @@
 #' @export
 #'
 #' @examples
-#' plot_pca(dat = kimma::example.voom, vars=c("virus","outlier"))
-#' plot_pca(dat = kimma::example.voom, vars=c("virus","outlier"), PCx=1, PCy=3)
-#' plot_pca(counts = kimma::example.count, meta = kimma::example.voom$targets,
-#'          vars=c("virus","outlier"), transform_logCPM = TRUE)
+#' dat <- calculate_pca(dat = kimma::example.voom)
+#' plot_pca(dat = dat, vars=c("virus","outlier"))
+#' plot_pca(dat = dat, vars=c("virus","outlier"), PCx=1, PCy=3)
 
-plot_pca <- function(dat = NULL,
-                     counts = NULL, meta = NULL,
-                     vars, PCx=1, PCy=2,
-                     scale = FALSE, outlier_sd = 3,
-                     outlier_group = NULL, outlier_label = NULL,
-                     transform_logCPM = FALSE,
-                     libraryID = "libID"){
-  PCx.max <- PCx.mean <- PCx.min <- PCx.sd <- PCy.max <- PCy.mean <- PCy.min <- PCy.sd <- col.group <- NULL
+plot_pca2 <- function(dat, vars, PCx=1, PCy=2,
+                      scale = FALSE, outlier_sd = 3,
+                      outlier_group = NULL, outlier_label = NULL,
+                      libraryID = "libID"){
+
+  PC <- PCx.max <- PCx.mean <- PCx.min <- PCx.sd <- PCy.max <- PCy.mean <- PCy.min <- PCy.sd <- col.group <- pct.var <- NULL
 
   PCx_name <- paste0("PC", PCx)
   PCy_name <- paste0("PC", PCy)
 
-  #common errors
-  if(!is.null(dat) & !is.null(counts)){
-    stop("Only provide one of dat or counts.")
-  }
-  if(!is.null(counts) & is.null(meta)){
-    stop("meta must be provided when counts is used.")
+  # check for data format
+  if(!(class(dat) %in% c("DGEList","EList","list"))){
+    stop("Input should be DEGList, EList, or list. Maybe you need to run calculate_pca first?")
   }
 
   #Extract metadata table
-  if(any(class(dat) == "DGEList")){
-    meta.df <- dat$samples
-  } else if (any(class(dat) == "EList")){
+  if (any(class(dat) == "EList")){
     meta.df <- dat$targets
-  } else { meta.df <- meta }
+  } else {
+    meta.df <- dat$samples
+  }
 
-  #Extract counts table
-  if(any(class(dat) == "DGEList")){
-    count.df <- dat$counts
-  } else if (any(class(dat) == "EList")){
-    count.df <- dat$E
-  } else { count.df <- counts }
+  #Extract PCA data
+  if(scale){
+    if(is.null(dat$PCA.scaled)){
+      stop("Scaled PCA data not found. Try running calculate_pca on your data first with scale=TRUE")
+    }else{
+      pca.df <- dat$PCA.scaled
+    }
+  }else{
+    if(is.null(dat$PCA.unscaled)){
+      stop("Unscaled PCA data not found. Try running calculate_pca on your data first with scale=FALSE")
+    }else{
+      pca.df <- dat$PCA.unscaled
+    }
+  }
 
-  #Move rownames if in data frame
-  if(!is.numeric(as.matrix(count.df))){
-    count.mat <- as.matrix(count.df[,-1])
-    rownames(count.mat) <- unlist(count.df[,1], use.names = FALSE)
-  } else { count.mat <- as.matrix(count.df) }
+  importance.df <- pca.df %>%
+    dplyr::select(PC,pct.var) %>%
+    tidyr::pivot_wider(names_from = "PC",values_from = "pct.var")
 
-  #Convert to logCPM if selected
-  if(transform_logCPM){
-    count.mat.format <- edgeR::cpm(count.mat, log=TRUE)
-  } else { count.mat.format <- count.mat }
+  PC1.label <- paste("PC",PCx, " (", importance.df[PCx]*100, "%)", sep="")
+  PC2.label <- paste("PC", PCy, " (", importance.df[PCy]*100, "%)", sep="")
 
-  #Calculate
-  set.seed(8456)
-  PCA <- stats::prcomp(t(count.mat.format), scale.=scale, center=TRUE)
-
-  PC1.label <- paste("PC",PCx, " (", summary(PCA)$importance[2,PCx]*100, "%)", sep="")
-  PC2.label <- paste("PC", PCy, " (", summary(PCA)$importance[2,PCy]*100, "%)", sep="")
-
-  # Extract PC values
-  pca.dat <- as.data.frame(PCA$x) %>%
-    tibble::rownames_to_column(libraryID) %>%
+  # transpose pca dat for plotting and add metadata
+  pca.dat <- pca.df %>%
+    dplyr::select(-pct.var) %>%
+    tidyr::pivot_longer(-PC,names_to = libraryID,values_to = "val") %>%
+    tidyr::pivot_wider(names_from = PC,values_from = "val") %>%
     # Merge with metadata
     dplyr::left_join(meta.df)
 
   # plots
   plot.ls <- list()
   for(var in vars[vars != "outlier"]){
-    pca.plot <- ggplot2::ggplot(pca.dat, ggplot2::aes_string(paste0("PC", PCx),
-                                                             paste0("PC", PCy),
-                                                             color=var)) +
+    pca.plot <- ggplot2::ggplot(pca.dat,
+                                ggplot2::aes(x = .data[[PCx_name]],
+                                             y = .data[[PCy_name]],
+                                             color = .data[[var]])) +
       ggplot2::geom_point(size=3) +
       #Beautify
       ggplot2::theme_classic() +
@@ -150,7 +141,7 @@ plot_pca <- function(dat = NULL,
             .data[[PCy_name]] > dat.sd$PCy.max |
             .data[[PCy_name]] < dat.sd$PCy.min,
           "yes", "no"))
-      }
+    }
 
     plot2 <- ggplot2::ggplot(pca.dat.sd,
                              ggplot2::aes(x = .data[[PCx_name]],
@@ -171,7 +162,6 @@ plot_pca <- function(dat = NULL,
                                  ggplot2::aes(label = .data[[outlier_label]]),
                                  show.legend = FALSE, max.overlaps = Inf)
     }
-
     plot.ls[["outlier"]] <- plot2
   }
 

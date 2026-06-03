@@ -57,16 +57,27 @@ venn.result[["venn"]][["0.05"]]
 venn.result[["gene"]]
 
 # Multiple models, subset of variables
-model1 <- list("lme" = example.model$lme)
-model2 <- list("lmerel" = example.model$lmerel)
-plot_venn_genes(list("lme"=model1, "lmerel"=model2),
+plot_venn_genes(model_result = list("example.model" = example.model),
+    models = c("lme","lmerel"),
+    variables = c("virus","virus:asthma"),
+    fdr_cutoff = c(0.05))
+
+plot_venn_genes(model_result = list("model1" = example.model[c(1,3,5)],
+                                     "model2" = example.model[c(2,4,6)]),
+    models = c("lme","lmerel"),
     variables = c("virus","virus:asthma"),
     fdr_cutoff = c(0.05))
 
 # Contrasts
-model1 <- list("lme" = example.model$lme.contrast)
-model2 <- list("lmerel" = example.model$lmerel.contrast)
-plot_venn_genes(model_result = list("lme"=model1, "lmerel"=model2),
-    contrasts = c("HRV asthma - none asthma"),
-    fdr_cutoff = c(0.4))
+plot_venn_genes(model_result = list("example.model" = example.model),
+    models = "lme.contrast",
+    contrasts = c("HRV asthma - none asthma",
+                  "HRV healthy - none healthy"),
+    fdr_cutoff = c(0.5))
+plot_venn_genes(model_result = list("model1" = example.model[c(1,3,5)],
+                                     "model2" = example.model[c(2,4,6)]),
+    models = c("lme.contrast","lmerel.contrast"),
+    contrasts = c("HRV asthma - none asthma",
+                  "HRV healthy - none healthy"),
+    fdr_cutoff = c(0.5))
 }
