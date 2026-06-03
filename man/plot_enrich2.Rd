@@ -62,7 +62,7 @@ library(dplyr)
 #Run enrichment
 gene_list <- list(HRV1 = names(example.gene.list[[1]]),
                   HRV2 = names(example.gene.list[[2]]))
-enrich <- flexEnrich(gene_list, ID="ENSEMBL", category="H")
+enrich <- flexEnrich(gene_list, ID="ENSEMBL", collection="H")
 
 #Plot
 plot_enrich2(enrich, fdr_cutoff = 0.5)

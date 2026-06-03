@@ -43,7 +43,7 @@ genes.FC <- example.model$lmerel \%>\%
             filter(variable \%in\% c("virus", "asthma")) \%>\%
             select(variable, gene, estimate)
 #Run GSEA
-example_gsea <- SEARchways::BIGsea(gene_df = genes.FC, category = "H", ID = "ENSEMBL")
+example_gsea <- SEARchways::BIGsea(gene_df = genes.FC, collection = "H", ID = "ENSEMBL")
 
 #Plot
 plot_gsea(example_gsea, fdr_cutoff = 0.5,
